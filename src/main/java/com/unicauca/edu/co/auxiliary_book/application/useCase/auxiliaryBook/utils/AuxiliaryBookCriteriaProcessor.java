@@ -2,11 +2,10 @@ package com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.uti
 
 import com.unicauca.edu.co.auxiliary_book.application.dto.InventoryAndBalancesBookDTO;
 import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoQueryPort;
-import com.unicauca.edu.co.auxiliary_book.domain.models.external.AccountingInfo;
+import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.CriteriaRange;
-import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,8 +22,6 @@ public class AuxiliaryBookCriteriaProcessor {
     public List<?> process(IAccountingInfoQueryPort queryPort, AuxiliaryBook book) {
         AuxiliaryBookCriteria criteria = book.getCriteria();
 
-        criteria.validate();
-
         List<AccountingInfo> allAccountData = queryPort.getAllAccountInfo();
         List<AccountingInfo> filteredAccountData = this.filterAccountingInfoByCriteria(criteria,allAccountData);
 
@@ -40,31 +37,27 @@ public class AuxiliaryBookCriteriaProcessor {
     }
 
     private boolean matchesCriteria(AccountingInfo info, AuxiliaryBookCriteria criteria) {
-        String accCode = info.getAccountCode();
+        String accCode = info.getAccount().getCode().toString();
+        var range = criteria.getCriteriaRange();
 
         switch (criteria.getCriteriaType()) {
             case NUMBER_CLASS -> {
-                var range = criteria.getNumberClassRange();
-                int classDigit = Integer.parseInt(accCode.substring(0, 1));
+                long classDigit = Integer.parseInt(accCode.substring(0, 1));
                 return isInRange(classDigit, range);
             }
             case GROUP -> {
-                var range = criteria.getGroupRange();
-                int groupDigits = Integer.parseInt(accCode.substring(0, 2));
+                long groupDigits = Integer.parseInt(accCode.substring(0, 2));
                 return isInRange(groupDigits, range);
             }
             case ACCOUNT -> {
-                var range = criteria.getAccountRange();
                 long accDigits = Integer.parseInt(accCode.substring(0, 4));
                 return isInRange(accDigits, range);
             }
             case SUB_ACCOUNT -> {
-                var range = criteria.getSubAccountRange();
                 long subAcc = Integer.parseInt(accCode.substring(0, 6));
                 return isInRange(subAcc, range);
             }
             case AUXILIARY_ACCOUNT -> {
-                var range = criteria.getAuxiliaryAccountRange();
                 long aux = Integer.parseInt(accCode.length() >= 8 ? accCode.substring(0, 8) : accCode);
                 return isInRange(aux, range);
             }
@@ -73,25 +66,73 @@ public class AuxiliaryBookCriteriaProcessor {
     }
 
     private List<AccountingInfo> filterAccountingInfoByCriteria(AuxiliaryBookCriteria criteria, List<AccountingInfo> all) {
-        
-        return all.parallelStream()
-                .filter(info -> matchesCriteria(info, criteria))
-                .toList();
+        if(criteria.hasRange()){
+            return all.parallelStream()
+                    .filter(info -> matchesCriteria(info, criteria))
+                    .toList();
+        }
+        return all;
     }
 
-    private List<InventoryAndBalancesBookDTO> processInventoryAndBalances(AuxiliaryBookCriteria criteria, List<AccountingInfo> filteredAccountData) {
+    private List<InventoryAndBalancesBookDTO> processInventoryAndBalances(AuxiliaryBookCriteria criteria, List<AccountingInfo> data) {
+        if (!criteria.hasRange()) {
+
+            return accountingInfoProcessor.calculateBalancesByCriteriaGroup(
+                    data,
+                    criteria,
+                    (groupKey, groupItems) -> {
+                        AccountingInfo firstItem = groupItems.get(0);
+
+                        double totalBalance = groupItems.stream()
+                                .mapToDouble(item -> {
+                                    String nature = item.getAccount().getNature();
+                                    double debit = item.getAccountingMovement().getDebit();
+                                    double credit = item.getAccountingMovement().getCredit();
+
+                                    if ("Debito".equalsIgnoreCase(nature)) {
+                                        return debit;
+                                    } else if ("Credito".equalsIgnoreCase(nature)) {
+                                        return -credit;
+                                    }
+                                    return 0;
+                                })
+                                .sum();
+
+                        return new InventoryAndBalancesBookDTO(
+                                groupKey,
+                                firstItem.getAccount().getName(),
+                                firstItem.getAccountingMovement().getDescription(),
+                                totalBalance
+                        );
+                    }
+            );
+        }
+
         return this.accountingInfoProcessor.calculateBalancesByCriteriaGroup(
-          filteredAccountData,
-          criteria,
+                data,
+                criteria,
                 (groupKey, groupItems) -> {
                     AccountingInfo firstItem = groupItems.get(0);
+
                     double totalBalance = groupItems.stream()
-                            .mapToDouble(AccountingInfo::getBalance)
+                            .mapToDouble(item -> {
+                                String nature = item.getAccount().getNature();
+                                double debit = item.getAccountingMovement().getDebit();
+                                double credit = item.getAccountingMovement().getCredit();
+
+                                if ("Debito".equalsIgnoreCase(nature)) {
+                                    return debit;
+                                } else if ("Credito".equalsIgnoreCase(nature)) {
+                                    return -credit;
+                                }
+                                return 0;
+                            })
                             .sum();
+
                     return new InventoryAndBalancesBookDTO(
                             groupKey,
-                            firstItem.getAccountName(),
-                            firstItem.getDescription(),
+                            firstItem.getAccount().getName(),
+                            firstItem.getAccountingMovement().getDescription(),
                             totalBalance
                     );
                 }
@@ -140,9 +181,9 @@ public class AuxiliaryBookCriteriaProcessor {
         return null;
     }
 
-    private <T extends Comparable<T>> boolean isInRange(T value, CriteriaRange<T> range) {
-        return (range.getFrom() == null || value.compareTo(range.getFrom()) >= 0)
-                && (range.getTo() == null || value.compareTo(range.getTo()) <= 0);
+    private boolean isInRange(Long value, CriteriaRange range) {
+        return (range.getFromRange() == null || value.compareTo(range.getFromRange()) >= 0)
+                && (range.getToRange() == null || value.compareTo(range.getToRange()) <= 0);
     }
 
 }

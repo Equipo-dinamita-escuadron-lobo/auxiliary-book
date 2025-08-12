@@ -14,8 +14,10 @@ import lombok.NoArgsConstructor;
 public class AuxiliaryBookLogEntity {
     //Table Columns
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @SequenceGenerator(name = "aux_book_log_seq", sequenceName = "auxiliary_book_log_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "aux_book_log_seq")
     private Long id;
+
 
     @Column(nullable = false)
     private String logTypeEvent;

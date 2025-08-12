@@ -31,6 +31,9 @@ public class AuxiliaryBookCommandController {
     @PostMapping("/register")
     public ResponseDTO<List<?>> registerAuxiliaryBook(@RequestBody GenerateAuxiliaryBookRequest request) {
         AuxiliaryBook response = this.auxiliaryBookCommandPort.registerAuxiliaryBook(this.auxiliaryBookRestMapper.toDomain(request));
+
+        System.out.println("\nImprimiendo objeto response: "+response.toString());
+
         List<?> result = this.auxiliaryBookCommandPort.genereteAuxiliaryBookInfo(response);
         return ResponseDTO.<List<?>>builder()
                 .data(result)

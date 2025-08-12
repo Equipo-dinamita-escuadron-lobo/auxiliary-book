@@ -9,6 +9,7 @@ public class FormatterResultOutputPort implements IFormatterResultOutputPort {
 
     @Override
     public void returnResponseError(int status, String message) {
+        System.out.println(status + " - " + message);
         throw new BusinessRuleException(status, message);
     }
 
