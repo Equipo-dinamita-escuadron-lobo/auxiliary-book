@@ -2,7 +2,8 @@ package com.unicauca.edu.co.auxiliary_book.infrastructure.out.services.thirdPart
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.unicauca.edu.co.auxiliary_book.application.ports.out.IThirdPartyInfoQueryPort;
-import com.unicauca.edu.co.auxiliary_book.domain.models.external.ThirdParty;
+import com.unicauca.edu.co.auxiliary_book.domain.models.external.thirdParty.ThirdParty;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,9 +13,10 @@ public class ThirdPartyService implements IThirdPartyInfoQueryPort {
 
     private final WebClient webClient;
 
-
-
-    public ThirdPartyService(WebClient.Builder webClientBuilder, @Value("${third-party-api.url}") String url) {
+    public ThirdPartyService(
+            @Qualifier("loadBalancedWebClientBuilder") WebClient.Builder webClientBuilder,
+            @Value("${third-party-api.url}") String url
+    ) {
         this.webClient = webClientBuilder.baseUrl(url).build();
     }
 

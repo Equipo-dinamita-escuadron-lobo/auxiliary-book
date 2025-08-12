@@ -1,15 +1,11 @@
 package com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils;
 
-import com.unicauca.edu.co.auxiliary_book.application.dto.InventoryAndBalancesBookDTO;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
-import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.CriteriaRange;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.ECriteriaType;
-import com.unicauca.edu.co.auxiliary_book.domain.models.external.AccountingInfo;
-import lombok.NoArgsConstructor;
+import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -23,7 +19,7 @@ public class AccountingInfoProcessor {
     ) {
         return filteredList.stream()
                 .collect(Collectors.groupingBy(
-                        info -> extractGroupingKey(info.getAccountCode(), criteria.getCriteriaType())
+                        info -> extractGroupingKey(info.getAccount().getCode().toString(), criteria.getCriteriaType())
                 ))
                 .entrySet()
                 .stream()

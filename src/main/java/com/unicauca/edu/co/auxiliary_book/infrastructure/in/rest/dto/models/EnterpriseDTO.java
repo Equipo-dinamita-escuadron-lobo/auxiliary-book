@@ -6,10 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor @NoArgsConstructor
-public class Voucher {
-    private Long entId;
-    private Integer sucId;
-    private String code;
-    private String name;
-    private Integer number;
+public class EnterpriseDTO {
+    private String id;
+    private String createdAt;
 }

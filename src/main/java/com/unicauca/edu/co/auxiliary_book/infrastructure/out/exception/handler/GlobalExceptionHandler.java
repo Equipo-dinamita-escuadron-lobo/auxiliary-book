@@ -35,6 +35,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
+        ex.printStackTrace();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
@@ -47,11 +48,12 @@ public class GlobalExceptionHandler {
      * Handles exceptions.
      * Logs the error message and returns a response for this specific exception.
      *
-     * @param e The HttpRequestMethodNotSupportedException instance.
+     * @param ex The HttpRequestMethodNotSupportedException instance.
      * @return Response entity containing error details.
      */
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ErrorResponseDTO<Object>> handleNoResourceFoundException(NoResourceFoundException e) {
+    public ResponseEntity<ErrorResponseDTO<Object>> handleNoResourceFoundException(NoResourceFoundException ex) {
+        ex.printStackTrace();
         return ErrorResponseDTO.builder()
                 .errorCode(HttpStatus.NOT_FOUND.value())
                 .message("Resource not found")
@@ -63,14 +65,15 @@ public class GlobalExceptionHandler {
      * Handles exceptions.
      * Logs the error message and returns a response for this specific exception.
      *
-     * @param e The BusinessRuleException instance.
+     * @param ex The BusinessRuleException instance.
      * @return Response entity containing error details.
      */
     @ExceptionHandler(BusinessRuleException.class)
-    public ResponseEntity<ErrorResponseDTO<Object>> handleBusinessRuleException(BusinessRuleException e) {
+    public ResponseEntity<ErrorResponseDTO<Object>> handleBusinessRuleException(BusinessRuleException ex) {
+        ex.printStackTrace();
         return ErrorResponseDTO.builder()
-                .errorCode(e.getStatus())
-                .message(e.getMessage())
+                .errorCode(ex.getStatus())
+                .message(ex.getMessage())
                 .build()
                 .of();
     }
@@ -87,6 +90,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponseDTO<Object>> handleMissingServletRequestParameterException(MissingServletRequestParameterException ex) {
+        ex.printStackTrace();
         return ErrorResponseDTO.builder()
                 .errorCode(HttpStatus.BAD_REQUEST.value())
                 .message("Missing parameter")
@@ -106,6 +110,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ErrorResponseDTO<Object>> handleRuntimeException(RuntimeException ex) {
+        ex.printStackTrace();
         return ErrorResponseDTO.builder()
                 .errorCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .message("Internal server error")
@@ -126,6 +131,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponseDTO<Object>> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        ex.printStackTrace();
         return ErrorResponseDTO.builder()
                 .errorCode(HttpStatus.BAD_REQUEST.value())
                 .message("Method argument type mismatch")
@@ -143,6 +149,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ErrorResponseDTO<Object>> handleEntityNotFoundException(EntityNotFoundException ex) {
+        ex.printStackTrace();
         return ErrorResponseDTO.builder()
                 .errorCode(HttpStatus.NOT_FOUND.value())
                 .message(ex.getMessage())

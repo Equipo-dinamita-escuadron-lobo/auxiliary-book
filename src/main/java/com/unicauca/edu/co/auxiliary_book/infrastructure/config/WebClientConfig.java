@@ -17,6 +17,12 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 @Configuration
 public class WebClientConfig {
 
+    @Bean
+    public WebClient.Builder externalWebClientBuilder() {
+        return WebClient.builder()
+                .filter(jwtPropagationFilter());
+    }
+
     /**
      * Crea un bean de WebClient.Builder que ya está preparado para el balanceo de carga.
      * La anotación @LoadBalanced es crucial para que Spring Cloud pueda resolver

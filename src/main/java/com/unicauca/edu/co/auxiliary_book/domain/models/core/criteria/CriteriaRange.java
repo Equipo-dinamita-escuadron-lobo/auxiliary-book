@@ -1,19 +1,19 @@
 package com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria;
 
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
-public class CriteriaRange <T extends Comparable<T>> {
-    private T from;
-    private T to;
+@Data
+public class CriteriaRange{
+    private Long fromRange;
+    private Long toRange;
 
-    public CriteriaRange(T from, T to) {
-        this.from = from;
-        this.to = to;
+    public CriteriaRange(Long from, Long to) {
+        this.fromRange = from;
+        this.toRange = to;
     }
 
     public boolean isSingleValue() {
-        return from != null && from.equals(to);
+        return fromRange != null && fromRange.equals(toRange);
     }
 
 }

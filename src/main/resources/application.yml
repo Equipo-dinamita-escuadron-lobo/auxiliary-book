@@ -1,6 +1,6 @@
 spring:
   application:
-    name: auxiliary_book
+    name: auxiliary-book
 
   profiles:
     active:
