@@ -19,8 +19,8 @@ public class AuxiliaryBookCriteria {
 
     private CriteriaRange criteriaRange;
 
-    private Long costCenterId;
-    private Long thirdPartyId;
+    private String costCenterId;
+    private String thirdPartyId;
 
     private LocalDate startDate;
     private LocalDate endDate;

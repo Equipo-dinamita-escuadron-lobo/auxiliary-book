@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface IAuxiliaryBookCommandEntityMapper {
 
-    @Mapping(source = "enterprise.id", target = "entId")
+    @Mapping(source = "entId", target = "entId")
     @Mapping(source = "criteria.criteriaRange.fromRange", target = "criteria.fromRange")
     @Mapping(source = "criteria.criteriaRange.toRange", target = "criteria.toRange")
     @Mapping(source = "criteria.costCenterId", target = "criteria.costCenterId")
@@ -20,7 +20,7 @@ public interface IAuxiliaryBookCommandEntityMapper {
     @Mapping(target = "createdAt", ignore = true)
     AuxiliaryBookEntity toEntity(AuxiliaryBook auxiliaryBook);
 
-    @Mapping(source = "entId", target = "enterprise.id")
+    @Mapping(source = "entId", target = "entId")
     @Mapping(source = "criteria.fromRange", target = "criteria.criteriaRange.from")
     @Mapping(source = "criteria.toRange", target = "criteria.criteriaRange.to")
     @Mapping(source = "criteria.costCenterId", target = "criteria.costCenterId")

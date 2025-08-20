@@ -18,7 +18,7 @@ public class AccountingInfo {
 
     private Voucher voucher;
     private Account account;
-    private Long thirdPartyId;
+    private String thirdPartyId;
     private AccountingMovement accountingMovement;
     private CostCenter costCenter;
 }

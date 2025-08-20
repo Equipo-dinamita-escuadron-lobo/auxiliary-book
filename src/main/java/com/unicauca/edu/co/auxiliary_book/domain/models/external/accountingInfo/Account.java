@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor @NoArgsConstructor
 public class Account {
-    private Integer code;
+    private Long code;
     private String nature;
     private String name;
 }

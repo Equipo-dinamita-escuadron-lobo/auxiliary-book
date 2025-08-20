@@ -3,6 +3,7 @@ package com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook;
 import com.unicauca.edu.co.auxiliary_book.application.ports.in.auxiliaryBook.IAuxiliaryBookCommandPort;
 import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoQueryPort;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.AuxiliaryBookCriteriaProcessor;
+import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.AuxiliaryBookProcessor;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
 import com.unicauca.edu.co.auxiliary_book.domain.models.log.AuxiliaryBookLog;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBook.IAuxiliaryBookCommandRepositoryPort;
@@ -53,7 +54,7 @@ public class AuxiliaryBookCommandUC implements IAuxiliaryBookCommandPort {
 
     @Override
     public List<?> genereteAuxiliaryBookInfo(AuxiliaryBook auxiliaryBook) {
-        AuxiliaryBookCriteriaProcessor objCriteriaProcessor = new AuxiliaryBookCriteriaProcessor();
-        return objCriteriaProcessor.process(this.accountingInfoQueryPort, auxiliaryBook);
+        AuxiliaryBookProcessor objCriteriaProcessor = new AuxiliaryBookProcessor();
+        return objCriteriaProcessor.proccessAuxiliaryBookData(this.accountingInfoQueryPort, auxiliaryBook);
     }
 }

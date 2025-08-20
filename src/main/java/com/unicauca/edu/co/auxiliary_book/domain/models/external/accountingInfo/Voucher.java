@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor @NoArgsConstructor
 public class Voucher {
-    private Integer number;
+    private Long number;
     private String type;
 }

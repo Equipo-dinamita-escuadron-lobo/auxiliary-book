@@ -2,7 +2,6 @@ package com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.request;
 
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAuxiliaryBookType;
-import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.models.EnterpriseDTO;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -14,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GenerateAuxiliaryBookRequest {
     @NotEmpty(message = "Auxiliary Enterprise ID cannot be Empty")
-    private EnterpriseDTO enterprise;
+    private String entId;
 
     @NotNull(message = "User ID cannot be null")
     private Long userId;
