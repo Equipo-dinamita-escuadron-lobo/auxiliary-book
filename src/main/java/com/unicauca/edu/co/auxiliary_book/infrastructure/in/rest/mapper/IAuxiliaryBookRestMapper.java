@@ -12,5 +12,7 @@ public interface IAuxiliaryBookRestMapper {
     @Mapping(target = "format", ignore = true)
     @Mapping(target = "template", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(source = "entId", target = "entId")
+    @Mapping(source = "criteria", target = "criteria")
     AuxiliaryBook toDomain(GenerateAuxiliaryBookRequest generateAuxiliaryBookRequest);
 }

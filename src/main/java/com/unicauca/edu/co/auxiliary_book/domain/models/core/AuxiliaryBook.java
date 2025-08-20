@@ -24,7 +24,6 @@ public class AuxiliaryBook {
     private AuxiliaryBookCriteria criteria;
     private LocalDateTime createdAt;
 
-
     public void changeFormat(EAuxiliaryBookFormat format) {
         this.format = format;
     }

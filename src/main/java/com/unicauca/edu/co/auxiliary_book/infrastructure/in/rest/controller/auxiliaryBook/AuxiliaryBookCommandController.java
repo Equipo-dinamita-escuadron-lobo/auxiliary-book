@@ -31,7 +31,17 @@ public class AuxiliaryBookCommandController {
     @PostMapping("/register")
     public ResponseDTO<List<?>> registerAuxiliaryBook(@RequestBody GenerateAuxiliaryBookRequest request) {
         AuxiliaryBook response = this.auxiliaryBookCommandPort.registerAuxiliaryBook(this.auxiliaryBookRestMapper.toDomain(request));
+
         List<?> result = this.auxiliaryBookCommandPort.genereteAuxiliaryBookInfo(response);
+
+        if(result.isEmpty()){
+            return ResponseDTO.<List<?>>builder()
+                    .data(result)
+                    .statusCode(204)
+                    .message("No content found for Auxiliary Book of type "+request.getType().name())
+                    .build();
+        }
+
         return ResponseDTO.<List<?>>builder()
                 .data(result)
                 .statusCode(200)

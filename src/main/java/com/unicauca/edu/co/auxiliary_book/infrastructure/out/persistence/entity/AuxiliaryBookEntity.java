@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -31,10 +32,11 @@ public class AuxiliaryBookEntity {
     private Long userId;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column
     private EAuxiliaryBookFormat format;
 
-    @Column(nullable = false)
+    @Column
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     //Relationships

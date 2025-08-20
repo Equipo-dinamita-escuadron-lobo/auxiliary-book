@@ -4,4 +4,5 @@ import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.entity.
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface IAuxiliaryBookRepository extends JpaRepository<AuxiliaryBookEntity, Long> {
+
 }

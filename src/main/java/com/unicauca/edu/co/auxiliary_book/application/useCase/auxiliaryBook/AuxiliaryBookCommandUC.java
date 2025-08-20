@@ -3,20 +3,18 @@ package com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook;
 import com.unicauca.edu.co.auxiliary_book.application.ports.in.auxiliaryBook.IAuxiliaryBookCommandPort;
 import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoQueryPort;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.AuxiliaryBookCriteriaProcessor;
-import com.unicauca.edu.co.auxiliary_book.domain.models.external.AccountingInfo;
+import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.AuxiliaryBookProcessor;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
-import com.unicauca.edu.co.auxiliary_book.domain.models.history.AuxiliaryBookHistory;
 import com.unicauca.edu.co.auxiliary_book.domain.models.log.AuxiliaryBookLog;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBook.IAuxiliaryBookCommandRepositoryPort;
-import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookHistory.IAuxiliaryBookHistoryCommandRepositoryPort;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookLog.IAuxiliaryBookLogCommandRepositoryPort;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.IFormatterResultOutputPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class AuxiliaryBookCommandUC implements IAuxiliaryBookCommandPort {
 
@@ -48,17 +46,15 @@ public class AuxiliaryBookCommandUC implements IAuxiliaryBookCommandPort {
 
         } catch (Exception ex) {
             this.abLogCommandRepositoryPort.registerAuxiliaryBookLog(AuxiliaryBookLog.builder().book(auxiliaryBook).logTypeEvent("ERROR REGISTERING AUX_BOOK").build());
-            formatterResultOutputPort.returnResponseError(500, "An unexpected error occurred while registering the Auxiliary Book.");
+            formatterResultOutputPort.returnResponseError(500, "An unexpected error occurred while registering the Auxiliary Book." +
+                    "\nError: " + ex.getMessage());
             return null;
         }
     }
 
     @Override
     public List<?> genereteAuxiliaryBookInfo(AuxiliaryBook auxiliaryBook) {
-        AuxiliaryBookCriteriaProcessor objCriteriaProcessor = new AuxiliaryBookCriteriaProcessor();
-
-        return objCriteriaProcessor.process(this.accountingInfoQueryPort, auxiliaryBook);
+        AuxiliaryBookProcessor objCriteriaProcessor = new AuxiliaryBookProcessor();
+        return objCriteriaProcessor.proccessAuxiliaryBookData(this.accountingInfoQueryPort, auxiliaryBook);
     }
-
-
 }

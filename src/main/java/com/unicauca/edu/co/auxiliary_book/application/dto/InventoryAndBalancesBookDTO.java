@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor @NoArgsConstructor
 public class InventoryAndBalancesBookDTO {
@@ -11,5 +13,5 @@ public class InventoryAndBalancesBookDTO {
     private String accountCode;
     private String accountDescription;
     private String description;
-    private Double value;
+    private BigDecimal value;
 }
