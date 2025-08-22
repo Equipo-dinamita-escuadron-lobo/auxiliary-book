@@ -1,7 +1,6 @@
 package com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils;
 
-import com.unicauca.edu.co.auxiliary_book.application.dto.InventoryAndBalancesBookDTO;
-import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoQueryPort;
+import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoClient;
 import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
@@ -15,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class AuxiliaryBookCriteriaProcessor {
 
-    public List<AccountingInfo> processAccountingInfo(IAccountingInfoQueryPort queryPort, AuxiliaryBook book) {
+    public List<AccountingInfo> processAccountingInfo(IAccountingInfoClient queryPort, AuxiliaryBook book) {
         AuxiliaryBookCriteria criteria = book.getCriteria();
         List<AccountingInfo> allAccountData = queryPort.getAllAccountInfo();
         return this.filterAccountingInfoByCriteria(book,criteria,allAccountData);

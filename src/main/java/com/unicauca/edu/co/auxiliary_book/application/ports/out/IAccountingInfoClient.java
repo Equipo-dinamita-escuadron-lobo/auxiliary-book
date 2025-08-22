@@ -4,6 +4,6 @@ import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.
 
 import java.util.List;
 
-public interface IAccountingInfoQueryPort {
+public interface IAccountingInfoClient {
     List<AccountingInfo> getAllAccountInfo();
 }

@@ -1,8 +1,7 @@
 package com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook;
 
 import com.unicauca.edu.co.auxiliary_book.application.ports.in.auxiliaryBook.IAuxiliaryBookCommandPort;
-import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoQueryPort;
-import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.AuxiliaryBookCriteriaProcessor;
+import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoClient;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.AuxiliaryBookProcessor;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
 import com.unicauca.edu.co.auxiliary_book.domain.models.log.AuxiliaryBookLog;
@@ -21,7 +20,7 @@ public class AuxiliaryBookCommandUC implements IAuxiliaryBookCommandPort {
     private final IAuxiliaryBookCommandRepositoryPort abCommandRepositoryPort;
     private final IAuxiliaryBookLogCommandRepositoryPort abLogCommandRepositoryPort;
 
-    private final IAccountingInfoQueryPort accountingInfoQueryPort;
+    private final IAccountingInfoClient accountingInfoQueryPort;
 
     private final IFormatterResultOutputPort formatterResultOutputPort;
 

@@ -1,6 +1,6 @@
-package com.unicauca.edu.co.auxiliary_book.infrastructure.out.services.accountingInfo;
+package com.unicauca.edu.co.auxiliary_book.infrastructure.out.clients.accountingInfo;
 
-import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoQueryPort;
+import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoClient;
 import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,14 +11,14 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.List;
 
 @Component
-public class AccountInfoService implements IAccountingInfoQueryPort {
+public class AccountInfoService implements IAccountingInfoClient {
 
     private final WebClient webClient;
 
     @Autowired
     public AccountInfoService(
             @Qualifier("externalWebClientBuilder") WebClient.Builder webClientBuilder,
-            @Value("${mock.account-info-url}") String url
+            @Value("${services.account-info-service.base-url}") String url
     ) {
         this.webClient = webClientBuilder.baseUrl(url).build();
     }
