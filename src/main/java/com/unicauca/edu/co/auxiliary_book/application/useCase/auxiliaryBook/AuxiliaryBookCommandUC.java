@@ -54,6 +54,6 @@ public class AuxiliaryBookCommandUC implements IAuxiliaryBookCommandPort {
     @Override
     public List<?> genereteAuxiliaryBookInfo(AuxiliaryBook auxiliaryBook) {
         AuxiliaryBookProcessor objCriteriaProcessor = new AuxiliaryBookProcessor();
-        return objCriteriaProcessor.proccessAuxiliaryBookData(this.accountingInfoQueryPort, auxiliaryBook);
+        return objCriteriaProcessor.processAuxiliaryBookData(this.accountingInfoQueryPort, auxiliaryBook);
     }
 }

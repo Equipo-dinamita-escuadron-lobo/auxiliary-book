@@ -17,7 +17,8 @@ public class AccountingInfoProcessor {
             AuxiliaryBookCriteria criteria,
             BiFunction<String, List<AccountingInfo>, T> mapper
     ) {
-        return filteredList.stream()
+
+        List<T> resultList = filteredList.stream()
                 .collect(Collectors.groupingBy(
                         info -> extractGroupingKey(info.getAccount().getCode().toString(), criteria.getCriteriaType())
                 ))
@@ -25,6 +26,13 @@ public class AccountingInfoProcessor {
                 .stream()
                 .map(entry -> mapper.apply(entry.getKey(), entry.getValue()))
                 .toList();
+
+        System.out.println("\n\n Imprimiendo lista filtrada por Nivel de Generacion:");
+        for(T item : resultList) {
+            System.out.println(item.toString());
+        }
+
+        return resultList;
     }
 
 

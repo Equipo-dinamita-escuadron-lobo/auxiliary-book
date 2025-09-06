@@ -22,6 +22,8 @@ public class AuxiliaryBookCriteria {
     private String costCenterId;
     private String thirdPartyId;
 
+    private String voucherType;
+
     private LocalDate startDate;
     private LocalDate endDate;
 

@@ -14,7 +14,7 @@ public class AuxiliaryBookTemplate {
     private Long id;
     private String name;
     private String PathLogotype;
-    private EAlignment alineation;
+    private EAlignment alienation;
     private String font;
     private String mainColor;
 }

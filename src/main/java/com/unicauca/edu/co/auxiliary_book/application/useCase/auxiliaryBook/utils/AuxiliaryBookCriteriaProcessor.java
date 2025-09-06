@@ -8,6 +8,7 @@ import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.CriteriaRa
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -68,9 +69,17 @@ public class AuxiliaryBookCriteriaProcessor {
             List<AccountingInfo> all
     ) {
         return all.parallelStream()
-                .filter(info -> info.getEntId().equals(book.getEntId()))
-                .filter(info -> isWithinDateRange(info, criteria))
-                .filter(info -> !criteria.hasRange() || matchesCriteria(info, criteria))
+                .filter(info -> info.getEntId().equals(book.getEntId())) //Filter all the accounting info of the enterprise
+                .filter(info -> isWithinDateRange(info, criteria)) // Filter by date range
+                .filter(info -> !criteria.hasRange() || matchesCriteria(info, criteria)) // Filter by criteria range if exists
+                .filter(info -> {
+                    if (criteria.getThirdPartyId() == null) return true;   // no hay filtro → pasa todo
+                    if (info.getThirdPartyId() == null) return false;      // sin tercero en data → descartar
+
+                    return info.getThirdPartyId().trim().equals(criteria.getThirdPartyId().trim());
+                }) // Filter by third party id if is necessary
+                .filter(info -> criteria.getCostCenterId() == null|| info.getCostCenter().getCode() == null || info.getCostCenter().getCode().equals(criteria.getCostCenterId())) // Filter by cost center code if is necessary
+                .filter(info -> criteria.getVoucherType() == null || info.getVoucher().getType().equals(criteria.getVoucherType())) // Filter by voucher type if is necessary
                 .toList();
     }
 }

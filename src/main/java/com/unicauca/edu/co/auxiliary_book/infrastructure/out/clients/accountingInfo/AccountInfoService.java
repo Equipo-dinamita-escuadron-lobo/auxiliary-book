@@ -25,6 +25,10 @@ public class AccountInfoService implements IAccountingInfoClient {
 
     @Override
     public List<AccountingInfo> getAllAccountInfo() {
-        return this.webClient.get().retrieve().bodyToFlux(AccountingInfo.class).collectList().block();
+        List<AccountingInfo> lst = this.webClient.get().retrieve().bodyToFlux(AccountingInfo.class).collectList().block();
+        lst.forEach(info -> {
+            System.out.println(info.toString());
+        });
+        return lst;
     }
 }

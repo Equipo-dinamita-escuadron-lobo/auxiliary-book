@@ -29,7 +29,10 @@ public class AuxiliaryBookCriteriaEntity {
     private Long toRange;
 
     @Column
-    private Long costCenterId;
+    private String thirdPartyId;
+
+    @Column
+    private String costCenterId;
 
     @Column
     private LocalDate startDate;
