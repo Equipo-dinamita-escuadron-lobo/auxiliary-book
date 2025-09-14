@@ -1,4 +1,4 @@
-package com.unicauca.edu.co.auxiliary_book.infrastructure.out.exception.handler;
+package com.unicauca.edu.co.auxiliary_book.infrastructure.out.exception.customized;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class BusinessRuleException extends BaseException {
 
-    public BusinessRuleException(int status, String message) {
+    public BusinessRuleException(Integer status, String message) {
         super(status, message);
     }
 }

@@ -4,7 +4,6 @@ import com.unicauca.edu.co.auxiliary_book.application.ports.in.auxiliaryBook.IAu
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
 import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.ResponseDTO;
 import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.request.GenerateAuxiliaryBookRequest;
-import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.mapper.IAuxiliaryBookResponseMapper;
 import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.mapper.IAuxiliaryBookRestMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +18,6 @@ public class AuxiliaryBookCommandController {
 
     private final IAuxiliaryBookCommandPort auxiliaryBookCommandPort;
     private final IAuxiliaryBookRestMapper auxiliaryBookRestMapper;
-    private final IAuxiliaryBookResponseMapper auxiliaryBookResponseMapper;
 
     @GetMapping("/test")
     public ResponseEntity<?> test() {
@@ -29,24 +27,23 @@ public class AuxiliaryBookCommandController {
     }
 
     @PostMapping("/register")
-    public ResponseDTO<List<?>> registerAuxiliaryBook(@RequestBody GenerateAuxiliaryBookRequest request) {
+    public ResponseEntity<ResponseDTO<List<?>>> registerAuxiliaryBook(@RequestBody GenerateAuxiliaryBookRequest request) {
         AuxiliaryBook response = this.auxiliaryBookCommandPort.registerAuxiliaryBook(this.auxiliaryBookRestMapper.toDomain(request));
-
         List<?> result = this.auxiliaryBookCommandPort.genereteAuxiliaryBookInfo(response);
+        ResponseDTO<List<?>> responseDTO = ResponseDTO.<List<?>>builder()
+                .data(result)
+                .statusCode(200)
+                .message("Auxiliary Book of type "+request.getType().name()+" registered successfully!")
+                .build();
 
         if(result.isEmpty()){
-            return ResponseDTO.<List<?>>builder()
+            responseDTO = ResponseDTO.<List<?>>builder()
                     .data(result)
                     .statusCode(204)
                     .message("No content found for Auxiliary Book of type "+request.getType().name())
                     .build();
         }
-
-        return ResponseDTO.<List<?>>builder()
-                .data(result)
-                .statusCode(200)
-                .message("Auxiliary Book of type "+request.getType().name()+" registered successfully!")
-                .build();
+        return responseDTO.of();
     }
 
 }

@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 public class ProcessContext {
 
-    private ProcessStrategy strategy;
+    private IProcessStrategy strategy;
 
     public List<?> executeStrategyProcess(AuxiliaryBookCriteria criteria, List<AccountingInfo> data, AccountingInfoProcessor accountingInfoProcessor){
         return strategy.process(criteria, data, accountingInfoProcessor);
