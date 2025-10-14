@@ -7,14 +7,47 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * @brief Data Transfer Object for Diary Book entries
+ *
+ * Represents the structure for transferring diary book output data
+ * between application layers.
+ */
 @Data
 @AllArgsConstructor @NoArgsConstructor
 public class DiaryBookDTO {
+    /**
+     * @brief Date of the diary book output
+     */
     private LocalDate date;
+
+    /**
+     * @brief Code of the account involved in the output
+     */
     private String accountCode;
+
+    /**
+     * @brief Description of the account
+     */
     private String accountDescription;
+
+    /**
+     * @brief Name of the voucher associated with the output
+     */
     private String voucherName;
+
+    /**
+     * @brief Number of the voucher associated with the output
+     */
     private String voucherNumber;
+
+    /**
+     * @brief Debit amount for the output
+     */
     private BigDecimal debit;
+
+    /**
+     * @brief Credit amount for the output
+     */
     private BigDecimal credit;
 }

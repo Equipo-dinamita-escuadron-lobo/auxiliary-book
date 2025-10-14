@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+/**
+ * @brief Domain model representing the Accounting Information of the system.
+ *
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

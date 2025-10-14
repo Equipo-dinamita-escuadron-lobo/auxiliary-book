@@ -27,7 +27,6 @@ public class AccountingInfoProcessor {
                 .map(entry -> mapper.apply(entry.getKey(), entry.getValue()))
                 .toList();
 
-        System.out.println("\n\n Imprimiendo lista filtrada por Nivel de Generacion:");
         for(T item : resultList) {
             System.out.println(item.toString());
         }

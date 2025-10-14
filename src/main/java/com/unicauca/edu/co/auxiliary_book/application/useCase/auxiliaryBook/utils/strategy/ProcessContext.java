@@ -3,10 +3,14 @@ package com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.uti
 import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.AccountingInfoProcessor;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
 import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
+@NoArgsConstructor
 @Setter
 public class ProcessContext {
 

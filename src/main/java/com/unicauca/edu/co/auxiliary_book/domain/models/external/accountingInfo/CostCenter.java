@@ -4,6 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @brief Domain model representing a Cost Center.
+ *
+ */
 @Data
 @AllArgsConstructor @NoArgsConstructor
 public class CostCenter {

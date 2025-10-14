@@ -1,12 +1,10 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.out.security;
 
 import org.springframework.stereotype.Component;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -17,6 +15,12 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+/**
+ * @brief Converter for JWT authentication tokens.
+ *
+ * Converts a {@link Jwt} into an {@link AbstractAuthenticationToken} for use in authentication,
+ * extracting authorities and user information from the JWT claims.
+ */
 @Component
 public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationToken>, IJwtUtils {
 
@@ -31,16 +35,12 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
     Jwt jwtToken;
 
     /**
-     * Convierte un JWT en un {@link AbstractAuthenticationToken} que se puede
-     * utilizar
-     * para autenticación.
-     *
-     * @param jwt el JWT a convertir
-     * @return el {@link AbstractAuthenticationToken} correspondiente
+     * @brief Converts a JWT into an {@link AbstractAuthenticationToken} for authentication.
+     * @param jwt The JWT to convert.
+     * @return The corresponding {@link AbstractAuthenticationToken}.
      */
     @Override
     public AbstractAuthenticationToken convert(Jwt jwt) {
-
         Collection<GrantedAuthority> authorities = Stream
                 .concat(jwtGrantedAuthoritiesConverter.convert(jwt).stream(), extractResourceRoles(jwt).stream())
                 .toList();
@@ -48,18 +48,15 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
         this.jwtToken = jwt;
 
         return new JwtAuthenticationToken(jwt, authorities, getPrincipleName(jwt));
-
     }
 
     /**
-     * Devuelve el nombre del usuario autenticado en el JWT.
+     * @brief Retrieves the principal name from the JWT.
      *
-     * Por defecto, se utiliza el claim "sub" del JWT, pero se puede
-     * configurar un claim diferente estableciendo la propiedad
-     * "jwt.auth.converter.principle-attribute".
+     * By default, uses the "sub" claim, but can be configured to use a different claim.
      *
-     * @param jwt el JWT del que se extrae el nombre del usuario
-     * @return el nombre del usuario autenticado
+     * @param jwt The JWT from which to extract the principal name.
+     * @return The authenticated user's principal name.
      */
     private String getPrincipleName(Jwt jwt) {
         String claimName = JwtClaimNames.SUB;
@@ -72,17 +69,13 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
     }
 
     /**
-     * Extrae roles del reclamo "resource_access" del JWT para el ID de recurso
-     * configurado.
-     * Convierte cada rol en un {@link SimpleGrantedAuthority} con el prefijo
-     * "ROLE_".
+     * @brief Extracts roles from the "resource_access" claim in the JWT for the configured resource ID.
      *
-     * Si el reclamo "resource_access" o el ID de recurso específico o sus roles no
-     * están presentes,
-     * devuelve una colección vacía.
+     * Converts each role into a {@link SimpleGrantedAuthority} with the "ROLE_" prefix.
+     * Returns an empty collection if the claim or roles are not present.
      *
-     * @param jwt el JWT desde el cual extraer los roles
-     * @return una colección de {@link GrantedAuthority} que representan los roles
+     * @param jwt The JWT from which to extract roles.
+     * @return A collection of {@link GrantedAuthority} representing the roles.
      */
     @SuppressWarnings("unchecked")
     private Collection<? extends GrantedAuthority> extractResourceRoles(Jwt jwt) {
@@ -114,10 +107,8 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
     }
 
     /**
-     * Devuelve el valor del claim "sub" del JWT, que se
-     * utiliza como identificador del usuario autenticado.
-     *
-     * @return el identificador del usuario autenticado
+     * @brief Retrieves the "sub" claim value from the JWT, used as the user identifier.
+     * @return The identifier of the authenticated user.
      */
     @Override
     public String getId() {

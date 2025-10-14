@@ -4,13 +4,18 @@ import com.unicauca.edu.co.auxiliary_book.domain.models.log.AuxiliaryBookLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+/**
+ * @brief Output port for Auxiliary Book Log read operations
+ *
+ * Defines the contract for querying auxiliary book log records
+ * from the underlying data storage system.
+ */
 public interface IAuxiliaryBookLogQueryRepositoryPort {
     /**
-     * Obtiene una página de registros de logs de libros auxiliares asociados a una entidad específica.
-     *
-     * @param entId el identificador de la entidad cuyos logs se desean consultar
-     * @param pageable objeto que contiene la información de paginación
-     * @return una página de objetos AuxiliaryBookLog correspondientes a la entidad dada
+     * @brief Retrieves a page of auxiliary book log records for a specific entity
+     * @param entId Identifier of the entity whose logs are to be queried
+     * @param pageable Pagination information
+     * @return Page of AuxiliaryBookLog records for the given entity
      */
     Page<AuxiliaryBookLog> findAllByEntId(String entId, Pageable pageable);
 }

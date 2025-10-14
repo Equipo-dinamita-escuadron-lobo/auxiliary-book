@@ -8,6 +8,10 @@ import lombok.NoArgsConstructor;
 
 import javax.management.ConstructorParameters;
 
+/**
+ * @brief Domain model representing an Auxiliary Book Log.
+ *
+ */
 @Builder
 @Data
 @AllArgsConstructor

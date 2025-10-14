@@ -5,22 +5,19 @@ import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.util
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
 import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class AuxiliaryBookProcessor {
+
     private final AccountingInfoProcessor accountingInfoProcessor;
     private final AuxiliaryBookCriteriaProcessor auxiliaryBookCriteriaProcessor;
-
     private final ProcessContext processContext;
 
-    public AuxiliaryBookProcessor(){
-        this.accountingInfoProcessor = new AccountingInfoProcessor();
-        this.auxiliaryBookCriteriaProcessor = new AuxiliaryBookCriteriaProcessor();
-        this.processContext = new ProcessContext();
-    }
 
     public List<?> processAuxiliaryBookData(IAccountingInfoClient accountingInfoQueryPort, AuxiliaryBook book){
         AuxiliaryBookCriteria criteria = book.getCriteria();
