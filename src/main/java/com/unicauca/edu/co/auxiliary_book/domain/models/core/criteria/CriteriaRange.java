@@ -2,6 +2,10 @@ package com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria;
 
 import lombok.Data;
 
+/**
+ * @brief Domain model representing the range for the level of detail in the Auxiliary Book.
+ *
+ */
 @Data
 public class CriteriaRange{
     private Long fromRange;

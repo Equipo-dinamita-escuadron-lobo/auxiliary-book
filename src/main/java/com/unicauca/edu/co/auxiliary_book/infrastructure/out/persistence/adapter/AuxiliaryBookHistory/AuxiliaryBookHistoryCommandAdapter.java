@@ -8,6 +8,12 @@ import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.reposit
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+/**
+ * @brief Adapter for Auxiliary Book History write operations.
+ *
+ * Implements the contract for persisting auxiliary book history records
+ * in the underlying data storage system.
+ */
 @Component
 @RequiredArgsConstructor
 public class AuxiliaryBookHistoryCommandAdapter implements IAuxiliaryBookHistoryCommandRepositoryPort {
@@ -15,6 +21,11 @@ public class AuxiliaryBookHistoryCommandAdapter implements IAuxiliaryBookHistory
     private final IAuxiliaryBookHistoryCommandEntityMapper auxiliaryBookHistoryCommandEntityMapper;
     private final IAuxiliaryBookHistoryRepository auxiliaryBookHistoryRepository;
 
+    /**
+     * @brief Persists an auxiliary book history record.
+     * @param auxiliaryBookHistory Auxiliary book history to save.
+     * @return Saved AuxiliaryBookHistory with generated identifiers.
+     */
     @Override
     public AuxiliaryBookHistory registerAuxiliaryBookHistory(AuxiliaryBookHistory auxiliaryBookHistory) {
         AuxiliaryBookHistoryEntity abHistoryEntity = this.auxiliaryBookHistoryCommandEntityMapper.toEntity(auxiliaryBookHistory);

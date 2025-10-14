@@ -6,6 +6,6 @@ import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.
 
 import java.util.List;
 
-public interface ProcessStrategy {
+public interface IProcessStrategy {
     public List<?> process(AuxiliaryBookCriteria criteria, List<AccountingInfo> data, AccountingInfoProcessor accountingInfoProcessor);
 }

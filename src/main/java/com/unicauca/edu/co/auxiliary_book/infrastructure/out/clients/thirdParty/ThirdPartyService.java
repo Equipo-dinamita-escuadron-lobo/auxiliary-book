@@ -8,6 +8,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+/**
+ * @brief Service for retrieving third party information from an external service.
+ *
+ * Implements the contract for obtaining third party records
+ * using a WebClient to communicate with the external third party service.
+ */
 @Component
 public class ThirdPartyService implements IThirdPartyInfoClient {
 
@@ -20,6 +26,11 @@ public class ThirdPartyService implements IThirdPartyInfoClient {
         this.webClient = webClientBuilder.baseUrl(url).build();
     }
 
+    /**
+     * @brief Retrieves a third party by its ID from the external service.
+     * @param thirdPartyId ID of the third party to retrieve.
+     * @return ThirdParty object if found, otherwise null.
+     */
     @Override
     public ThirdParty getThirdPartyById(Long thirdPartyId) {
         JsonNode thirdPartyResponse = this.webClient
@@ -34,6 +45,11 @@ public class ThirdPartyService implements IThirdPartyInfoClient {
         return (thirdPartyResponse!=null) ? this.convertJsonToThirdParty(thirdPartyResponse) : null;
     }
 
+    /**
+     * @brief Converts a JsonNode to a ThirdParty object.
+     * @param jsonNode The JsonNode containing third party data.
+     * @return ThirdParty object.
+     */
     private ThirdParty convertJsonToThirdParty(JsonNode jsonNode) {
 
         ThirdParty objThirdParty = new ThirdParty();

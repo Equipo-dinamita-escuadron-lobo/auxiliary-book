@@ -10,6 +10,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 
+/**
+ * @brief Service for retrieving accounting information from an external service.
+ *
+ * Implements the contract for obtaining accounting information records
+ * using a WebClient to communicate with the external accounting info service.
+ */
 @Component
 public class AccountInfoService implements IAccountingInfoClient {
 
@@ -23,6 +29,10 @@ public class AccountInfoService implements IAccountingInfoClient {
         this.webClient = webClientBuilder.baseUrl(url).build();
     }
 
+    /**
+     * @brief Retrieves all accounting information records from the external service.
+     * @return List of AccountingInfo objects.
+     */
     @Override
     public List<AccountingInfo> getAllAccountInfo() {
         List<AccountingInfo> lst = this.webClient.get().retrieve().bodyToFlux(AccountingInfo.class).collectList().block();

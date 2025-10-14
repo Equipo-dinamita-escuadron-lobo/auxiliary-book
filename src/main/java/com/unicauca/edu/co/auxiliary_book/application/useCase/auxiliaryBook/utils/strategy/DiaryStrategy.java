@@ -11,7 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 
 @NoArgsConstructor
-public class DiaryStrategy implements ProcessStrategy{
+public class DiaryStrategy implements IProcessStrategy {
     @Override
     public List<?> process(AuxiliaryBookCriteria criteria, List<AccountingInfo> data, AccountingInfoProcessor accountingInfoProcessor) {
         return accountingInfoProcessor.calculateBalancesByCriteriaGroup(
