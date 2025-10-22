@@ -17,5 +17,5 @@ public interface IAuxiliaryBookHistoryQueryPort {
      * @param pageable Pagination information
      * @return Page of AuxiliaryBookHistory records for the given entity
      */
-    Page<AuxiliaryBookHistory> findAllByEntId(String entId, Pageable pageable);
+    Page<AuxiliaryBookHistory> findPageByEntId(String entId, Pageable pageable);
 }

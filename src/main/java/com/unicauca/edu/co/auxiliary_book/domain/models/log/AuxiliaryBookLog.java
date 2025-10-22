@@ -1,12 +1,11 @@
 package com.unicauca.edu.co.auxiliary_book.domain.models.log;
 
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.management.ConstructorParameters;
 
 /**
  * @brief Domain model representing an Auxiliary Book Log.

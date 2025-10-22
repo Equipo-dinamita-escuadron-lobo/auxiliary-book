@@ -1,9 +1,11 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.adapter.AuxiliaryBookHistory;
 
-import com.unicauca.edu.co.auxiliary_book.domain.models.history.AuxiliaryBookHistory;
-import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookHistory.IAuxiliaryBookHistoryQueryRepositoryPort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import com.unicauca.edu.co.auxiliary_book.domain.models.history.AuxiliaryBookHistory;
+import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookHistory.IAuxiliaryBookHistoryQueryRepositoryPort;
+import org.springframework.stereotype.Component;
 
 /**
  * @brief Adapter for Auxiliary Book History read operations.
@@ -11,7 +13,9 @@ import org.springframework.data.domain.Pageable;
  * Implements the contract for querying auxiliary book history records
  * from the underlying data storage system.
  */
+@Component
 public class AuxiliaryBookQueryAdapter implements IAuxiliaryBookHistoryQueryRepositoryPort {
+
     /**
      * @brief Retrieves a page of auxiliary book history records for a specific entity.
      * @param entId Identifier of the entity whose histories are to be queried.
@@ -19,7 +23,7 @@ public class AuxiliaryBookQueryAdapter implements IAuxiliaryBookHistoryQueryRepo
      * @return Page of AuxiliaryBookHistory records for the given entity.
      */
     @Override
-    public Page<AuxiliaryBookHistory> findAllByEntId(String entId, Pageable pageable) {
-        return null;
-    }
+    public Page<AuxiliaryBookHistory> findPageByEntId(String entId, Pageable pageable) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }    
 }

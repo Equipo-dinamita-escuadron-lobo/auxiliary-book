@@ -1,5 +1,9 @@
 package com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook;
 
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
 import com.unicauca.edu.co.auxiliary_book.application.ports.in.auxiliaryBook.IAuxiliaryBookCommandPort;
 import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoClient;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.AuxiliaryBookProcessor;
@@ -10,11 +14,9 @@ import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookLog.IAuxilia
 import com.unicauca.edu.co.auxiliary_book.domain.ports.IFormatterResultOutputPort;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.IMessageServicePort;
 import com.unicauca.edu.co.auxiliary_book.infrastructure.config.i18n.MessageKeys;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -33,6 +35,13 @@ public class AuxiliaryBookCommandUC implements IAuxiliaryBookCommandPort {
 
     @Override
     public AuxiliaryBook registerAuxiliaryBook(AuxiliaryBook auxiliaryBook) {
+
+        if(auxiliaryBook == null){
+            this.formatterResultOutputPort.returnErrorGenericResponse(400, this.messageServicePort.getMessage(
+                    MessageKeys.ERROR_NULL_VALUE,
+                    "AuxiliaryBook"
+            ));
+        }
 
         AuxiliaryBook abRegistered = abCommandRepositoryPort.registerAuxiliaryBook(auxiliaryBook);
         abLogCommandRepositoryPort.registerAuxiliaryBookLog(AuxiliaryBookLog.builder()
