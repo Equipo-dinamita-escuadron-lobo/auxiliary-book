@@ -11,7 +11,8 @@ public final class MessageKeys {
 
     // Generic Error Messages
     public static final String ERROR_GENERIC = "auxiliary_book.error.generic";
-    public static final String ERROR_NOT_FOUND = "auxiliary_book.error.not.found";;
+    public static final String ERROR_NOT_FOUND = "auxiliary_book.error.not.found";
+    public static final String ERROR_NULL_VALUE = "auxiliary_book.error.null.value";
     public static final String ERROR_INVALID_VALUE = "auxiliary_book.error.invalid.value";
     public static final String ERROR_OPERATION_NOT_ALLOWED = "auxiliary_book.error.operation.not.allowed";
     public static final String ERROR_INVALID_TYPE = "auxiliary_book.error.invalid.type";

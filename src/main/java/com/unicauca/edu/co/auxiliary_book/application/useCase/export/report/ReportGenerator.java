@@ -1,16 +1,16 @@
 package com.unicauca.edu.co.auxiliary_book.application.useCase.export.report;
 
+import org.springframework.stereotype.Service;
+
 import com.unicauca.edu.co.auxiliary_book.application.useCase.export.report.builders.ReportColumnsBuilder;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.export.report.builders.ReportDataBuilder;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.export.report.builders.ReportStyleBuilder;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.export.AuxiliaryBookTemplate;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.export.ExportInfo;
+
 import lombok.RequiredArgsConstructor;
 import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
 import net.sf.dynamicreports.report.builder.DynamicReports;
-import org.springframework.stereotype.Service;
-
-import java.awt.*;
 
 @Service
 @RequiredArgsConstructor
