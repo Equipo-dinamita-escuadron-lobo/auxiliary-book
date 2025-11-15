@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @NoArgsConstructor
-public class AccountStrategy implements ProcessStrategy{
+public class AccountStrategy implements IProcessStrategy {
 
     @Override
     public List<?> process(AuxiliaryBookCriteria criteria, List<AccountingInfo> data, AccountingInfoProcessor accountingInfoProcessor) {

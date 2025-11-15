@@ -1,5 +1,9 @@
 package com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook;
 
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
 import com.unicauca.edu.co.auxiliary_book.application.ports.in.auxiliaryBook.IAuxiliaryBookCommandPort;
 import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoClient;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.AuxiliaryBookProcessor;
@@ -8,13 +12,15 @@ import com.unicauca.edu.co.auxiliary_book.domain.models.log.AuxiliaryBookLog;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBook.IAuxiliaryBookCommandRepositoryPort;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookLog.IAuxiliaryBookLogCommandRepositoryPort;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.IFormatterResultOutputPort;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import com.unicauca.edu.co.auxiliary_book.domain.ports.IMessageServicePort;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.config.i18n.MessageKeys;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class AuxiliaryBookCommandUC implements IAuxiliaryBookCommandPort {
 
     private final IAuxiliaryBookCommandRepositoryPort abCommandRepositoryPort;
@@ -22,38 +28,31 @@ public class AuxiliaryBookCommandUC implements IAuxiliaryBookCommandPort {
 
     private final IAccountingInfoClient accountingInfoQueryPort;
 
+    private final AuxiliaryBookProcessor auxiliaryBookProcessor;
+
     private final IFormatterResultOutputPort formatterResultOutputPort;
+    private final IMessageServicePort messageServicePort;
 
     @Override
     public AuxiliaryBook registerAuxiliaryBook(AuxiliaryBook auxiliaryBook) {
-        if (auxiliaryBook == null) {
-            formatterResultOutputPort.returnResponseError(400, "The AuxiliaryBook cannot be null");
-            return null;
+
+        if(auxiliaryBook == null){
+            this.formatterResultOutputPort.returnErrorGenericResponse(400, this.messageServicePort.getMessage(
+                    MessageKeys.ERROR_NULL_VALUE,
+                    "AuxiliaryBook"
+            ));
         }
 
-        try {
-            AuxiliaryBook abRegistered = abCommandRepositoryPort.registerAuxiliaryBook(auxiliaryBook);
-
-            AuxiliaryBookLog abRegisteredLog = AuxiliaryBookLog.builder()
-                    .book(abRegistered)
-                    .logTypeEvent("REGISTERED AUX_BOOK")
-                    .build();
-
-            abLogCommandRepositoryPort.registerAuxiliaryBookLog(abRegisteredLog);
-
-            return abRegistered;
-
-        } catch (Exception ex) {
-            this.abLogCommandRepositoryPort.registerAuxiliaryBookLog(AuxiliaryBookLog.builder().book(auxiliaryBook).logTypeEvent("ERROR REGISTERING AUX_BOOK").build());
-            formatterResultOutputPort.returnResponseError(500, "An unexpected error occurred while registering the Auxiliary Book." +
-                    "\nError: " + ex.getMessage());
-            return null;
-        }
+        AuxiliaryBook abRegistered = abCommandRepositoryPort.registerAuxiliaryBook(auxiliaryBook);
+        abLogCommandRepositoryPort.registerAuxiliaryBookLog(AuxiliaryBookLog.builder()
+                .book(abRegistered)
+                .logTypeEvent("REGISTERED AUX_BOOK")
+                .build());
+        return abRegistered;
     }
 
     @Override
     public List<?> genereteAuxiliaryBookInfo(AuxiliaryBook auxiliaryBook) {
-        AuxiliaryBookProcessor objCriteriaProcessor = new AuxiliaryBookProcessor();
-        return objCriteriaProcessor.processAuxiliaryBookData(this.accountingInfoQueryPort, auxiliaryBook);
+        return this.auxiliaryBookProcessor.processAuxiliaryBookData(this.accountingInfoQueryPort, auxiliaryBook);
     }
 }

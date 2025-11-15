@@ -1,15 +1,16 @@
 package com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoClient;
-import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.CriteriaRange;
-import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Service;
+import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
 
-import java.util.Comparator;
-import java.util.List;
+import lombok.NoArgsConstructor;
 
 @Service
 @NoArgsConstructor

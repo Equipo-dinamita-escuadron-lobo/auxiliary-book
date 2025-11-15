@@ -110,7 +110,32 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
+            <scope>test</scope>
 		</dependency>
+        <!-- https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports -->
+        <dependency>
+            <groupId>net.sf.jasperreports</groupId>
+            <artifactId>jasperreports</artifactId>
+            <version>6.20.1</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/net.sourceforge.dynamicreports/dynamicreports-core -->
+        <dependency>
+            <groupId>net.sourceforge.dynamicreports</groupId>
+            <artifactId>dynamicreports-core</artifactId>
+            <version>6.20.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>5.2.3</version> <!-- Use the latest stable version -->
+        </dependency>
+
+        <!-- Apache POI OOXML for .xlsx files -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.3</version> <!-- Use the latest stable version, matching poi version -->
+        </dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

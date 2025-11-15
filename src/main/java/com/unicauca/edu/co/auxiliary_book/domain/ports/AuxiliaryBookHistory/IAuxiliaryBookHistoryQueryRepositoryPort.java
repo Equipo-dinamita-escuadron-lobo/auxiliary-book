@@ -4,13 +4,18 @@ import com.unicauca.edu.co.auxiliary_book.domain.models.history.AuxiliaryBookHis
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+/**
+ * @brief Output port for Auxiliary Book History read operations
+ *
+ * Defines the contract for querying auxiliary book history records
+ * from the underlying data storage system.
+ */
 public interface IAuxiliaryBookHistoryQueryRepositoryPort {
     /**
-     * Obtiene una página de registros de historial de libros auxiliares asociados a una entidad específica.
-     *
-     * @param entId el identificador de la entidad cuyos historiales se desean consultar
-     * @param pageable objeto que contiene la información de paginación
-     * @return una página de objetos AuxiliaryBookHistory correspondientes a la entidad dada
+     * @brief Retrieves a page of auxiliary book history records for a specific entity
+     * @param entId Identifier of the entity whose histories are to be queried
+     * @param pageable Pagination information
+     * @return Page of AuxiliaryBookHistory records for the given entity
      */
-    Page<AuxiliaryBookHistory> findAllByEntId(String entId, Pageable pageable);
+    Page<AuxiliaryBookHistory> findPageByEntId(String entId, Pageable pageable);
 }

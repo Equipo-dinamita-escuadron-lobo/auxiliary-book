@@ -10,14 +10,14 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 
 /**
- * Clase de configuración para Swagger/OpenAPI.
+ * Configuration class for Swagger/OpenAPI.
  */
 @Configuration
 public class SwaggerConfig {
     /**
-     * Configura y personaliza la especificación OpenAPI para la API de gestión de productos.
+     * Configures and customizes the OpenAPI specification for the Auxiliary Books Management API.
      *
-     * @return OpenAPI configurado.
+     * @return Configured OpenAPI instance.
      */
     @Bean
     public OpenAPI customizeOpenAPI() {
@@ -28,8 +28,8 @@ public class SwaggerConfig {
                                 .scheme("bearer")
                                 .bearerFormat("JWT")))
                 .addSecurityItem(new SecurityRequirement().addList("bearer-jwt"))
-                .info(new Info().title("Products Management API")
-                        .description("API para la gestión de productos")
+                .info(new Info().title("Auxiliary Books Management API")
+                        .description("API for Auxiliary Books management")
                         .version("1.0"));
     }
 }

@@ -1,5 +1,9 @@
 package com.unicauca.edu.co.auxiliary_book.domain.models.enums;
 
+/**
+ * @brief Enumeration of auxiliary book types.
+ *
+ */
 public enum EAuxiliaryBookType {
     INVENTORY_AND_BALANCES,
     DIARY,

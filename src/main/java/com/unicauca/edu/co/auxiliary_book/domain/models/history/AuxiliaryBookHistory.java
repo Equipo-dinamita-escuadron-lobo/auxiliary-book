@@ -8,7 +8,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
+/**
+ * @brief Domain model representing an Auxiliary Book History.
+ *
+ */
 @Builder
 @Data
 @AllArgsConstructor
