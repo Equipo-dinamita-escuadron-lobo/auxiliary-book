@@ -31,7 +31,7 @@ public class ReportGenerator {
             this.reportStyleBuilder.templateBuilder(report, template, exportInfo);
 
             // Columns
-            this.reportColumnsBuilder.setColumnsReport(report, exportInfo.getAuxBookType());
+            this.reportColumnsBuilder.setColumnsReport(report, exportInfo.getAuxiliaryBook().getType());
 
             // Data source
             this.reportDataBuilder.setDataSource(report, exportInfo);

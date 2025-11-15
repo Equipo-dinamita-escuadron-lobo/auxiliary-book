@@ -2,8 +2,12 @@ package com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.adapte
 
 import com.unicauca.edu.co.auxiliary_book.domain.models.log.AuxiliaryBookLog;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookLog.IAuxiliaryBookLogQueryRepositoryPort;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.mapper.IAuxiliaryBookLogQueryEntityMapper;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.repository.IAuxiliaryBookLogRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * @brief Adapter for Auxiliary Book Log read operations.
@@ -11,15 +15,16 @@ import org.springframework.data.domain.Pageable;
  * Implements the contract for querying auxiliary book log records
  * from the underlying data storage system.
  */
+@Component
+@RequiredArgsConstructor
 public class AuxiliaryBookLogQueryAdapter implements IAuxiliaryBookLogQueryRepositoryPort {
-    /**
-     * @brief Retrieves a page of auxiliary book log records for a specific entity.
-     * @param entId Identifier of the entity whose logs are to be queried.
-     * @param pageable Pagination information.
-     * @return Page of AuxiliaryBookLog records for the given entity.
-     */
+
+    private final IAuxiliaryBookLogQueryEntityMapper abLogQueryEntityMapper;
+    private final IAuxiliaryBookLogRepository abLogRepository;
+
     @Override
-    public Page<AuxiliaryBookLog> findAllByEntId(String entId, Pageable pageable) {
-        return null;
+    public List<AuxiliaryBookLog> findAllByAuxiliaryBookPublicId(String auxiliaryBookId) {
+        return this.abLogQueryEntityMapper.toDomainList(this.abLogRepository.findByAuxiliaryBookPublicId(auxiliaryBookId));
     }
+
 }

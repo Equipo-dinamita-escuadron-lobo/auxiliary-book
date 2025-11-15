@@ -15,19 +15,25 @@ public interface IAuxiliaryBookCommandEntityMapper {
     @Mapping(source = "criteria.criteriaType", target = "criteria.criteriaType")
     @Mapping(source = "criteria.startDate", target = "criteria.startDate")
     @Mapping(source = "criteria.endDate", target = "criteria.endDate")
-    @Mapping(target = "id", ignore = true)
+    @Mapping(source = "id", target = "id") // ✅ conservar el ID existente
+    @Mapping(target = "log", ignore = true)
+    @Mapping(target = "history", ignore = true)
+    @Mapping(target = "criteria.auxiliaryBook", ignore = true)
     @Mapping(target = "template", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     AuxiliaryBookEntity toEntity(AuxiliaryBook auxiliaryBook);
 
     @Mapping(source = "entId", target = "entId")
-    @Mapping(source = "criteria.fromRange", target = "criteria.criteriaRange.from")
-    @Mapping(source = "criteria.toRange", target = "criteria.criteriaRange.to")
+    @Mapping(source = "criteria.fromRange", target = "criteria.criteriaRange.fromRange")
+    @Mapping(source = "criteria.toRange", target = "criteria.criteriaRange.toRange")
     @Mapping(source = "criteria.costCenterId", target = "criteria.costCenterId")
     @Mapping(source = "criteria.criteriaType", target = "criteria.criteriaType")
     @Mapping(source = "criteria.startDate", target = "criteria.startDate")
     @Mapping(source = "criteria.endDate", target = "criteria.endDate")
+    @Mapping(target = "template", ignore = true)
+    @Mapping(target = "criteria.voucherType", ignore = true)
     AuxiliaryBook toDomain(AuxiliaryBookEntity auxiliaryBookEntity);
 }
+
 
 

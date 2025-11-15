@@ -1,9 +1,8 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.request;
 
+import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.export.AuxiliaryBookTemplate;
-import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAuxiliaryBookFormat;
-import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAuxiliaryBookType;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -23,10 +22,7 @@ public class ExportAuxiliaryBookRequest {
     private String entName;
 
     @NotNull(message = "The criteria used to create the auxiliary book cannot be null")
-    private AuxiliaryBookCriteria criteriaUsed;
-
-    @NotNull(message = "Auxiliary Book Type cannot be null")
-    private EAuxiliaryBookType auxBookType;
+    private AuxiliaryBook auxiliaryBook;
 
     @NotNull(message = "The data from the auxiliary book cannot be null")
     private List<?> auxBookData;

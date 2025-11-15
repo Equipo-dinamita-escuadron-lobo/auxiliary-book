@@ -10,10 +10,17 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MajorAndBalancesBookDTO {
-    private String accountCode;
-    private String accountDescription;
+    private AccountDTO account;
     private BigDecimal initialBalance;
     private BigDecimal debitMovement;
     private BigDecimal creditMovement;
     private BigDecimal finalBalance;
+
+    public Long getAccountCode() {
+        return account != null ? account.getAccountCode() : null;
+    }
+
+    public String getAccountDescription() {
+        return account != null ? account.getAccountDescription() : null;
+    }
 }

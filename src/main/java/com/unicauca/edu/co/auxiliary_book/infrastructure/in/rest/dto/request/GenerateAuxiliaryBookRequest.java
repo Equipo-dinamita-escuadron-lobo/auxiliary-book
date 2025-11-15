@@ -18,7 +18,7 @@ public class GenerateAuxiliaryBookRequest {
     @NotNull(message = "User ID cannot be null")
     private Long userId;
 
-    @NotEmpty(message = "Auxiliary Book Type cannot be Empty")
+    @NotNull(message = "Auxiliary Book Type cannot be Empty")
     private EAuxiliaryBookType type;
 
     @NotNull(message = "Auxiliary Book Criteria cannot be null")

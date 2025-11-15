@@ -1,22 +1,14 @@
-package com.unicauca.edu.co.auxiliary_book.domain.models.history;
+package com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response;
 
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EDeliveryWay;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EState;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-/**
- * @brief Domain model representing an Auxiliary Book History.
- *
- */
-@Builder
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-public class AuxiliaryBookHistory {
+public class AuxiliaryBookHistoryResponseDTO {
     private Long id;
     private String publicId;
     private AuxiliaryBook auxiliaryBook;

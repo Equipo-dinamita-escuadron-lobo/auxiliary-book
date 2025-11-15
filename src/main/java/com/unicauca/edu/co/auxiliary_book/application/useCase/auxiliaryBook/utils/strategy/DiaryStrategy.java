@@ -1,5 +1,6 @@
 package com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.strategy;
 
+import com.unicauca.edu.co.auxiliary_book.application.dto.AccountDTO;
 import com.unicauca.edu.co.auxiliary_book.application.dto.DiaryBookDTO;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.AccountingInfoProcessor;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @NoArgsConstructor
 public class DiaryStrategy implements IProcessStrategy {
@@ -20,40 +22,39 @@ public class DiaryStrategy implements IProcessStrategy {
                         (groupKey, groupItems) -> {
                             AccountingInfo reference = groupItems.get(0);
 
-                            // Totales de débitos y créditos
-                            BigDecimal totalDebit = BigDecimal.ZERO;
-                            BigDecimal totalCredit = BigDecimal.ZERO;
+                            AccountDTO accountDTO = new AccountDTO(
+                                    reference.getAccount().getNature(),
+                                    Long.parseLong(groupKey), // groupKey es el accountCode
+                                    reference.getAccount().getName()
+                            );
 
-                            for (AccountingInfo item : groupItems) {
-                                String nature = item.getAccount().getNature();
-                                BigDecimal debit = BigDecimal.valueOf(item.getAccountingMovement().getDebit());
-                                BigDecimal credit = BigDecimal.valueOf(item.getAccountingMovement().getCredit());
+                            BigDecimal totalDebit = groupItems.stream()
+                                    .map(item -> item.getAccountingMovement().getDebit())
+                                    .filter(Objects::nonNull)
+                                    .map(BigDecimal::valueOf)
+                                    .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                                if ("Debito".equalsIgnoreCase(nature)) {
-                                    // Naturaleza Débito → se registran normal
-                                    totalDebit = totalDebit.add(debit);
-                                    totalCredit = totalCredit.add(credit);
-                                } else if ("Credito".equalsIgnoreCase(nature)) {
-                                    // Naturaleza Crédito → también se registran normal
-                                    totalDebit = totalDebit.add(debit);
-                                    totalCredit = totalCredit.add(credit);
-                                }
-                            }
+                            BigDecimal totalCredit = groupItems.stream()
+                                    .map(item -> item.getAccountingMovement().getCredit())
+                                    .filter(Objects::nonNull)
+                                    .map(BigDecimal::valueOf)
+                                    .reduce(BigDecimal.ZERO, BigDecimal::add);
 
                             return new DiaryBookDTO(
                                     reference.getDate(),
-                                    groupKey,
-                                    reference.getAccount().getName(),
-                                    reference.getVoucher().getType(),
-                                    reference.getVoucher().getNumber(),
+                                    accountDTO, // Se pasa el objeto AccountDTO completo
+                                    reference.getVoucher().getType(), // voucherName
+                                    String.valueOf(reference.getVoucher().getNumber()), // voucherNumber as String
                                     totalDebit,
                                     totalCredit
                             );
                         }
                 )
                 .stream()
-                .sorted(Comparator.comparing(DiaryBookDTO::getAccountCode))
-                .sorted(Comparator.comparing(DiaryBookDTO::getDate))
+                // --- 3. Ordenamiento corregido ---
+                // Se ordena por la llave primaria (Fecha) y luego por la secundaria (Código de cuenta).
+                .sorted(Comparator.comparing(DiaryBookDTO::getDate)
+                        .thenComparing(dto -> dto.getAccount().getAccountCode()))
                 .toList();
     }
 

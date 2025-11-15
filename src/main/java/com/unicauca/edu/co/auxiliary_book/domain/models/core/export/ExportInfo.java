@@ -1,5 +1,6 @@
 package com.unicauca.edu.co.auxiliary_book.domain.models.core.export;
 
+import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAuxiliaryBookFormat;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAuxiliaryBookType;
@@ -19,8 +20,7 @@ import java.util.List;
 public class ExportInfo {
     private EAuxiliaryBookFormat format;
     private String entName;
-    private AuxiliaryBookCriteria criteriaUsed;
-    private EAuxiliaryBookType auxBookType;
+    private AuxiliaryBook auxiliaryBook;
     private List<?> auxBookData;
     private AuxiliaryBookTemplate infoReportTemplate;
 }

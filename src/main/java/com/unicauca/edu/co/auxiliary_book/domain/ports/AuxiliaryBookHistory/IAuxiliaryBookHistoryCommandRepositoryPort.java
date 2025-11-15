@@ -15,4 +15,11 @@ public interface IAuxiliaryBookHistoryCommandRepositoryPort {
      * @return Saved AuxiliaryBookHistory with generated identifiers
      */
     AuxiliaryBookHistory registerAuxiliaryBookHistory(AuxiliaryBookHistory auxiliaryBookHistory);
+
+    /**
+     * @brief Updates an existing auxiliary book history record.
+     * @param auxiliaryBookHistory Auxiliary book history record to update.
+     * @return The updated AuxiliaryBookHistory.
+     */
+    AuxiliaryBookHistory updateAuxiliaryBookHistory(AuxiliaryBookHistory auxiliaryBookHistory);
 }

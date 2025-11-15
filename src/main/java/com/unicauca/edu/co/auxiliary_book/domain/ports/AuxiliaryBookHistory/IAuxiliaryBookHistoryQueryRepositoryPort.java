@@ -18,4 +18,11 @@ public interface IAuxiliaryBookHistoryQueryRepositoryPort {
      * @return Page of AuxiliaryBookHistory records for the given entity
      */
     Page<AuxiliaryBookHistory> findPageByEntId(String entId, Pageable pageable);
+
+    /**
+     * @brief Busca el historial de un libro por el ID interno del libro.
+     * @param bookId El ID (Long) interno del AuxiliaryBook.
+     * @return El AuxiliaryBookHistory, o null si no se encuentra.
+     */
+    AuxiliaryBookHistory findByBookId(Long bookId);
 }

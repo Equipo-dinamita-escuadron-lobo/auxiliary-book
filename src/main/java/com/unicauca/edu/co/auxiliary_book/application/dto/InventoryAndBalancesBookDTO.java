@@ -16,14 +16,9 @@ import java.math.BigDecimal;
 @AllArgsConstructor @NoArgsConstructor
 public class InventoryAndBalancesBookDTO {
     /**
-     * @brief Code of the account
+     * @brief Account related with the book
      */
-    private String accountCode;
-
-    /**
-     * @brief Description of the account
-     */
-    private String accountDescription;
+    private AccountDTO account;
 
     /**
      * @brief Additional description for the output
@@ -34,4 +29,12 @@ public class InventoryAndBalancesBookDTO {
      * @brief Value associated with the output
      */
     private BigDecimal value;
+
+    public Long getAccountCode() {
+        return account != null ? account.getAccountCode() : null;
+    }
+
+    public String getAccountDescription() {
+        return account != null ? account.getAccountDescription() : null;
+    }
 }

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class HistoryQueryUC implements IAuxiliaryBookHistoryQueryPort {
+public class HistoryAuxiliaryBookQueryUC implements IAuxiliaryBookHistoryQueryPort {
 
     private final IAuxiliaryBookHistoryQueryRepositoryPort abHistoryQueryRepositoryPort;
 

@@ -15,4 +15,11 @@ public interface IAuxiliaryBookHistoryCommandPort {
      * @return Registered AuxiliaryBookHistory with generated identifiers
      */
     AuxiliaryBookHistory registerAuxiliaryBookHistory(AuxiliaryBookHistory auxiliaryBookHistory);
+
+    /**
+     * @brief Registers a new auxiliary book history record
+     * @param auxiliaryBookHistory Auxiliary book history to update
+     * @return Registered AuxiliaryBookHistory with generated identifiers
+     */
+    AuxiliaryBookHistory updateAuxiliaryBookHistory(AuxiliaryBookHistory auxiliaryBookHistory);
 }

@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.Date;
 
 /**
  * @brief Data Transfer Object for Diary Book entries
@@ -19,17 +19,12 @@ public class DiaryBookDTO {
     /**
      * @brief Date of the diary book output
      */
-    private LocalDate date;
+    private Date date;
 
     /**
-     * @brief Code of the account involved in the output
+     * @brief Account realted with accounting info
      */
-    private String accountCode;
-
-    /**
-     * @brief Description of the account
-     */
-    private String accountDescription;
+    private AccountDTO account;
 
     /**
      * @brief Name of the voucher associated with the output
@@ -50,4 +45,12 @@ public class DiaryBookDTO {
      * @brief Credit amount for the output
      */
     private BigDecimal credit;
+
+    public Long getAccountCode() {
+        return account != null ? account.getAccountCode() : null;
+    }
+
+    public String getAccountDescription() {
+        return account != null ? account.getAccountDescription() : null;
+    }
 }

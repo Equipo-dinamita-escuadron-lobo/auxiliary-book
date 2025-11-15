@@ -212,7 +212,7 @@ public class ReportStyleBuilder {
                 break;
         }
 
-        VerticalListBuilder criteriaList = buildCriteriaComponent(exportInfo.getCriteriaUsed(), this.textStyle);
+        VerticalListBuilder criteriaList = buildCriteriaComponent(exportInfo.getAuxiliaryBook().getCriteria(), this.textStyle);
         // Agregamos una línea separadora como en la imagen
         report.title(
                 Components.verticalList(
