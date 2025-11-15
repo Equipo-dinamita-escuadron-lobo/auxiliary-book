@@ -1,178 +1,151 @@
 package com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.strategy;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.util.*;
-
+import com.unicauca.edu.co.auxiliary_book.application.dto.AccountDTO;
+import com.unicauca.edu.co.auxiliary_book.application.dto.MajorAndBalancesBookDTO;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.AccountingInfoProcessor;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
 import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
-
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import com.unicauca.edu.co.auxiliary_book.application.dto.MajorAndBalancesBookDTO;
-
 @NoArgsConstructor
-/**
- * Estrategia para la generación del reporte de Libro Mayor.
- *
- * Esta clase implementa la lógica de negocio para transformar una lista de movimientos contables
- * en un reporte de Libro Mayor, agrupando por cuenta, calculando saldos y aplicando
- * las reglas contables según la naturaleza de cada cuenta.
- */
 public class MajorAndBalancesStrategy implements IProcessStrategy {
 
-    /**
-     * Procesa los datos contables para generar el Libro Mayor.
-     *
-     * @param criteria Criterios de filtrado (ej. rango de fechas). No se usa directamente aquí, pero está disponible.
-     * @param data Lista de información contable (movimientos) a procesar.
-     * @param accountingInfoProcessor Procesador de utilidades (no utilizado en esta implementación específica).
-     * @return Una lista de DTOs {@link MajorAndBalancesBookDTO} que representa el Libro Mayor.
-     */
     @Override
-    public List<?> process(AuxiliaryBookCriteria criteria, List<AccountingInfo> allAccountingData, AccountingInfoProcessor accountingInfoProcessor) {
+    public List<?> process(
+            AuxiliaryBookCriteria criteria,
+            List<AccountingInfo> allAccountingData,
+            AccountingInfoProcessor accountingInfoProcessor) {
 
-        LocalDate reportStartDate = criteria.getStartDate();
-        if (reportStartDate == null) {
-            return Collections.emptyList(); // Es necesario para la división de datos.
+        LocalDate startDate = criteria.getStartDate();
+        LocalDate endDate = criteria.getEndDate();
+
+        if (startDate == null) {
+            System.err.println("⚠️ No se especificó una fecha de inicio en los criterios del libro mayor.");
+            return Collections.emptyList();
         }
 
-        // 1. Dividir la lista completa en dos: movimientos anteriores y movimientos del periodo actual.
+        // --- 1️⃣ Filtrar los movimientos por fechas ---
         List<AccountingInfo> previousPeriodData = allAccountingData.stream()
-                .filter(info -> info.getDate() != null && info.getDate().isBefore(reportStartDate))
+                .filter(info -> {
+                    Date date = info.getDate();
+                    if (date == null) return false;
+                    LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    return localDate.isBefore(startDate);
+                })
                 .toList();
 
         List<AccountingInfo> currentPeriodData = allAccountingData.stream()
-                .filter(info -> info.getDate() != null && !info.getDate().isBefore(reportStartDate))
+                .filter(info -> {
+                    Date date = info.getDate();
+                    if (date == null) return false;
+                    LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    return !localDate.isBefore(startDate) && !localDate.isAfter(endDate);
+                })
                 .toList();
 
-        // 2. Calcular los saldos iniciales usando los datos del periodo anterior.
-        Map<AccountKey, BigDecimal> initialBalances = calculateFinalBalancesForPeriod(previousPeriodData);
+        // --- 2️⃣ Calcular los saldos iniciales ---
+        Map<Long, BigDecimal> initialBalances = previousPeriodData.stream()
+                .collect(Collectors.groupingBy(
+                        info -> info.getAccount().getCode(),
+                        Collectors.collectingAndThen(Collectors.toList(), this::calculateBalanceForAccount)
+                ));
 
-        // 3. Agrupar los movimientos del PERIODO ACTUAL por cuenta.
-        Map<AccountKey, List<AccountingInfo>> movementsByAccount = currentPeriodData.stream()
-                .collect(Collectors.groupingBy(info -> new AccountKey(
-                        info.getAccount().getCode(),
-                        info.getAccount().getName(),
-                        info.getAccount().getNature()
-                )));
+        // --- 3️⃣ Agrupar movimientos del periodo actual ---
+        Map<Long, List<AccountingInfo>> movementsByAccount = currentPeriodData.stream()
+                .collect(Collectors.groupingBy(info -> info.getAccount().getCode()));
 
-        // 4. Consolidar todas las cuentas únicas (las que tienen saldo inicial + las que tienen movimiento actual).
-        Set<AccountKey> allAccountKeys = new HashSet<>(initialBalances.keySet());
-        allAccountKeys.addAll(movementsByAccount.keySet());
+        // --- 4️⃣ Consolidar todas las cuentas (saldo previo + movimientos del periodo) ---
+        Set<Long> allAccountCodes = new HashSet<>(initialBalances.keySet());
+        allAccountCodes.addAll(movementsByAccount.keySet());
 
-        List<MajorAndBalancesBookDTO> majorBookEntries = new ArrayList<>();
+        List<MajorAndBalancesBookDTO> result = new ArrayList<>();
 
-        // 5. Iterar sobre CADA cuenta para construir la entrada del libro mayor.
-        for (AccountKey accountKey : allAccountKeys) {
-            // Obtener el saldo inicial. Será 0 si la cuenta es nueva en este periodo.
-            BigDecimal initialBalance = initialBalances.getOrDefault(accountKey, BigDecimal.ZERO);
+        for (Long accountCode : allAccountCodes) {
+            List<AccountingInfo> movements = movementsByAccount.getOrDefault(accountCode, Collections.emptyList());
+            AccountingInfo reference = !movements.isEmpty()
+                    ? movements.get(0)
+                    : previousPeriodData.stream()
+                    .filter(info -> info.getAccount().getCode().equals(accountCode))
+                    .findFirst()
+                    .orElse(null);
 
-            // Obtener los movimientos del periodo actual. Será una lista vacía si no hubo movimientos.
-            List<AccountingInfo> currentMovements = movementsByAccount.getOrDefault(accountKey, Collections.emptyList());
+            if (reference == null) continue; // no hay referencia contable
 
-            // Calcular débitos y créditos del periodo actual.
-            BigDecimal totalDebit = currentMovements.stream()
+            String nature = reference.getAccount().getNature();
+            String description = reference.getAccount().getName();
+            BigDecimal initialBalance = initialBalances.getOrDefault(accountCode, BigDecimal.ZERO);
+
+            BigDecimal totalDebit = movements.stream()
                     .map(info -> info.getAccountingMovement().getDebit())
                     .filter(Objects::nonNull)
                     .map(BigDecimal::valueOf)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-            BigDecimal totalCredit = currentMovements.stream()
+            BigDecimal totalCredit = movements.stream()
                     .map(info -> info.getAccountingMovement().getCredit())
                     .filter(Objects::nonNull)
                     .map(BigDecimal::valueOf)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-            // Calcular el saldo final.
-            BigDecimal finalBalance = calculateFinalBalance(initialBalance, totalDebit, totalCredit, accountKey.nature());
+            BigDecimal finalBalance = calculateFinalBalance(initialBalance, totalDebit, totalCredit, nature);
 
-            // Construir y añadir el DTO.
-            MajorAndBalancesBookDTO dto = new MajorAndBalancesBookDTO(
-                    accountKey.code().toString(),
-                    accountKey.description(),
+            AccountDTO accountDTO = new AccountDTO(nature, accountCode, description);
+
+            result.add(new MajorAndBalancesBookDTO(
+                    accountDTO,
                     initialBalance.setScale(2, RoundingMode.HALF_UP),
                     totalDebit.setScale(2, RoundingMode.HALF_UP),
                     totalCredit.setScale(2, RoundingMode.HALF_UP),
                     finalBalance.setScale(2, RoundingMode.HALF_UP)
-            );
-            majorBookEntries.add(dto);
+            ));
         }
 
-        // 6. Ordenar los resultados por código de cuenta de forma ascendente.
-        majorBookEntries.sort(Comparator.comparing(MajorAndBalancesBookDTO::getAccountCode));
-
-        return majorBookEntries;
+        // --- 5️⃣ Ordenar por código de cuenta ---
+        result.sort(Comparator.comparing(dto -> dto.getAccount().getAccountCode()));
+        return result;
     }
 
     /**
-     * Método reutilizable que calcula el saldo final para un conjunto de movimientos contables.
-     *
-     * @param data Lista de movimientos contables de cualquier periodo.
-     * @return Un mapa que asocia cada cuenta con su saldo final calculado.
+     * Calcula el saldo neto de una cuenta según su naturaleza
+     * para el conjunto de movimientos recibido.
      */
-    private Map<AccountKey, BigDecimal> calculateFinalBalancesForPeriod(List<AccountingInfo> data) {
-        if (data == null || data.isEmpty()) {
-            return Collections.emptyMap();
-        }
+    private BigDecimal calculateBalanceForAccount(List<AccountingInfo> movements) {
+        if (movements.isEmpty()) return BigDecimal.ZERO;
 
-        Map<AccountKey, List<AccountingInfo>> groupedData = data.stream()
-                .collect(Collectors.groupingBy(info -> new AccountKey(
-                        info.getAccount().getCode(),
-                        info.getAccount().getName(),
-                        info.getAccount().getNature()
-                )));
+        AccountingInfo ref = movements.get(0);
+        String nature = ref.getAccount().getNature();
 
-        return groupedData.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> {
-                            List<AccountingInfo> movements = entry.getValue();
-                            BigDecimal totalDebit = movements.stream()
-                                    .map(info -> info.getAccountingMovement().getDebit())
-                                    .filter(Objects::nonNull)
-                                    .map(BigDecimal::valueOf)
-                                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalDebit = movements.stream()
+                .map(info -> info.getAccountingMovement().getDebit())
+                .filter(Objects::nonNull)
+                .map(BigDecimal::valueOf)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                            BigDecimal totalCredit = movements.stream()
-                                    .map(info -> info.getAccountingMovement().getCredit())
-                                    .filter(Objects::nonNull)
-                                    .map(BigDecimal::valueOf)
-                                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalCredit = movements.stream()
+                .map(info -> info.getAccountingMovement().getCredit())
+                .filter(Objects::nonNull)
+                .map(BigDecimal::valueOf)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                            // El saldo inicial para este cálculo acumulado siempre es CERO.
-                            return calculateFinalBalance(BigDecimal.ZERO, totalDebit, totalCredit, entry.getKey().nature());
-                        }
-                ));
+        return calculateFinalBalance(BigDecimal.ZERO, totalDebit, totalCredit, nature);
     }
-
 
     /**
      * Calcula el saldo final basado en la naturaleza de la cuenta.
-     *
-     * @param initialBalance Saldo inicial.
-     * @param totalDebit Suma de todos los débitos.
-     * @param totalCredit Suma de todos los créditos.
-     * @param nature Naturaleza de la cuenta ("debito" o "credito").
-     * @return El saldo final calculado.
      */
-    private BigDecimal calculateFinalBalance(BigDecimal initialBalance, BigDecimal totalDebit, BigDecimal totalCredit, String nature) {
+    private BigDecimal calculateFinalBalance(BigDecimal initial, BigDecimal debit, BigDecimal credit, String nature) {
         if ("debito".equalsIgnoreCase(nature)) {
-            // Naturaleza Deudora: Saldo Final = Saldo Inicial + Débitos - Créditos
-            return initialBalance.add(totalDebit).subtract(totalCredit);
+            return initial.add(debit).subtract(credit);
         } else if ("credito".equalsIgnoreCase(nature)) {
-            // Naturaleza Acreedora: Saldo Final = Saldo Inicial - Débitos + Créditos
-            return initialBalance.subtract(totalDebit).add(totalCredit);
+            return initial.subtract(debit).add(credit);
         }
-        return initialBalance.add(totalDebit).subtract(totalCredit);
+        return initial.add(debit).subtract(credit); // por defecto naturaleza deudora
     }
-
-    /**
-     * Record local para actuar como una clave de agrupación inmutable y concisa.
-     */
-    private record AccountKey(Long code, String description, String nature) {}
 }

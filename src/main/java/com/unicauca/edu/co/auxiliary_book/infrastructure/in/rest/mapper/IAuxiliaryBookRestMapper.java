@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 public interface IAuxiliaryBookRestMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "publicId", ignore=true)
     @Mapping(target = "format", ignore = true)
     @Mapping(target = "template", ignore = true)
     @Mapping(target = "createdAt", ignore = true)

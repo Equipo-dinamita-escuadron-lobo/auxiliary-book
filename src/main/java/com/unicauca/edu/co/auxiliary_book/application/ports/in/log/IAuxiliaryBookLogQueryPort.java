@@ -4,6 +4,8 @@ import com.unicauca.edu.co.auxiliary_book.domain.models.log.AuxiliaryBookLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 /**
  * @brief Input port for Auxiliary Book Log query operations
  *
@@ -12,10 +14,9 @@ import org.springframework.data.domain.Pageable;
  */
 public interface IAuxiliaryBookLogQueryPort {
     /**
-     * @brief Retrieves a page of auxiliary book log records for a specific entity
-     * @param entId Identifier of the entity whose logs are to be queried
-     * @param pageable Pagination information
-     * @return Page of AuxiliaryBookLog records for the given entity
+     * @brief Retrieves a list of auxiliary book log records for a one report
+     * @param auxiliaryBookId Identifier of the auxiliary book whose logs are to be queried
+     * @return List of AuxiliaryBookLog records for the given auxiliary book
      */
-    Page<AuxiliaryBookLog> findAllByEntId(String entId, Pageable pageable);
+    List<AuxiliaryBookLog> findAllByAuxiliaryBookPublicId(String auxiliaryBookId);
 }

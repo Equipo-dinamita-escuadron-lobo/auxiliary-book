@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AuxiliaryBookLog {
     private Long id;
-    private AuxiliaryBook book;
-    private String logTypeEvent;
+    private String publicId;
+    private AuxiliaryBook auxiliaryBook;
+    private ETypeEvent ETypeEvent;
+    private String message;
 }

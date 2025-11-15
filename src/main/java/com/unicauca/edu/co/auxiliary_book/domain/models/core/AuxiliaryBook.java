@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class AuxiliaryBook {
     private Long id;
+    private String publicId;
     private EAuxiliaryBookType type;
     private String entId;
     private Long userId;

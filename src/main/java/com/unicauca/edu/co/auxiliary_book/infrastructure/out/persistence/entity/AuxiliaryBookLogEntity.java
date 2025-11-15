@@ -1,16 +1,7 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import com.unicauca.edu.co.auxiliary_book.domain.models.log.ETypeEvent;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,17 +28,27 @@ public class AuxiliaryBookLogEntity {
     private Long id;
 
     /**
+     * @brief Public identifier for the log entry. (External ID)
+     */
+    @Column(unique = true, nullable = false, updatable = false)
+    private String publicId;
+
+
+    /**
      * @brief Type of log event.
      */
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String logTypeEvent;
+    private ETypeEvent ETypeEvent;
+
+    @Column(name = "message")
+    private String message;
 
     // Relationships
-
     /**
      * @brief Reference to the associated auxiliary book entity.
      */
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "auxiliaryBookId", referencedColumnName = "id")
     private AuxiliaryBookEntity auxiliaryBook;
 }

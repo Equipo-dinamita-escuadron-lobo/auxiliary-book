@@ -1,4 +1,4 @@
-package com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto;
+package com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

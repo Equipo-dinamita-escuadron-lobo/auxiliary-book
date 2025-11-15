@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * @brief Entity representing an auxiliary book.
@@ -30,6 +33,12 @@ public class AuxiliaryBookEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    /**
+     * @brief Public identifier for the auxiliary book. (External ID)
+     */
+    @Column(unique = true, nullable = false, updatable = false)
+    private String publicId;
 
     /**
      * @brief Type of the auxiliary book.
@@ -83,8 +92,8 @@ public class AuxiliaryBookEntity {
     /**
      * @brief Reference to the log entity associated with this auxiliary book.
      */
-    @OneToOne(mappedBy = "auxiliaryBook", cascade = CascadeType.ALL)
-    private AuxiliaryBookLogEntity log;
+    @OneToMany(mappedBy = "auxiliaryBook", cascade = CascadeType.ALL)
+    private List<AuxiliaryBookLogEntity> log = new ArrayList<>();
 
     /**
      * @brief Reference to the history entity associated with this auxiliary book.

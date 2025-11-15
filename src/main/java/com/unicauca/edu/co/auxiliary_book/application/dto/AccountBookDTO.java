@@ -5,15 +5,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class AccountBookDTO {
-    private LocalDate date;
-    private String accountCode;
-    private String accountDescription;
+    private Date date;
+    private AccountDTO account;
     private BigDecimal debitMovement;
     private BigDecimal creditMovement;
     private BigDecimal balanceMovement;
@@ -21,4 +20,12 @@ public class AccountBookDTO {
     private String thirdPartyName;
     private String voucherCostCenter;
     private String voucherNumber;
+
+    public Long getAccountCode() {
+        return account != null ? account.getAccountCode() : null;
+    }
+
+    public String getAccountDescription() {
+        return account != null ? account.getAccountDescription() : null;
+    }
 }

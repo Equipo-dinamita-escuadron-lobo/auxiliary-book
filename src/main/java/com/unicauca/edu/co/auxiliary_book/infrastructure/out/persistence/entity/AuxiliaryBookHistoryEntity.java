@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 /**
  * @brief Entity representing the history of an auxiliary book.
  *
@@ -27,6 +29,13 @@ public class AuxiliaryBookHistoryEntity {
     private Long id;
 
     /**
+     * @brief Public identifier for the auxiliary book. (External ID)
+     */
+    @Column(unique = true, nullable = false, updatable = false)
+    private String publicId;
+
+
+    /**
      * @brief State of the auxiliary book history.
      */
     @Column(nullable = false)
@@ -36,7 +45,6 @@ public class AuxiliaryBookHistoryEntity {
      * @brief Delivery way for the auxiliary book history.
      */
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private EDeliveryWay deliveryWay;
 
     // Relationships
@@ -44,6 +52,7 @@ public class AuxiliaryBookHistoryEntity {
     /**
      * @brief Reference to the associated auxiliary book entity.
      */
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "auxiliary_book_id", nullable = false)
     private AuxiliaryBookEntity auxiliaryBook;
 }
