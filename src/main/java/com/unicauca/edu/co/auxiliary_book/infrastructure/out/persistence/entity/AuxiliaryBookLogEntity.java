@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 /**
  * @brief Entity representing a log entry for an auxiliary book.
@@ -43,6 +46,13 @@ public class AuxiliaryBookLogEntity {
 
     @Column(name = "message")
     private String message;
+
+    /**
+     * @brief Timestamp when the auxiliary book was created.
+     */
+    @Column
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
     // Relationships
     /**
