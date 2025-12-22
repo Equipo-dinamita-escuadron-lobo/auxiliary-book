@@ -1,10 +1,8 @@
 package com.unicauca.edu.co.auxiliary_book.application.ports.in.log;
 
-import com.unicauca.edu.co.auxiliary_book.domain.models.log.AuxiliaryBookLog;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
 import java.util.List;
+
+import com.unicauca.edu.co.auxiliary_book.domain.models.log.AuxiliaryBookLog;
 
 /**
  * @brief Input port for Auxiliary Book Log query operations
