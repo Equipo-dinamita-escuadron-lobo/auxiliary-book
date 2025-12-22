@@ -1,10 +1,10 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.repository;
 
-import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.entity.AuxiliaryBookLogEntity;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
-import java.util.Optional;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.entity.AuxiliaryBookLogEntity;
 
 public interface IAuxiliaryBookLogRepository extends JpaRepository<AuxiliaryBookLogEntity, Long> {
     /**

@@ -36,7 +36,6 @@ public class AuxiliaryBookLogEntity {
     @Column(unique = true, nullable = false, updatable = false)
     private String publicId;
 
-
     /**
      * @brief Type of log event.
      */

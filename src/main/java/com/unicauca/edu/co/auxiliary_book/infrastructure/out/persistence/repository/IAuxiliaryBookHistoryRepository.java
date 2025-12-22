@@ -1,12 +1,12 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.repository;
 
-import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.entity.AuxiliaryBookHistoryEntity;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
-import java.util.Optional;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.entity.AuxiliaryBookHistoryEntity;
 
 public interface IAuxiliaryBookHistoryRepository extends JpaRepository<AuxiliaryBookHistoryEntity, Long> {
     /**
