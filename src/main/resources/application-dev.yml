@@ -10,7 +10,12 @@ spring:
       ddl-auto: ${DB_HIBERNATE_DDL_AUTO:create-drop}
     properties:
       hibernate:
+        dialect: ${DB_HIBERNATE_DIALECT:org.hibernate.dialect.PostgreSQLDialect}
         default_schema: ${DB_SCHEMA:public}
+
+  h2:
+    console:
+      enabled: false
 
   security:
     oauth2:
@@ -25,6 +30,7 @@ server:
 eureka:
   instance:
     instance-id: "${spring.application.name}:${random.uuid}"
+    hostname: ${INSTANCE_HOSTNAME:localhost}
   client:
     service-url:
       defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
@@ -40,13 +46,14 @@ jwt:
       resource-id: ${JWT_RESOURCE_ID:microservices_client}
 
 resend:
-  key: re_Y1yFQ9gH_Dzy5DD2wT414j72MxFd6nVDi
+  key: ${RESEND_KEY}
 
-mock:
-  account-info-url: https://6880fc27f1dcae717b643a8e.mockapi.io/api/accountInfo/accountInfo
+services:
+  account-info-service:
+    base-url: https://6880fc27f1dcae717b643a8e.mockapi.io/api/accountInfo/accountInfo
 
-third-party-api:
-  url: http://contables.unicauca.edu.co/api/thirds/
+  third-service:
+    base-url: lb://THIRDS
 
 management:
   endpoint:

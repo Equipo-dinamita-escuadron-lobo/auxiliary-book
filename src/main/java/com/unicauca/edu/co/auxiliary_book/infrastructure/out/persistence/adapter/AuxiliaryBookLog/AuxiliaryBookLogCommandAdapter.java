@@ -8,6 +8,12 @@ import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.reposit
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+/**
+ * @brief Adapter for Auxiliary Book Log write operations.
+ *
+ * Implements the contract for persisting auxiliary book log records
+ * in the underlying data storage system.
+ */
 @Component
 @RequiredArgsConstructor
 public class AuxiliaryBookLogCommandAdapter implements IAuxiliaryBookLogCommandRepositoryPort {
@@ -15,6 +21,11 @@ public class AuxiliaryBookLogCommandAdapter implements IAuxiliaryBookLogCommandR
     private final IAuxiliaryBookLogCommandEntityMapper auxiliaryBookLogEntityMapper;
     private final IAuxiliaryBookLogRepository auxiliaryBookLogRepository;
 
+    /**
+     * @brief Persists an auxiliary book log record.
+     * @param auxiliaryBookLog Auxiliary book log to save.
+     * @return Saved AuxiliaryBookLog with generated identifiers.
+     */
     @Override
     public AuxiliaryBookLog registerAuxiliaryBookLog(AuxiliaryBookLog auxiliaryBookLog) {
         AuxiliaryBookLogEntity abLogEntity = this.auxiliaryBookLogEntityMapper.toEntity(auxiliaryBookLog);

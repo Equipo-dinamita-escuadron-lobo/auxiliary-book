@@ -1,21 +1,25 @@
 package com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils;
 
-import com.unicauca.edu.co.auxiliary_book.application.dto.InventoryAndBalancesBookDTO;
-import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoQueryPort;
-import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Objects;
+
+import org.springframework.stereotype.Service;
+
+import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoClient;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.CriteriaRange;
-import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Service;
+import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
 
-import java.util.List;
+import lombok.NoArgsConstructor;
 
 @Service
 @NoArgsConstructor
 public class AuxiliaryBookCriteriaProcessor {
 
-    public List<AccountingInfo> processAccountingInfo(IAccountingInfoQueryPort queryPort, AuxiliaryBook book) {
+    public List<AccountingInfo> processAccountingInfo(IAccountingInfoClient queryPort, AuxiliaryBook book) {
         AuxiliaryBookCriteria criteria = book.getCriteria();
         List<AccountingInfo> allAccountData = queryPort.getAllAccountInfo();
         return this.filterAccountingInfoByCriteria(book,criteria,allAccountData);
@@ -27,11 +31,26 @@ public class AuxiliaryBookCriteriaProcessor {
     }
 
     private boolean isWithinDateRange(AccountingInfo info, AuxiliaryBookCriteria criteria) {
-        var movementDate = info.getDate();
-        boolean afterStart = criteria.getStartDate() == null || !movementDate.isBefore(criteria.getStartDate());
-        boolean beforeEnd = criteria.getEndDate() == null || !movementDate.isAfter(criteria.getEndDate());
+        // --- INICIO DE LA CORRECCIÓN ---
+
+        // 1. Convertir java.util.Date (con posible hora/min/seg) a java.time.LocalDate
+        java.util.Date movementDateUtil = info.getDate();
+        LocalDate movementDate = movementDateUtil.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        // 2. Obtener las fechas del criterio (que ya son LocalDate)
+        LocalDate startDate = criteria.getStartDate();
+        LocalDate endDate = criteria.getEndDate();
+
+        // 3. Comparar LocalDate vs LocalDate (esta es una comparación segura)
+        // !isBefore significa "en o después de" (>=)
+        boolean afterStart = startDate == null || !movementDate.isBefore(startDate);
+        // !isAfter significa "en o antes de" (<=)
+        boolean beforeEnd = endDate == null || !movementDate.isAfter(endDate);
 
         return afterStart && beforeEnd;
+        // --- FIN DE LA CORRECCIÓN ---
     }
 
     private boolean matchesCriteria(AccountingInfo info, AuxiliaryBookCriteria criteria) {
@@ -69,9 +88,26 @@ public class AuxiliaryBookCriteriaProcessor {
             List<AccountingInfo> all
     ) {
         return all.parallelStream()
-                .filter(info -> info.getEntId().equals(book.getEntId()))
+                .filter(info -> info != null && info.getEntId() != null && info.getDate() != null)
+                .filter(info -> Objects.equals(info.getEntId(), book.getEntId()))
                 .filter(info -> isWithinDateRange(info, criteria))
                 .filter(info -> !criteria.hasRange() || matchesCriteria(info, criteria))
+                .filter(info -> {
+                    if (criteria.getThirdPartyId() == null) return true;
+                    if (info.getThirdPartyId() == null) return false;
+                    return info.getThirdPartyId().trim().equals(criteria.getThirdPartyId().trim());
+                })
+                .filter(info -> {
+                    if (criteria.getCostCenterId() == null) return true; // No hay filtro, pasa
+                    if (info.getCostCenter() == null || info.getCostCenter().getCode() == null) return false; // El dato no tiene C.Costo, no pasa
+                    return info.getCostCenter().getCode().equals(criteria.getCostCenterId());
+                })
+                .filter(info -> {
+                    if (criteria.getVoucherType() == null) return true; // No hay filtro, pasa
+                    if (info.getVoucher() == null || info.getVoucher().getType() == null) return false; // El dato no tiene Voucher/Tipo, no pasa
+                    return info.getVoucher().getType().equals(criteria.getVoucherType());
+                })
+
                 .toList();
     }
 }

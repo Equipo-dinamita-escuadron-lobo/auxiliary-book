@@ -4,9 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @brief Domain model representing a Voucher.
+ *
+ */
 @Data
 @AllArgsConstructor @NoArgsConstructor
 public class Voucher {
-    private Long number;
+    private String number;
     private String type;
 }

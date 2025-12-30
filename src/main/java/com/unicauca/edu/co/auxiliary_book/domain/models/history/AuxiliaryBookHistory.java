@@ -8,15 +8,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
+/**
+ * @brief Domain model representing an Auxiliary Book History.
+ *
+ */
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuxiliaryBookHistory {
     private Long id;
-    private AuxiliaryBook book;
+    private String publicId;
+    private AuxiliaryBook auxiliaryBook;
     private EState state;
-
     private EDeliveryWay deliveryWay;
 }

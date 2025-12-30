@@ -8,6 +8,10 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+/**
+ * @brief Domain model representing the criteria for generate an Auxiliary Book.
+ *
+ */
 @Builder
 @Data
 @AllArgsConstructor
@@ -22,10 +26,21 @@ public class AuxiliaryBookCriteria {
     private String costCenterId;
     private String thirdPartyId;
 
+    private String voucherType;
+
     private LocalDate startDate;
     private LocalDate endDate;
 
     public boolean hasRange() {
         return criteriaRange != null;
+    }
+
+    public String toString(){
+        return "Tipo de criterio: " + criteriaType + ", Rango: " + (hasRange() ? criteriaRange.toString() : "N/A") +
+                ", Centro de costo: " + (costCenterId != null ? costCenterId : "N/A") +
+                ", Tercero: " + (thirdPartyId != null ? thirdPartyId : "N/A") +
+                ", Tipo de comprobante: " + (voucherType != null ? voucherType : "N/A") +
+                ", Fecha inicio: " + (startDate != null ? startDate.toString() : "N/A") +
+                ", Fecha fin: " + (endDate != null ? endDate.toString() : "N/A");
     }
 }

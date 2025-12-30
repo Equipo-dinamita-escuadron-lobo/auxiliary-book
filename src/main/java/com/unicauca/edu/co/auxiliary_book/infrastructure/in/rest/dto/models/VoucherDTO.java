@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor @NoArgsConstructor
 public class VoucherDTO {
-    private Long entId;
-    private String name;
-    private Integer number;
+    private String number;
+    private String type;
 }
