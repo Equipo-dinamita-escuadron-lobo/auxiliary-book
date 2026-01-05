@@ -3,18 +3,23 @@ package com.unicauca.edu.co.auxiliary_book.application.useCase.export.report.bui
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.export.AuxiliaryBookTemplate;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.export.ExportInfo;
-import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAlignment; // Asegúrate de importar tu enum
+import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAlignment;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
 import net.sf.dynamicreports.report.builder.DynamicReports;
-import net.sf.dynamicreports.report.builder.component.*;
+import net.sf.dynamicreports.report.builder.component.ComponentBuilder;
+import net.sf.dynamicreports.report.builder.component.Components;
+import net.sf.dynamicreports.report.builder.component.HorizontalListBuilder;
+import net.sf.dynamicreports.report.builder.component.ImageBuilder;
+import net.sf.dynamicreports.report.builder.component.VerticalListBuilder;
 import net.sf.dynamicreports.report.builder.style.StyleBuilder;
 import net.sf.dynamicreports.report.constant.HorizontalTextAlignment;
 import net.sf.dynamicreports.report.constant.VerticalTextAlignment;
 import org.springframework.stereotype.Service;
 
 import javax.net.ssl.HttpsURLConnection;
+import java.awt.Color;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URL;
@@ -31,45 +36,59 @@ public class ReportStyleBuilder {
     private StyleBuilder titleStyle;
     private StyleBuilder criteriaTitleStyle;
     private StyleBuilder tableCellStyle;
+    private StyleBuilder oddRowStyle;
+
+    private Color primaryColor;
+    private Color accentColor;
+    private Color softBackground;
+
+    private int size;
+
+    private static final Color DEFAULT_PRIMARY = new Color(11, 60, 97); // Deep blue, professional palette
 
     private void setTextStyle(AuxiliaryBookTemplate template) {
-        // ESTILO BASE - SIMPLE Y LIMPIO
+        String fontName = template.getFont() != null && !template.getFont().isBlank() ? template.getFont() : "Arial";
+        this.size = template.getFontSize() != null && template.getFontSize() > 0 ? template.getFontSize() : 11;
         this.textStyle = DynamicReports.stl.style()
-                .setFontName(template.getFont())
-                .setFontSize(template.getFontSize())
-                .setVerticalTextAlignment(VerticalTextAlignment.MIDDLE);
+                .setFontName(fontName)
+                .setFontSize(this.size)
+                .setVerticalTextAlignment(VerticalTextAlignment.MIDDLE)
+                .setPadding(2);
     }
 
-    private void setHeaderStyle(AuxiliaryBookTemplate template) {
-        this.headerStyle = DynamicReports.stl.style() // Ya no hereda de textStyle para los bordes
-                .setFontName(template.getFont())
-                .setFontSize(16)
+    private void setHeaderStyle() {
+        this.headerStyle = DynamicReports.stl.style(this.textStyle)
+                .setFontSize(this.size + 3)
                 .setBold(true)
-                .setBackgroundColor(java.awt.Color.decode(template.getMainColor()))
-                .setForegroundColor(java.awt.Color.WHITE)
+                .setBackgroundColor(primaryColor)
+                .setForegroundColor(Color.WHITE)
                 .setHorizontalTextAlignment(HorizontalTextAlignment.CENTER)
                 .setVerticalTextAlignment(VerticalTextAlignment.MIDDLE)
-                .setBorder(DynamicReports.stl.pen().setLineWidth(0.5f).setLineColor(java.awt.Color.BLACK));
+                .setPadding(6)
+                .setBorder(DynamicReports.stl.pen().setLineWidth(0.8f).setLineColor(accentColor));
     }
 
     private void setTitleAndCriteriaStyle(AuxiliaryBookTemplate template) {
         this.titleStyle = DynamicReports.stl.style(this.textStyle)
-                .setFontSize(template.getFontSize() + 6) // Un poco más grande
-                .setBold(true);
+                .setFontSize((template.getFontSize() != null ? template.getFontSize() : 11) + 6)
+                .setBold(true)
+                .setForegroundColor(primaryColor);
 
         this.criteriaTitleStyle = DynamicReports.stl.style(this.textStyle)
                 .setBold(true)
-                .setTopPadding(10); // Espacio antes de los criterios
+                .setForegroundColor(primaryColor)
+                .setTopPadding(10);
     }
 
-    private void setTableCellStyle(AuxiliaryBookTemplate template) {
-        this.tableCellStyle = DynamicReports.stl.style()
-                .setFontName(template.getFont())
-                .setFontSize(template.getFontSize())
-                .setBorder(DynamicReports.stl.pen().setLineWidth(0.5f).setLineColor(java.awt.Color.BLACK))
-                .setHorizontalTextAlignment(HorizontalTextAlignment.CENTER)
+    private void setTableCellStyle() {
+        this.tableCellStyle = DynamicReports.stl.style(this.textStyle)
+                .setBorder(DynamicReports.stl.pen().setLineWidth(0.4f).setLineColor(accentColor))
+                .setHorizontalTextAlignment(HorizontalTextAlignment.LEFT)
                 .setVerticalTextAlignment(VerticalTextAlignment.MIDDLE)
                 .setPadding(5);
+
+        this.oddRowStyle = DynamicReports.stl.style(this.tableCellStyle)
+                .setBackgroundColor(softBackground);
     }
 
     private ImageBuilder buildLogoImage(URL logoUrl) {
@@ -80,16 +99,10 @@ public class ReportStyleBuilder {
         }
 
         try {
-            // 1. Abrimos una conexión HTTP en lugar de un stream simple.
             HttpsURLConnection connection = (HttpsURLConnection) logoUrl.openConnection();
-
-            // 2. ¡EL PASO CLAVE! Nos identificamos como un navegador Firefox.
             connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/20100101 Firefox/99.0");
-
-            // 3. Obtenemos el stream desde esta conexión configurada.
             InputStream imageStream = connection.getInputStream();
 
-            // 4. Le pasamos el stream ya validado a DynamicReports.
             return Components.image(imageStream)
                     .setFixedHeight(50)
                     .setFixedWidth(120);
@@ -102,16 +115,13 @@ public class ReportStyleBuilder {
     }
 
     private VerticalListBuilder buildCriteriaComponent(AuxiliaryBookCriteria criteria, StyleBuilder baseStyle) {
-        // La recolección de criterios no cambia...
         StyleBuilder labelStyle = DynamicReports.stl.style(baseStyle).setBold(true);
         StyleBuilder valueStyle = DynamicReports.stl.style(baseStyle).setHorizontalTextAlignment(HorizontalTextAlignment.LEFT);
         List<ComponentBuilder<?, ?>> criteriaItems = new ArrayList<>();
 
-        // ... (toda la lógica 'if' para añadir criterios a la lista no cambia)
         if (criteria.getCriteriaType() != null) {
             criteriaItems.add(createCriteriaRow("Tipo de Nivel:", criteria.getCriteriaType().getDisplayName(), labelStyle, valueStyle));
         }
-        // ... etc ...
         if (criteria.hasRange()) {
             String range = criteria.getCriteriaRange().getFromRange() + " a " + criteria.getCriteriaRange().getToRange();
             criteriaItems.add(createCriteriaRow("Rango:", range, labelStyle, valueStyle));
@@ -132,26 +142,21 @@ public class ReportStyleBuilder {
             criteriaItems.add(createCriteriaRow("Fecha de Corte:", criteria.getEndDate().toString(), labelStyle, valueStyle));
         }
 
-
-        // --- CÓDIGO RESTAURADO Y CORRECTO ---
-        // Volvemos a añadir el verticalGap en el bucle.
         VerticalListBuilder leftColumn = Components.verticalList();
         VerticalListBuilder rightColumn = Components.verticalList();
         int middle = (int) Math.ceil(criteriaItems.size() / 2.0);
 
         for (int i = 0; i < criteriaItems.size(); i++) {
             ComponentBuilder<?, ?> item = criteriaItems.get(i);
-
             if (i < middle) {
                 leftColumn.add(item);
-                leftColumn.add(Components.verticalGap(8)); // Añadimos el espacio aquí
+                leftColumn.add(Components.verticalGap(8));
             } else {
                 rightColumn.add(item);
-                rightColumn.add(Components.verticalGap(8)); // Y aquí
+                rightColumn.add(Components.verticalGap(8));
             }
         }
 
-        // El ensamblado final no cambia
         HorizontalListBuilder columns = Components.horizontalList().add(leftColumn, rightColumn).setGap(40);
         VerticalListBuilder finalComponent = Components.verticalList();
         finalComponent.add(Components.text("Criterios Utilizados:").setStyle(criteriaTitleStyle));
@@ -162,7 +167,6 @@ public class ReportStyleBuilder {
     }
 
     private VerticalListBuilder createCriteriaRow(String label, String value, StyleBuilder labelStyle, StyleBuilder valueStyle) {
-        // Simplemente apilamos la etiqueta y el valor.
         return Components.verticalList(
                 Components.text(label).setStyle(labelStyle),
                 Components.text(value).setStyle(valueStyle)
@@ -173,26 +177,23 @@ public class ReportStyleBuilder {
     private void setTitle(JasperReportBuilder report, AuxiliaryBookTemplate template, ExportInfo exportInfo) {
         EAlignment alignment = template.getAlienation() != null ? template.getAlienation() : EAlignment.RIGHT;
 
-        // Determinar la alineación del texto para Títulos y Fecha
         HorizontalTextAlignment textAlignment = switch (alignment) {
             case LEFT -> HorizontalTextAlignment.LEFT;
             case RIGHT -> HorizontalTextAlignment.RIGHT;
             default -> HorizontalTextAlignment.CENTER;
         };
 
-        // --- AJUSTE EN LA ALINEACIÓN DEL TEXTO DE LA FECHA ---
         ComponentBuilder<?, ?> dateTimeComponent = Components.verticalList(
                 Components.text("Generado en:")
                         .setStyle(DynamicReports.stl.style(textStyle).setBold(true))
-                        .setHorizontalTextAlignment(textAlignment), // Alineación dinámica
+                        .setHorizontalTextAlignment(textAlignment),
 
                 Components.currentDate()
                         .setPattern("HH:mm dd/MM/yyyy")
                         .setStyle(textStyle)
-                        .setHorizontalTextAlignment(textAlignment) // Alineación dinámica
+                        .setHorizontalTextAlignment(textAlignment)
         );
 
-        // El resto de la lógica de posicionamiento de bloques no cambia...
         ImageBuilder logo = buildLogoImage(template.getPathLogotype());
         ComponentBuilder<?, ?> titles = Components.verticalList(
                 Components.text(exportInfo.getEntName()).setStyle(titleStyle).setHorizontalTextAlignment(textAlignment),
@@ -213,13 +214,12 @@ public class ReportStyleBuilder {
         }
 
         VerticalListBuilder criteriaList = buildCriteriaComponent(exportInfo.getAuxiliaryBook().getCriteria(), this.textStyle);
-        // Agregamos una línea separadora como en la imagen
         report.title(
                 Components.verticalList(
                         headerList,
-                        Components.verticalGap(10), // Espacio antes de la línea
-                        Components.line(),          // La línea (correcta, 1px de alto)
-                        Components.verticalGap(5),  // Espacio (menor) después de la línea
+                        Components.verticalGap(10),
+                        Components.line().setStyle(DynamicReports.stl.style().setForegroundColor(accentColor)),
+                        Components.verticalGap(5),
                         criteriaList,
                         Components.verticalGap(20)
                 )
@@ -228,9 +228,11 @@ public class ReportStyleBuilder {
 
     private void setPageFooter(JasperReportBuilder report, AuxiliaryBookTemplate template) {
         EAlignment alignment = template.getAlienation() != null ? template.getAlienation() : EAlignment.RIGHT;
-        StyleBuilder footerStyle = DynamicReports.stl.style(textStyle).setFontSize(template.getFontSize() - 2);
+        int footerSize = Math.max(8, (template.getFontSize() != null ? template.getFontSize() : 11) - 2);
+        StyleBuilder footerStyle = DynamicReports.stl.style(textStyle)
+                .setFontSize(footerSize)
+                .setForegroundColor(accentColor);
 
-        // ✅ CORRECCIÓN DE PAGINACIÓN AQUÍ
         HorizontalListBuilder pageNumberComponent = Components.horizontalList(
                 Components.pageNumber().setStyle(footerStyle),
                 Components.text(" de ").setStyle(footerStyle),
@@ -238,8 +240,6 @@ public class ReportStyleBuilder {
         );
 
         HorizontalListBuilder footer = Components.horizontalList();
-
-        // ... (El switch de alineación del footer no cambia)
         switch (alignment) {
             case LEFT:
                 footer.add(pageNumberComponent, Components.filler());
@@ -256,22 +256,50 @@ public class ReportStyleBuilder {
     }
 
     public void templateBuilder(JasperReportBuilder report, AuxiliaryBookTemplate template, ExportInfo exportInfo) {
-        // 1. Definir todos los estilos
-        this.setTextStyle(template);       // Estilo base
-        this.setTableCellStyle(template);  // NUEVO: Estilo para la tabla
-        this.setHeaderStyle(template);
+        buildPalette(template);
+        this.setTextStyle(template);
+        this.setTableCellStyle();
+        this.setHeaderStyle();
         this.setTitleAndCriteriaStyle(template);
 
-        // 2. Construir las secciones del reporte
         this.setTitle(report, template, exportInfo);
         this.setPageFooter(report, template);
 
-        // 3. Aplicar los estilos de la tabla al template
         report.setTemplate(
                 DynamicReports.template()
-                        // Usamos los estilos específicos de la tabla aquí
                         .setColumnStyle(this.tableCellStyle)
                         .setColumnTitleStyle(this.headerStyle)
         );
+    }
+
+    private void buildPalette(AuxiliaryBookTemplate template) {
+        this.primaryColor = safeColor(template.getMainColor(), DEFAULT_PRIMARY);
+        this.accentColor = darken(primaryColor, 0.15f);
+        this.softBackground = lighten(primaryColor, 0.85f);
+    }
+
+    private Color safeColor(String value, Color fallback) {
+        if (value == null || value.isBlank()) {
+            return fallback;
+        }
+        try {
+            return Color.decode(value);
+        } catch (Exception e) {
+            return fallback;
+        }
+    }
+
+    private Color lighten(Color color, float factor) {
+        int r = Math.min(255, (int) (color.getRed() + (255 - color.getRed()) * factor));
+        int g = Math.min(255, (int) (color.getGreen() + (255 - color.getGreen()) * factor));
+        int b = Math.min(255, (int) (color.getBlue() + (255 - color.getBlue()) * factor));
+        return new Color(r, g, b);
+    }
+
+    private Color darken(Color color, float factor) {
+        int r = Math.max(0, (int) (color.getRed() * (1 - factor)));
+        int g = Math.max(0, (int) (color.getGreen() * (1 - factor)));
+        int b = Math.max(0, (int) (color.getBlue() * (1 - factor)));
+        return new Color(r, g, b);
     }
 }

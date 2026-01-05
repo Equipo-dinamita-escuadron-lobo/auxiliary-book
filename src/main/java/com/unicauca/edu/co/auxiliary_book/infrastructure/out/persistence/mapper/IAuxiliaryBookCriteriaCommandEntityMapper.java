@@ -8,6 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface IAuxiliaryBookCriteriaCommandEntityMapper {
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "auxiliaryBook", ignore = true)
     @Mapping(source = "criteriaType", target = "criteriaType")
     @Mapping(source = "criteriaRange.fromRange", target = "fromRange")
     @Mapping(source = "criteriaRange.toRange", target = "toRange")

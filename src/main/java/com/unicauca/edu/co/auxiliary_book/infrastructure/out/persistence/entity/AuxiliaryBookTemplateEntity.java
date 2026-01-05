@@ -37,7 +37,7 @@ public class AuxiliaryBookTemplateEntity {
      * @brief Path to the logotype image for the template.
      */
     @Column(nullable = false)
-    private String PathLogotype;
+    private String pathLogotype;
 
     /**
      * @brief Alignment setting for the template.
