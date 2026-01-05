@@ -19,7 +19,7 @@ import java.net.URL;
 public class AuxiliaryBookTemplate {
     private Long id;
     private String name;
-    private URL PathLogotype;
+    private URL pathLogotype;
     private EAlignment alienation;
     private String font;
     private Integer fontSize;

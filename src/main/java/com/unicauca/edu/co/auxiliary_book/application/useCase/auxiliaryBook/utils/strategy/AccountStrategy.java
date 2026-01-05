@@ -86,8 +86,15 @@ public class AccountStrategy implements IProcessStrategy {
         for (AccountingInfo info : currentPeriodData) {
 
             // Usamos .valueOf() y manejamos nulos defensivamente
-            BigDecimal debit = BigDecimal.valueOf(info.getAccountingMovement().getDebit() != null ? info.getAccountingMovement().getDebit() : 0.0);
-            BigDecimal credit = BigDecimal.valueOf(info.getAccountingMovement().getCredit() != null ? info.getAccountingMovement().getCredit() : 0.0);
+            Double debitValue = Optional.ofNullable(info.getAccountingMovement())
+                    .map(acc -> acc.getDebit())
+                    .orElse(0.0);
+            Double creditValue = Optional.ofNullable(info.getAccountingMovement())
+                    .map(acc -> acc.getCredit())
+                    .orElse(0.0);
+
+            BigDecimal debit = BigDecimal.valueOf(debitValue);
+            BigDecimal credit = BigDecimal.valueOf(creditValue);
 
             // Calcular el saldo acumulado para esta transacción
             runningBalance = calculateFinalBalance(runningBalance, debit, credit, accountNature);
@@ -114,7 +121,7 @@ public class AccountStrategy implements IProcessStrategy {
                     credit.setScale(2, RoundingMode.HALF_UP),
                     runningBalance.setScale(2, RoundingMode.HALF_UP), // El saldo acumulado
                     info.getThirdPartyId(),
-                    null, // TODO: Se requiere un repositorio de Terceros (puerto) para obtener el nombre
+                    null, // Nombre de tercero no disponible en la fuente actual
                     costCenterCode,
                     voucherNumber
             );

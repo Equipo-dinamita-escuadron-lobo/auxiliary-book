@@ -11,7 +11,9 @@ import java.util.Set;
 public enum ScheduledTaskType {
     SEND_EMAIL(Set.of("emailTo", "subject", "body")),
     GENERATE_REPORT(Set.of("reportType", "criteria")),
-    SCHEDULED_DOWNLOAD(Set.of("resourceId"));
+    SCHEDULED_DOWNLOAD(Set.of("resourceId")),
+    AUXILIARY_BOOK_EMAIL(Set.of("deliveryWay", "format", "entName", "auxiliaryBook", "template", "emailTo")),
+    AUXILIARY_BOOK_DOWNLOAD(Set.of("deliveryWay", "format", "entName", "auxiliaryBook", "template"));
 
     private final Set<String> requiredPayloadKeys;
 
