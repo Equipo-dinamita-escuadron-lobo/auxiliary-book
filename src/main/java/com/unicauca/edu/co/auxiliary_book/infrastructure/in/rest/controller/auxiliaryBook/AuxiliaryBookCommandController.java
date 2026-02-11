@@ -1,26 +1,28 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.controller.auxiliaryBook;
 
-import com.unicauca.edu.co.auxiliary_book.application.ports.in.auxiliaryBook.IAuxiliaryBookCommandPort;
-import com.unicauca.edu.co.auxiliary_book.application.ports.in.export.IExportReportPort;
-import com.unicauca.edu.co.auxiliary_book.application.ports.in.log.IAuxiliaryBookLogQueryPort;
-import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
-import com.unicauca.edu.co.auxiliary_book.domain.models.log.AuxiliaryBookLog;
-import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.AuxiliaryBookHistoryResponseDTO;
-import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.AuxiliaryBookResponseDTO;
-import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.ResponseDTO;
-import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.request.ExportAuxiliaryBookRequest;
-import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.request.GenerateAuxiliaryBookRequest;
-import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.mapper.IAuxiliaryBookRestMapper;
-import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.mapper.IExportRestMapper;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import java.util.List;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.unicauca.edu.co.auxiliary_book.application.ports.in.auxiliaryBook.IAuxiliaryBookCommandPort;
+import com.unicauca.edu.co.auxiliary_book.application.ports.in.export.IExportReportPort;
+import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.request.ExportAuxiliaryBookRequest;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.request.GenerateAuxiliaryBookRequest;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.AuxiliaryBookResponseDTO;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.ResponseDTO;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.mapper.IAuxiliaryBookRestMapper;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.mapper.IExportRestMapper;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
