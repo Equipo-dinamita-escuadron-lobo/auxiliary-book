@@ -47,6 +47,7 @@ jwt:
 
 resend:
   key: ${RESEND_KEY}
+  from: ${RESEND_FROM:alejfernandez@unicauca.edu.co}
 
 services:
   account-info-service:
