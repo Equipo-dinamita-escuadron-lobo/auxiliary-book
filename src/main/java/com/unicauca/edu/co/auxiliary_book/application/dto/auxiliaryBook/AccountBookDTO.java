@@ -1,4 +1,4 @@
-package com.unicauca.edu.co.auxiliary_book.application.dto;
+package com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,7 +10,7 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ThirdPartyBookDTO {
+public class AccountBookDTO {
     private Date date;
     private AccountDTO account;
     private BigDecimal debitMovement;

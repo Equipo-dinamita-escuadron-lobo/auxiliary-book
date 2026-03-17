@@ -9,7 +9,7 @@ import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAuxiliaryBookType
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EState;
 import com.unicauca.edu.co.auxiliary_book.domain.models.history.AuxiliaryBookHistory;
 import com.unicauca.edu.co.auxiliary_book.domain.models.log.AuxiliaryBookLog;
-import com.unicauca.edu.co.auxiliary_book.domain.models.log.ETypeEvent;
+import com.unicauca.edu.co.auxiliary_book.domain.models.enums.ETypeEvent;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookHistory.IAuxiliaryBookHistoryCommandRepositoryPort;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookHistory.IAuxiliaryBookHistoryQueryRepositoryPort;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookLog.IAuxiliaryBookLogCommandRepositoryPort;

@@ -1,6 +1,6 @@
 package com.unicauca.edu.co.auxiliary_book.application.useCase.export.report.builders;
 
-import com.unicauca.edu.co.auxiliary_book.application.dto.*;
+import com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook.*;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.export.ExportInfo;
 import lombok.NoArgsConstructor;
 import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;

@@ -1,6 +1,6 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.entity;
 
-import com.unicauca.edu.co.auxiliary_book.domain.models.log.ETypeEvent;
+import com.unicauca.edu.co.auxiliary_book.domain.models.enums.ETypeEvent;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

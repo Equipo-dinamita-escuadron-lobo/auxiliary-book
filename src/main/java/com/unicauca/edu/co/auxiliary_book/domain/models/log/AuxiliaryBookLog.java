@@ -2,6 +2,7 @@ package com.unicauca.edu.co.auxiliary_book.domain.models.log;
 
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
 
+import com.unicauca.edu.co.auxiliary_book.domain.models.enums.ETypeEvent;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

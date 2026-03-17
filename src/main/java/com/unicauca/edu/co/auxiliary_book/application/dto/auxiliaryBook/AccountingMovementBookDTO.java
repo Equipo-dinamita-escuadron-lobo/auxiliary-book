@@ -1,4 +1,4 @@
-package com.unicauca.edu.co.auxiliary_book.application.dto;
+package com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

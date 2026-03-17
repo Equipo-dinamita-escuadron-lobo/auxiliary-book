@@ -1,4 +1,4 @@
-package com.unicauca.edu.co.auxiliary_book.domain.models.log;
+package com.unicauca.edu.co.auxiliary_book.domain.models.enums;
 
 public enum ETypeEvent {
     REGISTERED,

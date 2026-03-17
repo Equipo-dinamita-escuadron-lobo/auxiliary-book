@@ -13,7 +13,7 @@ import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoC
 import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.AuxiliaryBookProcessor;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
 import com.unicauca.edu.co.auxiliary_book.domain.models.log.AuxiliaryBookLog;
-import com.unicauca.edu.co.auxiliary_book.domain.models.log.ETypeEvent;
+import com.unicauca.edu.co.auxiliary_book.domain.models.enums.ETypeEvent;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBook.IAuxiliaryBookCommandRepositoryPort;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookLog.IAuxiliaryBookLogCommandRepositoryPort;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.IFormatterResultOutputPort;

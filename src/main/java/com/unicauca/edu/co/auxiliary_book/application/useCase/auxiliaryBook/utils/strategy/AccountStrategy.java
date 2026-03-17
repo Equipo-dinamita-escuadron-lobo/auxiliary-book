@@ -1,7 +1,7 @@
 package com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.strategy;
 
-import com.unicauca.edu.co.auxiliary_book.application.dto.AccountBookDTO;
-import com.unicauca.edu.co.auxiliary_book.application.dto.AccountDTO;
+import com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook.AccountBookDTO;
+import com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook.AccountDTO;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.AccountingInfoProcessor;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
 import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
