@@ -56,6 +56,12 @@ services:
   third-service:
     base-url: lb://THIRDS
 
+scheduled:
+  reports:
+    poller:
+      delay-ms: ${SCHEDULED_REPORTS_POLLER_DELAY_MS:60000}
+      batch-size: ${SCHEDULED_REPORTS_POLLER_BATCH_SIZE:50}
+
 management:
   endpoint:
     health:

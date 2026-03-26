@@ -35,6 +35,7 @@ public class AuxiliaryBookCriteria {
         return criteriaRange != null;
     }
 
+    @Override
     public String toString(){
         return "Tipo de criterio: " + criteriaType + ", Rango: " + (hasRange() ? criteriaRange.toString() : "N/A") +
                 ", Centro de costo: " + (costCenterId != null ? costCenterId : "N/A") +

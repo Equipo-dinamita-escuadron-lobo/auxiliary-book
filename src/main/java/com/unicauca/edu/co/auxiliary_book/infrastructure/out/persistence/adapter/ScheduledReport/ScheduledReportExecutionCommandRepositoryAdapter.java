@@ -1,4 +1,54 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.adapter.ScheduledReport;
 
-public class ScheduledReportExecutionCommandRepositoryAdapter {
+import com.unicauca.edu.co.auxiliary_book.domain.models.scheduledJobExecution.ReportExecution;
+import com.unicauca.edu.co.auxiliary_book.domain.ports.scheduledReport.IScheduledReportExecutionCommandRepositoryPort;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.entity.scheduledReport.ScheduledReportExecutionEntity;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.repository.scheduledReport.IScheduledReportExecutionRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+@Component
+@RequiredArgsConstructor
+public class ScheduledReportExecutionCommandRepositoryAdapter implements IScheduledReportExecutionCommandRepositoryPort {
+
+    private final IScheduledReportExecutionRepository scheduledReportExecutionRepository;
+
+    @Override
+    public ReportExecution save(ReportExecution execution) {
+        ScheduledReportExecutionEntity entity = toEntity(execution);
+        ScheduledReportExecutionEntity saved = scheduledReportExecutionRepository.save(entity);
+        return toDomain(saved);
+    }
+
+    private ScheduledReportExecutionEntity toEntity(ReportExecution execution) {
+        ScheduledReportExecutionEntity entity = new ScheduledReportExecutionEntity();
+        entity.setExecutionId(execution.getExecutionId());
+        entity.setJobId(execution.getJobId());
+        entity.setScheduledAt(execution.getScheduledAt());
+        entity.setStartedAt(execution.getStartedAt());
+        entity.setFinishedAt(execution.getFinishedAt());
+        entity.setStatusExecution(execution.getStatusExecution());
+        entity.setDeliveryStatus(execution.getDeliveryStatus());
+        entity.setErrorCode(execution.getErrorCode());
+        entity.setErrorMessage(execution.getErrorMessage());
+        entity.setCorrelationId(execution.getCorrelationId());
+        entity.setRetryCount(execution.getRetryCount());
+        return entity;
+    }
+
+    private ReportExecution toDomain(ScheduledReportExecutionEntity entity) {
+        ReportExecution execution = new ReportExecution();
+        execution.setExecutionId(entity.getExecutionId());
+        execution.setJobId(entity.getJobId());
+        execution.setScheduledAt(entity.getScheduledAt());
+        execution.setStartedAt(entity.getStartedAt());
+        execution.setFinishedAt(entity.getFinishedAt());
+        execution.setStatusExecution(entity.getStatusExecution());
+        execution.setDeliveryStatus(entity.getDeliveryStatus());
+        execution.setErrorCode(entity.getErrorCode());
+        execution.setErrorMessage(entity.getErrorMessage());
+        execution.setCorrelationId(entity.getCorrelationId());
+        execution.setRetryCount(entity.getRetryCount());
+        return execution;
+    }
 }

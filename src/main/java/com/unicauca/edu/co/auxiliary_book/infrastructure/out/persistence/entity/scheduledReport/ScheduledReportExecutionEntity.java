@@ -1,4 +1,59 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.entity.scheduledReport;
 
+import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EDeliveryStatus;
+import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EExecutionStatus;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.Instant;
+import java.util.UUID;
+
+@Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "SCHEDULED_REPORT_EXECUTION")
 public class ScheduledReportExecutionEntity {
+
+    @Id
+    private UUID executionId;
+
+    @Column(nullable = false)
+    private UUID jobId;
+
+    @Column(nullable = false)
+    private Instant scheduledAt;
+
+    @Column
+    private Instant startedAt;
+
+    @Column
+    private Instant finishedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EExecutionStatus statusExecution;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EDeliveryStatus deliveryStatus;
+
+    @Column
+    private String errorCode;
+
+    @Column
+    private String errorMessage;
+
+    @Column
+    private String correlationId;
+
+    @Column
+    private int retryCount;
 }
