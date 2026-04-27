@@ -1,16 +1,36 @@
 package com.unicauca.edu.co.auxiliary_book.unit.application.history;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Optional;
+
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import com.unicauca.edu.co.auxiliary_book.application.useCase.history.HistoryAuxiliaryBookQueryUC;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.scheduledReport.ScheduledReportCommandUC;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.scheduledReport.services.ScheduledReportCommandFactory;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
-import com.unicauca.edu.co.auxiliary_book.domain.models.history.AuxiliaryBookHistory;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.CriteriaRange;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAuxiliaryBookType;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.ECriteriaType;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EDeliveryWay;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EFrequency;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EJobStatus;
+import com.unicauca.edu.co.auxiliary_book.domain.models.history.AuxiliaryBookHistory;
 import com.unicauca.edu.co.auxiliary_book.domain.models.scheduling.DeliveryConfig;
 import com.unicauca.edu.co.auxiliary_book.domain.models.scheduling.EmailConfig;
 import com.unicauca.edu.co.auxiliary_book.domain.models.scheduling.ScheduleSpec;
@@ -22,26 +42,6 @@ import com.unicauca.edu.co.auxiliary_book.domain.ports.scheduledReport.IClockPor
 import com.unicauca.edu.co.auxiliary_book.domain.ports.scheduledReport.IScheduledReportCommandRepositoryPort;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.scheduledReport.IScheduledReportQueryRepositoryPort;
 import com.unicauca.edu.co.auxiliary_book.infrastructure.out.exception.customized.BusinessRuleException;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * @brief Pruebas unitarias para {@link HistoryAuxiliaryBookQueryUC},

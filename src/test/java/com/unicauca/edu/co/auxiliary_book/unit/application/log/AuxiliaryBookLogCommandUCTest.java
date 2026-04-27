@@ -266,7 +266,9 @@ class AuxiliaryBookLogCommandUCTest {
         Assertions.assertThat(exportInfo.getInfoReportTemplate().getName()).isEqualTo("ACCOUNT");
         Assertions.assertThat(context.getRequiredAttribute(JobCommandContext.ATTRIBUTE_REGISTERED_BOOK, AuxiliaryBook.class))
                 .isSameAs(registeredBook);
-        Assertions.assertThat(context.getRequiredAttribute(JobCommandContext.ATTRIBUTE_REPORT_DATA, List.class))
+        @SuppressWarnings("unchecked")
+        List<String> reportDataResult = (List<String>) context.getRequiredAttribute(JobCommandContext.ATTRIBUTE_REPORT_DATA, List.class);
+        Assertions.assertThat(reportDataResult)
                 .isEqualTo(reportData);
         Assertions.assertThat(context.getRequiredAttribute(JobCommandContext.ATTRIBUTE_REPORT_BYTES, byte[].class))
                 .containsExactly(1, 2, 3);
