@@ -9,10 +9,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
- * @brief Service for retrieving third party information from an external service.
+ * @brief Cliente para obtener información de terceros desde un servicio externo.
  *
- * Implements the contract for obtaining third party records
- * using a WebClient to communicate with the external third party service.
+ * Implementa el puerto {@link IThirdPartyInfoClient} utilizando un
+ * {@link WebClient} load-balanced. Convierte la respuesta JSON cruda
+ * en un modelo de dominio {@link ThirdParty}, combinando nombres y
+ * apellidos o usando la razón social según disponibilidad.
  */
 @Component
 public class ThirdPartyService implements IThirdPartyInfoClient {
@@ -27,9 +29,9 @@ public class ThirdPartyService implements IThirdPartyInfoClient {
     }
 
     /**
-     * @brief Retrieves a third party by its ID from the external service.
-     * @param thirdPartyId ID of the third party to retrieve.
-     * @return ThirdParty object if found, otherwise null.
+     * @brief Obtiene un tercero por su ID desde el servicio externo.
+     * @param thirdPartyId ID del tercero a consultar.
+     * @return Objeto ThirdParty si existe, {@code null} si no fue encontrado.
      */
     @Override
     public ThirdParty getThirdPartyById(Long thirdPartyId) {
@@ -46,9 +48,9 @@ public class ThirdPartyService implements IThirdPartyInfoClient {
     }
 
     /**
-     * @brief Converts a JsonNode to a ThirdParty object.
-     * @param jsonNode The JsonNode containing third party data.
-     * @return ThirdParty object.
+     * @brief Convierte un JsonNode en un objeto ThirdParty.
+     * @param jsonNode JsonNode con los datos del tercero.
+     * @return Objeto ThirdParty poblado con los datos del JSON.
      */
     private ThirdParty convertJsonToThirdParty(JsonNode jsonNode) {
 
@@ -58,7 +60,7 @@ public class ThirdPartyService implements IThirdPartyInfoClient {
         String LastName = jsonNode.get("lastNames").asText();
 
         if(name.isEmpty() || LastName.isEmpty()) {
-           objThirdParty.setName(jsonNode.get("socialReason").asText());
+            objThirdParty.setName(jsonNode.get("socialReason").asText());
         }else{
             objThirdParty.setName(name + " " + LastName);
         }

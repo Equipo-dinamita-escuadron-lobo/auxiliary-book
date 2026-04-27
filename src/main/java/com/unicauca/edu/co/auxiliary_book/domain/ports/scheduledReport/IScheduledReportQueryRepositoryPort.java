@@ -6,6 +6,13 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * @brief Puerto de salida para operaciones de consulta de reportes programados.
+ *
+ * Define el contrato para buscar jobs por id interno, por identificador
+ * público, por entidad y para localizar aquellos vencidos
+ * ({@code findDueJobs}) que deben ejecutarse en el ciclo actual.
+ */
 public interface IScheduledReportQueryRepositoryPort {
     Optional<ScheduledAuxiliaryBookJob> findById(Long jobId);
     Optional<ScheduledAuxiliaryBookJob> findByPublicId(String publicId);

@@ -10,9 +10,11 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 /**
- * @brief Entity representing a log entry for an auxiliary book.
+ * @brief Entidad JPA que representa un registro de log de libro auxiliar.
  *
- * Maps log events related to an auxiliary book and links to the associated book entity.
+ * Mapea los eventos (tipo, mensaje y fecha) asociados al ciclo de
+ * vida de un libro auxiliar, con una relación muchos-a-uno hacia el
+ * libro auxiliar propietario.
  */
 @Entity
 @Data

@@ -9,6 +9,13 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * @brief DTO de respuesta con el detalle de una ejecución de reporte programado.
+ *
+ * Expone los datos de una ejecución concreta: identificadores, fechas
+ * de programación, inicio y fin, estado de ejecución, estado de
+ * entrega y mensaje de error (si lo hubo).
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

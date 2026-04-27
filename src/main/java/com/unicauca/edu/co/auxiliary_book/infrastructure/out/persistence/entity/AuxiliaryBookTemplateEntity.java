@@ -7,10 +7,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @brief Entity representing a template for an auxiliary book.
+ * @brief Entidad JPA que representa la plantilla de un libro auxiliar.
  *
- * Maps template configuration such as name, logo path, alignment, font, and color,
- * and links to the associated auxiliary book entity.
+ * Mapea la configuración visual de la plantilla: nombre, ruta del
+ * logotipo, alineación, fuente y color principal. Mantiene la relación
+ * uno-a-uno con el libro auxiliar que usa la plantilla.
  */
 @Entity
 @Data

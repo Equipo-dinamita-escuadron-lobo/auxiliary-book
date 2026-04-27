@@ -11,6 +11,13 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * @brief DTO de solicitud para exportar un libro auxiliar.
+ *
+ * Agrupa toda la información necesaria para producir un archivo
+ * exportable (PDF, Excel, etc.): formato, nombre de la empresa, el libro
+ * auxiliar ya generado, los datos contables y la plantilla del reporte.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

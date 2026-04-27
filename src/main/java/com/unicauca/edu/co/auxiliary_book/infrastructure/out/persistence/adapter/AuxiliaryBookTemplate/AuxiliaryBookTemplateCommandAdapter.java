@@ -4,16 +4,17 @@ import com.unicauca.edu.co.auxiliary_book.domain.models.core.export.AuxiliaryBoo
 import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookTemplate.IAuxiliaryBookTemplateCommandRepositoryPort;
 
 /**
- * @brief Adapter for Auxiliary Book Template write operations.
+ * @brief Adaptador para las operaciones de escritura de plantillas de libros auxiliares.
  *
- * Implements the contract for persisting auxiliary book template records
- * in the underlying data storage system.
+ * Implementación reservada del puerto de comandos de plantillas;
+ * actualmente retorna {@code null} y sirve como placeholder para la
+ * futura integración con el almacén de plantillas.
  */
 public class AuxiliaryBookTemplateCommandAdapter implements IAuxiliaryBookTemplateCommandRepositoryPort {
     /**
-     * @brief Persists an auxiliary book template record.
-     * @param auxiliaryBookTemplate Auxiliary book template to save.
-     * @return Saved AuxiliaryBookTemplate with generated identifiers.
+     * @brief Persiste una plantilla de libro auxiliar.
+     * @param auxiliaryBookTemplate Plantilla a guardar.
+     * @return Plantilla persistida con los identificadores generados (no implementado).
      */
     @Override
     public AuxiliaryBookTemplate registerAuxiliaryBookTemplate(AuxiliaryBookTemplate auxiliaryBookTemplate) {

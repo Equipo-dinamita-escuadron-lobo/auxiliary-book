@@ -1,19 +1,25 @@
 package com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook;
 
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
+/**
+ * @brief DTO para filas del Libro Auxiliar de Movimientos Contables.
+ *
+ * Representa una línea del libro de movimientos contables, incluyendo
+ * el comprobante, la cuenta, el tercero, los saldos iniciales y los
+ * movimientos de débito, crédito y neto asociados al periodo consultado.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class AccountingMovementBookDTO {
     private String voucherType;
-    private Date date;
-    private String State;
+    private String date;
+    private String state;
     private String thirdPartyId;
     private String thirdPartyName;
     private AccountDTO account;

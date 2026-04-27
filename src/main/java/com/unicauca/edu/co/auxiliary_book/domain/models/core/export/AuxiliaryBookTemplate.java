@@ -9,8 +9,11 @@ import lombok.NoArgsConstructor;
 import java.net.URL;
 
 /**
- * @brief Domain model representing the export template for an auxiliary book.
+ * @brief Modelo de dominio de la plantilla de exportación de un libro auxiliar.
  *
+ * Define la apariencia del reporte: ruta del logotipo, alineación de
+ * encabezados, fuente, tamaño y color principal. La plantilla es
+ * suministrada por la entidad propietaria del libro.
  */
 @Builder
 @Data

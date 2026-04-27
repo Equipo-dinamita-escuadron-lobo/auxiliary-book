@@ -15,6 +15,13 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * @brief Entidad JPA que representa una ejecución de reporte programado.
+ *
+ * Mapea cada intento de ejecución de un job: identificadores, fechas
+ * programadas y reales, estado de ejecución, estado de entrega,
+ * información de error y contador de reintentos.
+ */
 @Entity
 @Data
 @AllArgsConstructor

@@ -12,6 +12,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @brief Modelo de dominio para una ejecución individual de un reporte programado.
+ *
+ * Registra tiempos (programado, inicio, fin), el estado de la ejecución
+ * y de la entrega, referencias a los artefactos por formato, el
+ * identificador de correlación, el contador de reintentos y los
+ * códigos/mensajes de error en caso de falla.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

@@ -1,11 +1,7 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.controller.schedulerReport;
 
-import com.unicauca.edu.co.auxiliary_book.application.ports.in.scheduledReport.IScheduledReportExecutionsQueryPort;
-import com.unicauca.edu.co.auxiliary_book.domain.models.scheduledJobExecution.ReportExecution;
-import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.ResponseDTO;
-import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.scheduledReport.ScheduledReportExecutionListItemResponse;
-import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.mapper.IScheduledReportExecutionRestMapper;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,11 +9,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.unicauca.edu.co.auxiliary_book.application.ports.in.scheduledReport.IScheduledReportExecutionsQueryPort;
+import com.unicauca.edu.co.auxiliary_book.domain.models.scheduledJobExecution.ReportExecution;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.ResponseDTO;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.scheduledReport.ScheduledReportExecutionListItemResponse;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.mapper.IScheduledReportExecutionRestMapper;
 
+import lombok.RequiredArgsConstructor;
+
+/**
+ * @brief Controlador REST de consulta de ejecuciones de reportes programados.
+ *
+ * Expone endpoints para listar las ejecuciones asociadas a un reporte
+ * programado, con soporte para filtros dinámicos por query string.
+ * Convierte las entidades de dominio a DTOs de respuesta.
+ */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/scheduled-reports")
+@RequestMapping("/api/auxiliary-books/scheduled-reports")
 public class ScheduledReportExecutionQueryController {
 
     private final IScheduledReportExecutionsQueryPort scheduledReportExecutionsQueryPort;

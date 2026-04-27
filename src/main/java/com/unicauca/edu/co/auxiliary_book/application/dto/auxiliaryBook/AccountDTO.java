@@ -4,6 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @brief DTO para la información de una cuenta contable.
+ *
+ * Transporta los datos mínimos de identidad de la cuenta (código,
+ * descripción y naturaleza) utilizados por los demás DTOs del libro
+ * auxiliar para describir la cuenta asociada a un movimiento.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

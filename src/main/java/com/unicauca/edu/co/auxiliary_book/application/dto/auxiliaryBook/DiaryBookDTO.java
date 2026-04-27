@@ -8,10 +8,11 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * @brief Data Transfer Object for Diary Book entries
+ * @brief DTO para filas del Libro Diario (Diary Book).
  *
- * Represents the structure for transferring diary book output data
- * between application layers.
+ * Representa la estructura de una entrada del libro diario con
+ * fecha, cuenta contable, comprobante y los valores de débito y crédito
+ * utilizada para transferir los datos entre las capas de la aplicación.
  */
 @Data
 @AllArgsConstructor @NoArgsConstructor
@@ -19,7 +20,7 @@ public class DiaryBookDTO {
     /**
      * @brief Date of the diary book output
      */
-    private Date date;
+    private String date;
 
     /**
      * @brief Account realted with accounting info

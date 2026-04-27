@@ -13,6 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * @brief Controlador REST de consulta del historial de libros auxiliares.
+ *
+ * Expone endpoints para consultar paginadamente el historial de libros
+ * auxiliares filtrado por empresa, convirtiendo los resultados del
+ * dominio a DTOs mediante el mapper correspondiente.
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auxiliary-books")

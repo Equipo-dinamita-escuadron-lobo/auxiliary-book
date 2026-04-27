@@ -16,6 +16,15 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+/**
+ * @brief Adaptador de escritura para los trabajos de reportes programados.
+ *
+ * Implementa {@link IScheduledReportCommandRepositoryPort} persistiendo
+ * {@link ScheduledAuxiliaryBookJob} en la base de datos mediante
+ * {@link IScheduledReportRepository}, traduciendo entre el dominio y la
+ * entidad JPA, incluyendo los criterios del libro auxiliar y la
+ * configuración de entrega (correo electrónico).
+ */
 @Component
 @RequiredArgsConstructor
 public class ScheduledReportCommandRepositoryAdapter implements IScheduledReportCommandRepositoryPort {
@@ -24,6 +33,11 @@ public class ScheduledReportCommandRepositoryAdapter implements IScheduledReport
     private final IAuxiliaryBookCriteriaCommandEntityMapper criteriaCommandEntityMapper;
     private final IAuxiliaryBookCommandEntityMapper auxiliaryBookCommandEntityMapper;
 
+    /**
+     * @brief Guarda o actualiza un trabajo programado.
+     * @param job Trabajo a persistir.
+     * @return Trabajo persistido con los identificadores generados.
+     */
     @Override
     public ScheduledAuxiliaryBookJob save(ScheduledAuxiliaryBookJob job) {
         ScheduledReportEntity entity = toEntity(job);
@@ -31,6 +45,14 @@ public class ScheduledReportCommandRepositoryAdapter implements IScheduledReport
         return toDomain(saved);
     }
 
+    /**
+     * @brief Actualiza el estado de un trabajo programado.
+     * @param jobId Identificador interno del trabajo.
+     * @param status Nuevo estado a asignar.
+     *
+     * Si alguno de los parámetros es {@code null} o el trabajo no existe,
+     * la operación no realiza cambios.
+     */
     @Override
     public void updateStatus(Long jobId, EJobStatus status) {
         if (jobId == null || status == null) {

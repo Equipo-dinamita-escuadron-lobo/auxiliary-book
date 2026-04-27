@@ -12,10 +12,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * @brief Adapter for Auxiliary Book History write operations.
+ * @brief Adaptador para las operaciones de escritura del historial de libros auxiliares.
  *
- * Implements the contract for persisting auxiliary book history records
- * in the underlying data storage system.
+ * Implementa {@link IAuxiliaryBookHistoryCommandRepositoryPort}
+ * persistiendo y actualizando el historial. Recupera la entidad
+ * {@link AuxiliaryBookEntity} asociada desde el repositorio con
+ * {@code findById} para evitar {@code TransientObjectException} al
+ * guardar el historial.
  */
 @Component
 @RequiredArgsConstructor
@@ -26,9 +29,9 @@ public class AuxiliaryBookHistoryCommandAdapter implements IAuxiliaryBookHistory
     private final IAuxiliaryBookRepository auxiliaryBookRepository;
 
     /**
-     * @brief Persists an auxiliary book history record.
-     * @param auxiliaryBookHistory Auxiliary book history to save.
-     * @return Saved AuxiliaryBookHistory with generated identifiers.
+     * @brief Persiste un registro de historial de libro auxiliar.
+     * @param auxiliaryBookHistory Historial a guardar.
+     * @return Historial persistido con los identificadores generados.
      */
     @Override
     @Transactional
@@ -54,8 +57,9 @@ public class AuxiliaryBookHistoryCommandAdapter implements IAuxiliaryBookHistory
     }
 
     /**
-     * @brief Updates an existing auxiliary book history record.
-     * @param auxiliaryBookHistory The history record (with ID) to update.
+     * @brief Actualiza un registro de historial existente.
+     * @param auxiliaryBookHistory Historial (con ID) a actualizar.
+     * @return Historial actualizado mapeado al dominio.
      */
     @Override
     @Transactional

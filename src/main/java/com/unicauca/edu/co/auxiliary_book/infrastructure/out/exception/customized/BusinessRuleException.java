@@ -4,18 +4,19 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @brief Exception thrown when a business rule is violated.
+ * @brief Excepción que se lanza cuando se viola una regla de negocio.
  *
- * Used to indicate that a business rule constraint has been broken.
+ * Indica que una restricción propia del dominio no se cumplió y que la
+ * operación debe abortar con el código HTTP correspondiente.
  */
 @Getter
 @Setter
 public class BusinessRuleException extends BaseException {
 
     /**
-     * @brief Constructs a new BusinessRuleException with the specified status and message.
-     * @param status HTTP status code to associate with the exception.
-     * @param message Error message to describe the business rule violation.
+     * @brief Construye una BusinessRuleException con el código y mensaje indicados.
+     * @param status Código HTTP asociado a la excepción.
+     * @param message Mensaje que describe la regla de negocio violada.
      */
     public BusinessRuleException(Integer status, String message) {
         super(status, message);

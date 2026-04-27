@@ -5,15 +5,15 @@ import com.unicauca.edu.co.auxiliary_book.domain.models.core.export.AuxiliaryBoo
 import java.util.List;
 
 /**
- * @brief Output port for Auxiliary Book Template read operations
+ * @brief Puerto de salida para operaciones de consulta de plantillas de libros auxiliares.
  *
- * Defines the contract for querying auxiliary book template records
- * from the underlying data storage system.
+ * Define el contrato para recuperar las plantillas de exportación
+ * registradas en el sistema.
  */
 public interface IAuxiliaryBookTemplateQueryRepositoryPort {
     /**
-     * @brief Retrieves all auxiliary book template records
-     * @return List of AuxiliaryBookTemplate objects
+     * @brief Recupera todas las plantillas registradas.
+     * @return Lista de objetos {@link AuxiliaryBookTemplate}.
      */
     List<AuxiliaryBookTemplate> findAll();
 }

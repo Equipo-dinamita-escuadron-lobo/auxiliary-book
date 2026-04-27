@@ -5,8 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @brief Domain model representing a Cost Center.
+ * @brief Modelo de dominio para un centro de costo.
  *
+ * Representa el centro de costo asociado a los movimientos contables,
+ * identificado por su código y nombre.
  */
 @Data
 @AllArgsConstructor @NoArgsConstructor

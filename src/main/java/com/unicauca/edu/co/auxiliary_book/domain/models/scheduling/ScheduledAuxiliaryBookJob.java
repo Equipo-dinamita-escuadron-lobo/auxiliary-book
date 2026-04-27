@@ -9,6 +9,14 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * @brief Modelo de dominio de un job de reporte programado.
+ *
+ * Describe un reporte recurrente sobre un libro auxiliar: tipo de libro,
+ * criterios de generación, especificación temporal ({@link ScheduleSpec}),
+ * configuración de entrega ({@link DeliveryConfig}), autor y propietarios
+ * (entId/userId), fechas de creación/fin y estado actual ({@link EJobStatus}).
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

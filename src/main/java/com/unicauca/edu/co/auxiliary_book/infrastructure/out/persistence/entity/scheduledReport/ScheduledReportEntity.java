@@ -25,6 +25,14 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 
+/**
+ * @brief Entidad JPA que representa un reporte programado.
+ *
+ * Mapea la configuración persistente de un job de reporte programado:
+ * identidad, tipo de libro, criterios, frecuencia, ventana de ejecución,
+ * próxima ejecución, estado, datos de auditoría y configuración de
+ * entrega (vía y correo).
+ */
 @Entity
 @Data
 @AllArgsConstructor

@@ -3,16 +3,17 @@ package com.unicauca.edu.co.auxiliary_book.application.ports.in.log;
 import com.unicauca.edu.co.auxiliary_book.domain.models.log.AuxiliaryBookLog;
 
 /**
- * @brief Input port for Auxiliary Book Log write operations
+ * @brief Puerto de entrada para la escritura de logs del libro auxiliar.
  *
- * Defines the contract for registering auxiliary book log records
- * in the application layer.
+ * Define el contrato, dentro de la capa de aplicación, para registrar
+ * entradas de log asociadas al ciclo de vida y a la generación de los
+ * libros auxiliares.
  */
 public interface IAuxiliaryBookLogCommandPort {
     /**
-     * @brief Registers a new auxiliary book log record
-     * @param auxiliaryBookLog Auxiliary book log to register
-     * @return Registered AuxiliaryBookLog with generated identifiers
+     * @brief Registra una nueva entrada de log de libro auxiliar.
+     * @param auxiliaryBookLog Registro de log a persistir.
+     * @return Log registrado con los identificadores generados.
      */
     AuxiliaryBookLog registerAuxiliaryBookLog(AuxiliaryBookLog auxiliaryBookLog);
 }

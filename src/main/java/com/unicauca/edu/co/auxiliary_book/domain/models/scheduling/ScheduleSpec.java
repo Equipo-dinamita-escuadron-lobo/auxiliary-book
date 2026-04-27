@@ -8,6 +8,13 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.util.Optional;
 
+/**
+ * @brief Especificación temporal de un reporte programado.
+ *
+ * Define la frecuencia ({@link EFrequency}), el instante de inicio,
+ * el instante de fin opcional y la próxima ejecución ({@code nextRunAt})
+ * que el scheduler utiliza para disparar el job.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

@@ -12,6 +12,14 @@ import lombok.RequiredArgsConstructor;
 import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
 import net.sf.dynamicreports.report.builder.DynamicReports;
 
+/**
+ * @brief Coordinador principal de la generación de reportes.
+ *
+ * Orquesta {@link ReportStyleBuilder}, {@link ReportColumnsBuilder} y
+ * {@link ReportDataBuilder} para construir un {@link JasperReportBuilder}
+ * completo a partir de la información de exportación, listo para ser
+ * renderizado en PDF o Excel.
+ */
 @Service
 @RequiredArgsConstructor
 public class ReportGenerator {

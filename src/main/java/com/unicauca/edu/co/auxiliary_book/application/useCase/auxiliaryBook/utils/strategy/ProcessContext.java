@@ -9,6 +9,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * @brief Contexto del patrón Strategy para el procesamiento de libros auxiliares.
+ *
+ * Mantiene la estrategia activa ({@link IProcessStrategy}) y expone un
+ * método para delegar en ella el procesamiento de los datos contables
+ * según el tipo de libro auxiliar seleccionado.
+ */
 @Service
 @NoArgsConstructor
 @Setter

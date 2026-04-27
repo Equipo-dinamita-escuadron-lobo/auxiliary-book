@@ -13,10 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @brief Entity representing an auxiliary book.
+ * @brief Entidad JPA que representa un libro auxiliar.
  *
- * Maps the main auxiliary book record, including its type, format, owner, and relationships
- * to template, criteria, log, and history entities.
+ * Mapea el registro principal del libro auxiliar: tipo, formato,
+ * empresa, usuario y fecha de creación. Relaciona los agregados de
+ * plantilla, criterios, logs e historial que componen el libro.
  */
 @Entity
 @Data

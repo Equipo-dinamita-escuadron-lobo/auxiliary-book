@@ -3,8 +3,11 @@ package com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria;
 import lombok.Data;
 
 /**
- * @brief Domain model representing the range for the level of detail in the Auxiliary Book.
+ * @brief Modelo de dominio que representa el rango del nivel de detalle.
  *
+ * Define los límites inferior y superior (fromRange/toRange) utilizados
+ * para filtrar cuentas según el nivel seleccionado (clase, grupo, cuenta,
+ * subcuenta o cuenta auxiliar) al momento de generar un libro auxiliar.
  */
 @Data
 public class CriteriaRange{

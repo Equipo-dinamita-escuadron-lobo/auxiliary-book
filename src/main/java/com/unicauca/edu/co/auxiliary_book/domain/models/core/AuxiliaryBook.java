@@ -12,8 +12,12 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 /**
- * @brief Domain model representing an Auxiliary Book.
+ * @brief Modelo de dominio que representa un Libro Auxiliar.
  *
+ * Encapsula el tipo de libro, la entidad y usuario propietarios, el
+ * formato de salida, la plantilla de exportación, los criterios de
+ * generación y la fecha de creación. Es la raíz del agregado alrededor
+ * del cual giran las operaciones de registro, generación y exportación.
  */
 @Builder
 @Data

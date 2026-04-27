@@ -14,6 +14,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+/**
+ * @brief Paso de envío por correo del reporte programado.
+ *
+ * Si el job tiene habilitado el canal de email, arma el asunto, el cuerpo
+ * y el adjunto del reporte y delega el envío en {@link IEmailSenderPort},
+ * actualizando el estado de entrega de la ejecución según el resultado.
+ */
 @Component
 @Order(30)
 @RequiredArgsConstructor

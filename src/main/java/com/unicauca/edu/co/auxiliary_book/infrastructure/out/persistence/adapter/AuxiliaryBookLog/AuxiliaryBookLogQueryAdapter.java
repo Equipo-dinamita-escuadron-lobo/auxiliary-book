@@ -10,10 +10,11 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * @brief Adapter for Auxiliary Book Log read operations.
+ * @brief Adaptador para las operaciones de lectura de logs de libros auxiliares.
  *
- * Implements the contract for querying auxiliary book log records
- * from the underlying data storage system.
+ * Implementa {@link IAuxiliaryBookLogQueryRepositoryPort} consultando
+ * los logs asociados al ID público de un libro auxiliar y mapeándolos
+ * a la representación de dominio.
  */
 @Component
 @RequiredArgsConstructor

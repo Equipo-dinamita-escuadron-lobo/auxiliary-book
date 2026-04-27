@@ -1,21 +1,40 @@
 package com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.strategy;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.NavigableSet;
+import java.util.Objects;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
 import com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook.AccountDTO;
 import com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook.MajorAndBalancesBookDTO;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.AccountingInfoProcessor;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
 import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
+
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.*;
-import java.util.stream.Collectors;
-
+/**
+ * @brief Estrategia para la generación del Libro Mayor y Balances.
+ *
+ * Calcula, para cada grupo contable del nivel solicitado, el saldo
+ * inicial (acumulado hasta antes de {@code startDate}), los totales de
+ * débito y crédito del periodo y el saldo final, descartando grupos
+ * sin movimientos significativos y respetando la naturaleza de la cuenta.
+ */
 @NoArgsConstructor
 public class MajorAndBalancesStrategy implements IProcessStrategy {
+
+    private static final int MONEY_SCALE = 2;
 
     @Override
     public List<?> process(
@@ -23,129 +42,274 @@ public class MajorAndBalancesStrategy implements IProcessStrategy {
             List<AccountingInfo> allAccountingData,
             AccountingInfoProcessor accountingInfoProcessor) {
 
-        LocalDate startDate = criteria.getStartDate();
-        LocalDate endDate = criteria.getEndDate();
+        validateCriteria(criteria);
 
-        if (startDate == null) {
-            System.err.println("⚠️ No se especificó una fecha de inicio en los criterios del libro mayor.");
+        if (allAccountingData == null || allAccountingData.isEmpty()) {
             return Collections.emptyList();
         }
 
-        // --- 1️⃣ Filtrar los movimientos por fechas ---
-        List<AccountingInfo> previousPeriodData = allAccountingData.stream()
+        LocalDate startDate = criteria.getStartDate();
+        LocalDate endDate = criteria.getEndDate();
+
+        List<AccountingInfo> validAccountingData = allAccountingData.stream()
+                .filter(Objects::nonNull)
+                .filter(info -> info.getAccount() != null && info.getAccount().getCode() != null)
+                .filter(info -> info.getDate() != null)
+                .toList();
+
+        if (validAccountingData.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<AccountingInfo> previousPeriodData = validAccountingData.stream()
                 .filter(info -> {
-                    Date date = info.getDate();
-                    if (date == null) return false;
-                    LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                    return localDate.isBefore(startDate);
+                    LocalDate movementDate = toLocalDate(info.getDate());
+                    return movementDate.isBefore(startDate);
                 })
                 .toList();
 
-        List<AccountingInfo> currentPeriodData = allAccountingData.stream()
+        List<AccountingInfo> currentPeriodData = validAccountingData.stream()
                 .filter(info -> {
-                    Date date = info.getDate();
-                    if (date == null) return false;
-                    LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                    return !localDate.isBefore(startDate) && !localDate.isAfter(endDate);
+                    LocalDate movementDate = toLocalDate(info.getDate());
+                    return !movementDate.isBefore(startDate) && !movementDate.isAfter(endDate);
                 })
                 .toList();
 
-        // --- 2️⃣ Calcular los saldos iniciales ---
-        Map<Long, BigDecimal> initialBalances = previousPeriodData.stream()
-                .collect(Collectors.groupingBy(
-                        info -> info.getAccount().getCode(),
-                        Collectors.collectingAndThen(Collectors.toList(), this::calculateBalanceForAccount)
-                ));
+        Map<Long, List<AccountingInfo>> previousPeriodByGroup = groupByCriteriaLevel(previousPeriodData, criteria);
+        Map<Long, List<AccountingInfo>> currentPeriodByGroup = groupByCriteriaLevel(currentPeriodData, criteria);
 
-        // --- 3️⃣ Agrupar movimientos del periodo actual ---
-        Map<Long, List<AccountingInfo>> movementsByAccount = currentPeriodData.stream()
-                .collect(Collectors.groupingBy(info -> info.getAccount().getCode()));
-
-        // --- 4️⃣ Consolidar todas las cuentas (saldo previo + movimientos del periodo) ---
-        Set<Long> allAccountCodes = new HashSet<>(initialBalances.keySet());
-        allAccountCodes.addAll(movementsByAccount.keySet());
+        NavigableSet<Long> allGroupCodes = new TreeSet<>();
+        allGroupCodes.addAll(previousPeriodByGroup.keySet());
+        allGroupCodes.addAll(currentPeriodByGroup.keySet());
 
         List<MajorAndBalancesBookDTO> result = new ArrayList<>();
 
-        for (Long accountCode : allAccountCodes) {
-            List<AccountingInfo> movements = movementsByAccount.getOrDefault(accountCode, Collections.emptyList());
-            AccountingInfo reference = !movements.isEmpty()
-                    ? movements.get(0)
-                    : previousPeriodData.stream()
-                    .filter(info -> info.getAccount().getCode().equals(accountCode))
-                    .findFirst()
-                    .orElse(null);
+        for (Long groupCode : allGroupCodes) {
+            List<AccountingInfo> previousGroupData = previousPeriodByGroup.getOrDefault(groupCode, Collections.emptyList());
+            List<AccountingInfo> currentGroupData = currentPeriodByGroup.getOrDefault(groupCode, Collections.emptyList());
 
-            if (reference == null) continue; // no hay referencia contable
+            if (previousGroupData.isEmpty() && currentGroupData.isEmpty()) {
+                continue;
+            }
 
-            String nature = reference.getAccount().getNature();
-            String description = reference.getAccount().getName();
-            BigDecimal initialBalance = initialBalances.getOrDefault(accountCode, BigDecimal.ZERO);
+            AccountingInfo reference = resolveReference(groupCode, currentGroupData, previousGroupData);
+            if (reference == null) {
+                continue;
+            }
 
-            BigDecimal totalDebit = movements.stream()
-                    .map(info -> info.getAccountingMovement().getDebit())
-                    .filter(Objects::nonNull)
-                    .map(BigDecimal::valueOf)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal rawInitialBalance = calculateSignedBalance(previousGroupData);
+            BigDecimal rawTotalDebit = calculateDebit(currentGroupData);
+            BigDecimal rawTotalCredit = calculateCredit(currentGroupData);
+            BigDecimal rawFinalBalance = rawInitialBalance.add(calculateSignedBalance(currentGroupData));
 
-            BigDecimal totalCredit = movements.stream()
-                    .map(info -> info.getAccountingMovement().getCredit())
-                    .filter(Objects::nonNull)
-                    .map(BigDecimal::valueOf)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal initialBalance = scale(rawInitialBalance);
+            BigDecimal totalDebit = scale(rawTotalDebit);
+            BigDecimal totalCredit = scale(rawTotalCredit);
+            BigDecimal finalBalance = scale(rawFinalBalance);
 
-            BigDecimal finalBalance = calculateFinalBalance(initialBalance, totalDebit, totalCredit, nature);
+            if (isZero(initialBalance) && isZero(totalDebit) && isZero(totalCredit)) {
+                continue;
+            }
 
-            AccountDTO accountDTO = new AccountDTO(nature, accountCode, description);
+            AccountDTO accountDTO = new AccountDTO(
+                    resolveNature(reference),
+                    groupCode,
+                    resolveDescription(groupCode, currentGroupData, previousGroupData)
+            );
 
             result.add(new MajorAndBalancesBookDTO(
                     accountDTO,
-                    initialBalance.setScale(2, RoundingMode.HALF_UP),
-                    totalDebit.setScale(2, RoundingMode.HALF_UP),
-                    totalCredit.setScale(2, RoundingMode.HALF_UP),
-                    finalBalance.setScale(2, RoundingMode.HALF_UP)
+                    initialBalance,
+                    totalDebit,
+                    totalCredit,
+                    finalBalance
             ));
         }
 
-        // --- 5️⃣ Ordenar por código de cuenta ---
-        result.sort(Comparator.comparing(dto -> dto.getAccount().getAccountCode()));
-        return result;
+        return result.stream()
+                .sorted(Comparator.comparing(dto -> dto.getAccount().getAccountCode()))
+                .toList();
     }
 
-    /**
-     * Calcula el saldo neto de una cuenta según su naturaleza
-     * para el conjunto de movimientos recibido.
-     */
-    private BigDecimal calculateBalanceForAccount(List<AccountingInfo> movements) {
-        if (movements.isEmpty()) return BigDecimal.ZERO;
-
-        AccountingInfo ref = movements.get(0);
-        String nature = ref.getAccount().getNature();
-
-        BigDecimal totalDebit = movements.stream()
-                .map(info -> info.getAccountingMovement().getDebit())
-                .filter(Objects::nonNull)
-                .map(BigDecimal::valueOf)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal totalCredit = movements.stream()
-                .map(info -> info.getAccountingMovement().getCredit())
-                .filter(Objects::nonNull)
-                .map(BigDecimal::valueOf)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        return calculateFinalBalance(BigDecimal.ZERO, totalDebit, totalCredit, nature);
-    }
-
-    /**
-     * Calcula el saldo final basado en la naturaleza de la cuenta.
-     */
-    private BigDecimal calculateFinalBalance(BigDecimal initial, BigDecimal debit, BigDecimal credit, String nature) {
-        if ("debito".equalsIgnoreCase(nature)) {
-            return initial.add(debit).subtract(credit);
-        } else if ("credito".equalsIgnoreCase(nature)) {
-            return initial.subtract(debit).add(credit);
+    private void validateCriteria(AuxiliaryBookCriteria criteria) {
+        if (criteria == null) {
+            throw new IllegalArgumentException("Los criterios del Libro Mayor son obligatorios.");
         }
-        return initial.add(debit).subtract(credit); // por defecto naturaleza deudora
+
+        if (criteria.getStartDate() == null || criteria.getEndDate() == null) {
+            throw new IllegalArgumentException("El periodo es obligatorio para generar el Libro Mayor.");
+        }
+
+        if (criteria.getStartDate().isAfter(criteria.getEndDate())) {
+            throw new IllegalArgumentException("El periodo consultado es inválido: la fecha inicial no puede ser posterior a la fecha final.");
+        }
+
+        if (criteria.getCriteriaType() == null) {
+            throw new IllegalArgumentException("El nivel contable seleccionado no es válido para el Libro Mayor.");
+        }
+
+        validateRange(criteria);
+    }
+
+    private void validateRange(AuxiliaryBookCriteria criteria) {
+        if (criteria.getCriteriaRange() == null) {
+            return;
+        }
+
+        Long fromRange = criteria.getCriteriaRange().getFromRange();
+        Long toRange = criteria.getCriteriaRange().getToRange();
+
+        if (fromRange != null && toRange != null && fromRange > toRange) {
+            throw new IllegalArgumentException("El rango de cuentas es inválido: el valor desde no puede ser mayor que el valor hasta.");
+        }
+
+        if (!isCompatibleRange(criteria, fromRange) || !isCompatibleRange(criteria, toRange)) {
+            throw new IllegalArgumentException("El rango de cuentas no es compatible con el nivel contable seleccionado.");
+        }
+    }
+
+    private boolean isCompatibleRange(AuxiliaryBookCriteria criteria, Long rangeValue) {
+        if (rangeValue == null) {
+            return true;
+        }
+
+        int digits = String.valueOf(Math.abs(rangeValue)).length();
+
+        return switch (criteria.getCriteriaType()) {
+            case NUMBER_CLASS -> digits == 1;
+            case GROUP -> digits == 2;
+            case ACCOUNT -> digits == 4;
+            case SUB_ACCOUNT -> digits == 6;
+            case AUXILIARY_ACCOUNT -> digits <= 8;
+            default -> false;
+        };
+    }
+
+    private Map<Long, List<AccountingInfo>> groupByCriteriaLevel(List<AccountingInfo> data, AuxiliaryBookCriteria criteria) {
+        Map<Long, List<AccountingInfo>> groupedData = new TreeMap<>();
+
+        for (AccountingInfo info : data) {
+            Long groupCode = extractGroupingKey(info, criteria);
+            groupedData.computeIfAbsent(groupCode, ignored -> new ArrayList<>()).add(info);
+        }
+
+        return groupedData;
+    }
+
+    private Long extractGroupingKey(AccountingInfo info, AuxiliaryBookCriteria criteria) {
+        String accountCode = info.getAccount().getCode().toString();
+        String groupCode = switch (criteria.getCriteriaType()) {
+            case NUMBER_CLASS -> accountCode.substring(0, Math.min(accountCode.length(), 1));
+            case GROUP -> accountCode.substring(0, Math.min(accountCode.length(), 2));
+            case ACCOUNT -> accountCode.substring(0, Math.min(accountCode.length(), 4));
+            case SUB_ACCOUNT -> accountCode.substring(0, Math.min(accountCode.length(), 6));
+            case AUXILIARY_ACCOUNT -> accountCode.substring(0, Math.min(accountCode.length(), 8));
+            default -> throw new IllegalArgumentException("El nivel contable seleccionado no es válido para el Libro Mayor.");
+        };
+
+        return Long.parseLong(groupCode);
+    }
+
+    private AccountingInfo resolveReference(Long groupCode,List<AccountingInfo> currentGroupData,List<AccountingInfo> previousGroupData) {
+
+        List<AccountingInfo> availableData = !currentGroupData.isEmpty()
+                ? currentGroupData
+                : previousGroupData;
+
+        // Busca la cuenta cuyo código es exactamente el del nivel agrupador (cuenta padre).
+        // Si no existe en los datos (caso habitual con cuentas hoja), toma el primero
+        // del grupo, que ya está agrupado correctamente por extractGroupingKey.
+        return availableData.stream()
+                .filter(info -> matchesExactGroupCode(info, groupCode))
+                .findFirst()
+                .orElse(availableData.get(0));
+    }
+
+    private String resolveDescription(Long groupCode,List<AccountingInfo> currentGroupData,List<AccountingInfo> previousGroupData) {
+
+        List<AccountingInfo> availableData = !currentGroupData.isEmpty()
+                ? currentGroupData
+                : previousGroupData;
+
+        // Intenta primero el nombre de la cuenta padre del nivel.
+        // Si no existe, toma el nombre de la cuenta con el código más bajo del grupo.
+        return availableData.stream()
+                .filter(info -> matchesExactGroupCode(info, groupCode))
+                .map(info -> info.getAccount().getName())
+                .filter(name -> name != null && !name.isBlank())
+                .findFirst()
+                .orElseGet(() -> availableData.stream()
+                        .sorted(Comparator.comparing(info -> info.getAccount().getCode()))
+                        .map(info -> info.getAccount().getName())
+                        .filter(name -> name != null && !name.isBlank())
+                        .findFirst()
+                        .orElse(""));
+    }
+
+    private String resolveNature(AccountingInfo reference) {
+        return reference.getAccount() != null ? reference.getAccount().getNature() : null;
+    }
+
+    private BigDecimal calculateDebit(List<AccountingInfo> movements) {
+        return movements.stream()
+                .map(this::extractDebit)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private BigDecimal calculateCredit(List<AccountingInfo> movements) {
+        return movements.stream()
+                .map(this::extractCredit)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private BigDecimal calculateSignedBalance(List<AccountingInfo> movements) {
+        return movements.stream()
+                .map(this::calculateSignedMovement)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private BigDecimal calculateSignedMovement(AccountingInfo info) {
+        BigDecimal debit = extractDebit(info);
+        BigDecimal credit = extractCredit(info);
+        String nature = info.getAccount() != null ? info.getAccount().getNature() : null;
+
+        if ("credito".equalsIgnoreCase(nature)) {
+            return credit.subtract(debit);
+        }
+
+        return debit.subtract(credit);
+    }
+
+    private BigDecimal extractDebit(AccountingInfo info) {
+        if (info.getAccountingMovement() == null || info.getAccountingMovement().getDebit() == null) {
+            return BigDecimal.ZERO;
+        }
+        return BigDecimal.valueOf(info.getAccountingMovement().getDebit());
+    }
+
+    private BigDecimal extractCredit(AccountingInfo info) {
+        if (info.getAccountingMovement() == null || info.getAccountingMovement().getCredit() == null) {
+            return BigDecimal.ZERO;
+        }
+        return BigDecimal.valueOf(info.getAccountingMovement().getCredit());
+    }
+
+    private boolean matchesExactGroupCode(AccountingInfo info, Long groupCode) {
+        return info.getAccount() != null
+                && info.getAccount().getCode() != null
+                && groupCode != null
+                && groupCode.toString().equals(info.getAccount().getCode().toString());
+    }
+
+    private LocalDate toLocalDate(Date date) {
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+
+    private BigDecimal scale(BigDecimal value) {
+        return value.setScale(MONEY_SCALE, RoundingMode.HALF_UP);
+    }
+
+    private boolean isZero(BigDecimal value) {
+        return value.compareTo(BigDecimal.ZERO) == 0;
     }
 }

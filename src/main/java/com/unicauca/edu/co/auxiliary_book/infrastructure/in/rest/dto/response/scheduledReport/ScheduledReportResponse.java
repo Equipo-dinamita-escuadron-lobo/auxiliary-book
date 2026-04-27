@@ -13,6 +13,13 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.time.LocalDateTime;
 
+/**
+ * @brief DTO de respuesta con el detalle completo de un reporte programado.
+ *
+ * Expone la información completa de un reporte programado: identidad,
+ * tipo de libro, criterios, especificación de frecuencia y fechas,
+ * estado del job, metadatos de auditoría y configuración de entrega.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

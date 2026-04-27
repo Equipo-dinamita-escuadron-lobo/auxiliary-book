@@ -21,11 +21,20 @@ import org.springframework.stereotype.Service;
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.Color;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @brief Constructor de estilos visuales para reportes de libros auxiliares.
+ *
+ * Configura paleta de colores, fuentes, encabezados, pie de página, título
+ * con logo y bloque de criterios sobre un {@link JasperReportBuilder}, a
+ * partir de la plantilla {@link AuxiliaryBookTemplate} suministrada por
+ * la entidad para personalizar la apariencia del reporte exportado.
+ */
 @Service
 @Getter
 @NoArgsConstructor
@@ -48,7 +57,8 @@ public class ReportStyleBuilder {
 
     private void setTextStyle(AuxiliaryBookTemplate template) {
         String fontName = template.getFont() != null && !template.getFont().isBlank() ? template.getFont() : "Arial";
-        this.size = template.getFontSize() != null && template.getFontSize() > 0 ? template.getFontSize() : 11;
+        Integer fontSize = template.getFontSize();
+        this.size = fontSize != null && fontSize > 0 ? fontSize : 11;
         this.textStyle = DynamicReports.stl.style()
                 .setFontName(fontName)
                 .setFontSize(this.size)
@@ -57,20 +67,24 @@ public class ReportStyleBuilder {
     }
 
     private void setHeaderStyle() {
+        Color lightHeaderBg = new Color(240, 242, 245);
         this.headerStyle = DynamicReports.stl.style(this.textStyle)
-                .setFontSize(this.size + 3)
+                .setFontSize(this.size + 1)
                 .setBold(true)
-                .setBackgroundColor(primaryColor)
-                .setForegroundColor(Color.WHITE)
+                .setBackgroundColor(lightHeaderBg)
+                .setForegroundColor(primaryColor)
                 .setHorizontalTextAlignment(HorizontalTextAlignment.CENTER)
                 .setVerticalTextAlignment(VerticalTextAlignment.MIDDLE)
-                .setPadding(6)
-                .setBorder(DynamicReports.stl.pen().setLineWidth(0.8f).setLineColor(accentColor));
+                .setPadding(8)
+                .setTopBorder(DynamicReports.stl.pen().setLineWidth(0f))
+                .setBottomBorder(DynamicReports.stl.pen().setLineWidth(1.5f).setLineColor(accentColor))
+                .setLeftBorder(DynamicReports.stl.pen().setLineWidth(0f))
+                .setRightBorder(DynamicReports.stl.pen().setLineWidth(0f));
     }
 
-    private void setTitleAndCriteriaStyle(AuxiliaryBookTemplate template) {
+    private void setTitleAndCriteriaStyle() {
         this.titleStyle = DynamicReports.stl.style(this.textStyle)
-                .setFontSize((template.getFontSize() != null ? template.getFontSize() : 11) + 6)
+                .setFontSize(this.size + 6)
                 .setBold(true)
                 .setForegroundColor(primaryColor);
 
@@ -81,14 +95,19 @@ public class ReportStyleBuilder {
     }
 
     private void setTableCellStyle() {
+        Color rowDivider = new Color(228, 231, 235);
+
         this.tableCellStyle = DynamicReports.stl.style(this.textStyle)
-                .setBorder(DynamicReports.stl.pen().setLineWidth(0.4f).setLineColor(accentColor))
+                .setTopBorder(DynamicReports.stl.pen().setLineWidth(0f))
+                .setBottomBorder(DynamicReports.stl.pen().setLineWidth(0.4f).setLineColor(rowDivider))
+                .setLeftBorder(DynamicReports.stl.pen().setLineWidth(0f))
+                .setRightBorder(DynamicReports.stl.pen().setLineWidth(0f))
                 .setHorizontalTextAlignment(HorizontalTextAlignment.LEFT)
                 .setVerticalTextAlignment(VerticalTextAlignment.MIDDLE)
-                .setPadding(5);
+                .setPadding(7);
 
         this.oddRowStyle = DynamicReports.stl.style(this.tableCellStyle)
-                .setBackgroundColor(softBackground);
+                .setBackgroundColor(new Color(248, 249, 250));
     }
 
     private ImageBuilder buildLogoImage(URL logoUrl) {
@@ -107,7 +126,7 @@ public class ReportStyleBuilder {
                     .setFixedHeight(50)
                     .setFixedWidth(120);
 
-        } catch (Exception e) {
+        } catch (IOException | ClassCastException e) {
             System.err.println("DynamicReports no pudo cargar la imagen desde la URL: " + logoUrl + ". Error: " + e.getMessage());
             return Components.image(new ByteArrayInputStream(new byte[0]))
                     .setFixedDimension(1, 1);
@@ -175,7 +194,8 @@ public class ReportStyleBuilder {
 
 
     private void setTitle(JasperReportBuilder report, AuxiliaryBookTemplate template, ExportInfo exportInfo) {
-        EAlignment alignment = template.getAlienation() != null ? template.getAlienation() : EAlignment.RIGHT;
+        EAlignment rawAlignment = template.getAlienation();
+        EAlignment alignment = rawAlignment != null ? rawAlignment : EAlignment.RIGHT;
 
         HorizontalTextAlignment textAlignment = switch (alignment) {
             case LEFT -> HorizontalTextAlignment.LEFT;
@@ -227,32 +247,32 @@ public class ReportStyleBuilder {
     }
 
     private void setPageFooter(JasperReportBuilder report, AuxiliaryBookTemplate template) {
-        EAlignment alignment = template.getAlienation() != null ? template.getAlienation() : EAlignment.RIGHT;
-        int footerSize = Math.max(8, (template.getFontSize() != null ? template.getFontSize() : 11) - 2);
+        Integer rawFontSize = template.getFontSize();
+        int baseFontSize = rawFontSize != null ? rawFontSize : 11;
+        int footerSize = Math.max(8, baseFontSize - 2);
         StyleBuilder footerStyle = DynamicReports.stl.style(textStyle)
                 .setFontSize(footerSize)
                 .setForegroundColor(accentColor);
 
         HorizontalListBuilder pageNumberComponent = Components.horizontalList(
-                Components.pageNumber().setStyle(footerStyle),
-                Components.text(" de ").setStyle(footerStyle),
-                Components.totalPages().setStyle(footerStyle)
+                Components.pageNumber()
+                        .setStyle(footerStyle)
+                        .setFixedWidth(25)
+                        .setHorizontalTextAlignment(HorizontalTextAlignment.RIGHT),
+                Components.text(" de ")
+                        .setStyle(footerStyle)
+                        .setFixedWidth(22)
+                        .setHorizontalTextAlignment(HorizontalTextAlignment.CENTER),
+                Components.totalPages()
+                        .setStyle(footerStyle)
+                        .setFixedWidth(25)
+                        .setHorizontalTextAlignment(HorizontalTextAlignment.LEFT)
         );
 
-        HorizontalListBuilder footer = Components.horizontalList();
-        switch (alignment) {
-            case LEFT:
-                footer.add(pageNumberComponent, Components.filler());
-                break;
-            case CENTER:
-                footer.add(Components.filler(), pageNumberComponent, Components.filler());
-                break;
-            case RIGHT:
-            default:
-                footer.add(Components.filler(), pageNumberComponent);
-                break;
-        }
-        report.pageFooter(footer);
+        report.pageFooter(
+                Components.horizontalList()
+                        .add(Components.filler(), pageNumberComponent)
+        );
     }
 
     public void templateBuilder(JasperReportBuilder report, AuxiliaryBookTemplate template, ExportInfo exportInfo) {
@@ -260,7 +280,7 @@ public class ReportStyleBuilder {
         this.setTextStyle(template);
         this.setTableCellStyle();
         this.setHeaderStyle();
-        this.setTitleAndCriteriaStyle(template);
+        this.setTitleAndCriteriaStyle();
 
         this.setTitle(report, template, exportInfo);
         this.setPageFooter(report, template);
@@ -284,7 +304,7 @@ public class ReportStyleBuilder {
         }
         try {
             return Color.decode(value);
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             return fallback;
         }
     }

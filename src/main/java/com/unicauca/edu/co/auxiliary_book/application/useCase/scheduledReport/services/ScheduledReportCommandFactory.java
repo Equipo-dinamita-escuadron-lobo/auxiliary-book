@@ -8,6 +8,13 @@ import java.time.ZonedDateTime;
 
 import org.springframework.stereotype.Component;
 
+/**
+ * @brief Calculadora de fechas para reportes programados.
+ *
+ * Calcula la siguiente fecha de ejecución a partir de la frecuencia
+ * ({@link EFrequency}) y, dada una fecha base, determina la primera
+ * corrida posterior al instante actual avanzando de período en período.
+ */
 @Component
 public class ScheduledReportCommandFactory {
 

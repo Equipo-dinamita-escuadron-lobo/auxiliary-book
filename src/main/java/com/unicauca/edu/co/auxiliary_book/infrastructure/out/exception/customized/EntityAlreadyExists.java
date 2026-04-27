@@ -1,16 +1,17 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.out.exception.customized;
 
 /**
- * @brief Exception thrown when an entity already exists.
+ * @brief Excepción que se lanza cuando una entidad ya existe.
  *
- * Used to indicate that an attempt to create a duplicate entity was made.
+ * Indica que se intentó crear una entidad duplicada, típicamente
+ * cuando un identificador o clave única ya está presente en la base.
  */
 public class EntityAlreadyExists extends BaseException{
 
     /**
-     * @brief Constructs a new EntityAlreadyExists exception with the specified error code and message.
-     * @param errorCode HTTP status code or custom error code.
-     * @param message Error message to describe the exception.
+     * @brief Construye una EntityAlreadyExists con el código y mensaje indicados.
+     * @param errorCode Código HTTP o código de error personalizado.
+     * @param message Mensaje descriptivo de la excepción.
      */
     public EntityAlreadyExists(Integer errorCode, String message) {
         super(errorCode, message);

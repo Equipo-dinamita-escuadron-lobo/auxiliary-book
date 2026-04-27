@@ -5,8 +5,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @brief Domain model representing a third party.
+ * @brief Modelo de dominio para un tercero.
  *
+ * Representa un tercero (cliente, proveedor, empleado) al que se asocian
+ * los movimientos contables, con su identificación, nombre y tipo de
+ * documento.
  */
 @Data
 @AllArgsConstructor @NoArgsConstructor

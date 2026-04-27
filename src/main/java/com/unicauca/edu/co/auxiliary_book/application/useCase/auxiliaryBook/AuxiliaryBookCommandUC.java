@@ -3,18 +3,18 @@ package com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook;
 import java.util.List;
 import java.util.UUID;
 
-import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EState;
-import com.unicauca.edu.co.auxiliary_book.domain.models.history.AuxiliaryBookHistory;
-import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookHistory.IAuxiliaryBookHistoryCommandRepositoryPort;
 import org.springframework.stereotype.Component;
 
 import com.unicauca.edu.co.auxiliary_book.application.ports.in.auxiliaryBook.IAuxiliaryBookCommandPort;
 import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoClient;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.AuxiliaryBookProcessor;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
-import com.unicauca.edu.co.auxiliary_book.domain.models.log.AuxiliaryBookLog;
+import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EState;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.ETypeEvent;
+import com.unicauca.edu.co.auxiliary_book.domain.models.history.AuxiliaryBookHistory;
+import com.unicauca.edu.co.auxiliary_book.domain.models.log.AuxiliaryBookLog;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBook.IAuxiliaryBookCommandRepositoryPort;
+import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookHistory.IAuxiliaryBookHistoryCommandRepositoryPort;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookLog.IAuxiliaryBookLogCommandRepositoryPort;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.IFormatterResultOutputPort;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.IMessageServicePort;
@@ -23,6 +23,14 @@ import com.unicauca.edu.co.auxiliary_book.infrastructure.config.i18n.MessageKeys
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @brief Caso de uso de escritura para Libros Auxiliares.
+ *
+ * Implementa el puerto de entrada {@link IAuxiliaryBookCommandPort} y
+ * coordina el registro de un libro auxiliar, la creación de su historial
+ * y logs asociados, y la generación de la información contable delegando
+ * en {@link AuxiliaryBookProcessor} la lógica específica por tipo de libro.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -48,13 +56,10 @@ public class AuxiliaryBookCommandUC implements IAuxiliaryBookCommandPort {
             ));
         }
 
-        // --- 3. Lógica de UUID (Capa de Aplicación) ---
-        // Se asigna el ID público ANTES de guardarlo.
         if (auxiliaryBook.getPublicId() == null || auxiliaryBook.getPublicId().isEmpty()) {
             auxiliaryBook.setPublicId(UUID.randomUUID().toString());
         }
 
-        // 4. Guardar el libro (ahora con publicId)
         AuxiliaryBook abRegistered = abCommandRepositoryPort.registerAuxiliaryBook(auxiliaryBook);
 
         AuxiliaryBookHistory newHistory = AuxiliaryBookHistory.builder()
@@ -65,7 +70,6 @@ public class AuxiliaryBookCommandUC implements IAuxiliaryBookCommandPort {
 
         this.abHistoryCommandRepositoryPort.registerAuxiliaryBookHistory(newHistory);
 
-        // 5. Crear el log de registro
         String logMessage = "Auxiliary book registered successfully.";
         this.createLog(abRegistered, ETypeEvent.REGISTERED, logMessage);
 
@@ -75,35 +79,32 @@ public class AuxiliaryBookCommandUC implements IAuxiliaryBookCommandPort {
     @Override
     public List<?> genereteAuxiliaryBookInfo(AuxiliaryBook auxiliaryBook) {
 
-        // 6. Log de INICIO de generación
         log.info("Starting generation for book: {}", auxiliaryBook.getPublicId());
         this.createLog(auxiliaryBook, ETypeEvent.GENERATING, "Starting data generation process.");
 
         try {
-            // 7. Ejecutar el proceso
             List<?> resultData = this.auxiliaryBookProcessor.processAuxiliaryBookData(this.accountingInfoQueryPort, auxiliaryBook);
 
-            // 8. Log de ÉXITO
             String successMessage = "Data generation successful. " + (resultData != null ? resultData.size() : 0) + " items processed.";
             this.createLog(auxiliaryBook, ETypeEvent.SUCCESS_GENERATION, successMessage);
 
             return resultData;
 
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid argument for book: {}", auxiliaryBook.getPublicId(), e);
+            this.createLog(auxiliaryBook, ETypeEvent.ERROR_GENERATION, "Invalid argument provided.");
+            throw e;   // ← deja que GlobalExceptionHandler lo convierta en 400
         } catch (Exception e) {
-            // 9. Log de ERROR
-            log.error("Error during data generation for book: {}", auxiliaryBook.getPublicId(), e);
-            String errorMessage = "Error during generation: " + e.getMessage();
-            this.createLog(auxiliaryBook, ETypeEvent.ERROR_GENERATION, errorMessage);
+            log.error("Unexpected error for book: {}", auxiliaryBook.getPublicId(), e);
+            this.createLog(auxiliaryBook, ETypeEvent.ERROR_GENERATION, "Unexpected error occurred.");
 
-            // 10. Lanzar la respuesta de error (como ya lo hacías)
             this.formatterResultOutputPort.returnErrorGenericResponse(500, this.messageServicePort.getMessage(
-                    MessageKeys.ERROR_GENERIC, // O una clave de error más específica
-                    errorMessage
+                    MessageKeys.ERROR_GENERIC,
+                    "auxiliary book generation",                                           // {0}
+                    e.getMessage() != null ? e.getMessage() : "unknown cause"              // {1}
             ));
-
-            // returnErrorGenericResponse seguramente lanza una excepción, así que esto es por si acaso.
-            return null;
         }
+        return null;
     }
 
     /**

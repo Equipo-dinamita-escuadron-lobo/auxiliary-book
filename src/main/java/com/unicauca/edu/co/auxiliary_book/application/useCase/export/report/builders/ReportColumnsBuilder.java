@@ -1,23 +1,31 @@
 package com.unicauca.edu.co.auxiliary_book.application.useCase.export.report.builders;
 
+import java.math.BigDecimal;
+
+import org.springframework.stereotype.Service;
+
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAuxiliaryBookType;
+
 import lombok.NoArgsConstructor;
 import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
 import net.sf.dynamicreports.report.builder.DynamicReports;
 import net.sf.dynamicreports.report.builder.column.TextColumnBuilder;
 import net.sf.dynamicreports.report.builder.grid.ColumnTitleGroupBuilder;
-import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
+/**
+ * @brief Constructor de columnas para los reportes de libros auxiliares.
+ *
+ * Define las columnas comunes y específicas (cuenta, tercero, comprobante,
+ * movimientos, saldos) y configura el {@link JasperReportBuilder} de
+ * DynamicReports según el {@link EAuxiliaryBookType} solicitado.
+ */
 @Service
 @NoArgsConstructor
 public class ReportColumnsBuilder {
 
     // === Columnas comunes ===
-    private final TextColumnBuilder<Date> dateCol =
-            DynamicReports.col.column("Fecha", "date", DynamicReports.type.dateType()).setPattern("dd-MM-yyyy");
+    private final TextColumnBuilder<String> dateCol =
+            DynamicReports.col.column("Fecha", "date", DynamicReports.type.stringType());
 
     // === Columnas de cuenta (ya no anidadas) ===
 
@@ -84,9 +92,9 @@ public class ReportColumnsBuilder {
         TextColumnBuilder<BigDecimal> initialBalanceCol =
                 DynamicReports.col.column("Saldo Inicial", "initialBalance", DynamicReports.type.bigDecimalType());
         TextColumnBuilder<BigDecimal> debitCol =
-                DynamicReports.col.column("Débito", "debit", DynamicReports.type.bigDecimalType());
+                DynamicReports.col.column("Débito", "debitMovement", DynamicReports.type.bigDecimalType());
         TextColumnBuilder<BigDecimal> creditCol =
-                DynamicReports.col.column("Crédito", "credit", DynamicReports.type.bigDecimalType());
+                DynamicReports.col.column("Crédito", "creditMovement", DynamicReports.type.bigDecimalType());
         TextColumnBuilder<BigDecimal> finalBalanceCol =
                 DynamicReports.col.column("Saldo Final", "finalBalance", DynamicReports.type.bigDecimalType());
 
@@ -125,7 +133,7 @@ public class ReportColumnsBuilder {
         TextColumnBuilder<String> voucherTypeCol =
                 DynamicReports.col.column("Tipo Documento", "voucherType", DynamicReports.type.stringType());
         TextColumnBuilder<String> voucherStateCol =
-                DynamicReports.col.column("Estado", "voucherState", DynamicReports.type.stringType());
+                DynamicReports.col.column("Estado", "state", DynamicReports.type.stringType());
         TextColumnBuilder<BigDecimal> initialBalanceCol =
                 DynamicReports.col.column("Saldo Inicial", "initialBalance", DynamicReports.type.bigDecimalType());
         TextColumnBuilder<BigDecimal> debitCol =

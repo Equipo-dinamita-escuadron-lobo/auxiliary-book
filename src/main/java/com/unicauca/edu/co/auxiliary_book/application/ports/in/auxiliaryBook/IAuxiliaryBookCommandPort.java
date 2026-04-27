@@ -5,23 +5,23 @@ import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
 import java.util.List;
 
 /**
- * @brief Input port for Auxiliary Book write operations
+ * @brief Puerto de entrada para operaciones de escritura del Libro Auxiliar.
  *
- * Defines the contract for registering and generating information for auxiliary books
- * in the application layer.
+ * Define el contrato, dentro de la capa de aplicación, para registrar
+ * libros auxiliares y generar la información contable asociada a ellos.
  */
 public interface IAuxiliaryBookCommandPort {
     /**
-     * @brief Registers a new auxiliary book
-     * @param auxiliaryBook Auxiliary book to register
-     * @return Registered AuxiliaryBook with generated identifiers
+     * @brief Registra un nuevo libro auxiliar.
+     * @param auxiliaryBook Libro auxiliar a registrar.
+     * @return Libro auxiliar registrado con los identificadores generados.
      */
     AuxiliaryBook registerAuxiliaryBook(AuxiliaryBook auxiliaryBook);
 
     /**
-     * @brief Generates information for an auxiliary book
-     * @param auxiliaryBook Auxiliary book for which to generate information
-     * @return List containing generated auxiliary book information
+     * @brief Genera la información contable de un libro auxiliar.
+     * @param auxiliaryBook Libro auxiliar para el que se genera la información.
+     * @return Lista con la información generada según el tipo de libro.
      */
     List<?> genereteAuxiliaryBookInfo(AuxiliaryBook auxiliaryBook);
 }

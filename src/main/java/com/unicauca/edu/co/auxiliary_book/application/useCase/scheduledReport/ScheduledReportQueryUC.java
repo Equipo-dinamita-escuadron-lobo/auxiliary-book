@@ -11,6 +11,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * @brief Caso de uso de consulta para reportes programados.
+ *
+ * Implementa el puerto de entrada {@link IScheduledReportQueryPort} y
+ * expone la consulta de jobs por entidad y la búsqueda de un job puntual
+ * por su identificador público, validando entradas y respondiendo con
+ * los errores apropiados cuando no existen.
+ */
 @Service
 @RequiredArgsConstructor
 public class ScheduledReportQueryUC implements IScheduledReportQueryPort {

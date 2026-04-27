@@ -1,16 +1,17 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.out.exception.customized;
 
 /**
- * @brief Exception thrown for generic errors.
+ * @brief Excepción para errores genéricos o no categorizados.
  *
- * Used to indicate an unspecified or general error condition.
+ * Se utiliza para indicar condiciones de error no específicas que
+ * deben ser reportadas con un código HTTP y un mensaje descriptivo.
  */
 public class GenericErrorException extends BaseException {
 
     /**
-     * @brief Constructs a new GenericErrorException with the specified status and message.
-     * @param status HTTP status code to associate with the exception.
-     * @param message Error message to describe the exception.
+     * @brief Construye una GenericErrorException con el código y mensaje indicados.
+     * @param status Código HTTP asociado a la excepción.
+     * @param message Mensaje descriptivo del error.
      */
     public GenericErrorException(Integer status, String message) {
         super(status, message);

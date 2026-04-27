@@ -9,6 +9,13 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * @brief DTO de respuesta con la vista resumida de una ejecución.
+ *
+ * Contiene los campos mínimos para listar ejecuciones de un reporte
+ * programado: identificador, fecha programada, estado de ejecución,
+ * estado de entrega y mensaje de error (si aplica).
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

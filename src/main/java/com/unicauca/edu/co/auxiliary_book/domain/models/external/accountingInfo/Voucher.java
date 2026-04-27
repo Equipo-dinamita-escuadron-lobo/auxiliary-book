@@ -5,8 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @brief Domain model representing a Voucher.
+ * @brief Modelo de dominio para un comprobante contable.
  *
+ * Almacena el número y el tipo del comprobante que agrupa los
+ * movimientos contables registrados.
  */
 @Data
 @AllArgsConstructor @NoArgsConstructor

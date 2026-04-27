@@ -5,6 +5,13 @@ import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.request.Exp
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+/**
+ * @brief Mapper REST entre la solicitud de exportación y la info del dominio.
+ *
+ * Convierte un {@link ExportAuxiliaryBookRequest} recibido por la
+ * capa REST a {@link ExportInfo}, estructura de dominio utilizada por
+ * el caso de uso de exportación. Implementado por MapStruct.
+ */
 @Mapper(componentModel = "spring")
 public interface IExportRestMapper {
     @Mapping(source = "format", target = "format")

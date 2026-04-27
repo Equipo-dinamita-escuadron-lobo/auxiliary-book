@@ -11,6 +11,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+/**
+ * @brief Caso de uso de consulta para el historial de Libros Auxiliares.
+ *
+ * Implementa el puerto de entrada {@link IAuxiliaryBookHistoryQueryPort}
+ * y consulta de manera paginada los registros históricos por entidad,
+ * validando los parámetros de entrada antes de delegar en el repositorio.
+ */
 @Service
 @RequiredArgsConstructor
 public class HistoryAuxiliaryBookQueryUC implements IAuxiliaryBookHistoryQueryPort {

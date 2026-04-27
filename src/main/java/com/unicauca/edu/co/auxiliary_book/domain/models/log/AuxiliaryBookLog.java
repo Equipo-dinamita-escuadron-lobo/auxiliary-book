@@ -9,8 +9,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @brief Domain model representing an Auxiliary Book Log.
+ * @brief Modelo de dominio para un registro de log del libro auxiliar.
  *
+ * Captura un evento puntual ({@link ETypeEvent}) asociado a un libro,
+ * con un mensaje descriptivo, para la auditoría de las operaciones
+ * de registro, generación, exportación y envío.
  */
 @Builder
 @Data

@@ -136,6 +136,11 @@
             <artifactId>poi-ooxml</artifactId>
             <version>5.2.3</version> <!-- Use the latest stable version, matching poi version -->
         </dependency>
+		<dependency>
+			<groupId>com.resend</groupId>
+			<artifactId>resend-java</artifactId>
+			<version>4.4.0</version>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

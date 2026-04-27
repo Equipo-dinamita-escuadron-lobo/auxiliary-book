@@ -13,6 +13,15 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
+/**
+ * @brief DTO de solicitud para crear un reporte programado.
+ *
+ * Contiene los datos requeridos para agendar la generación periódica
+ * de un libro auxiliar: empresa, usuario, tipo de libro, criterios,
+ * frecuencia, ventana de ejecución, vía de entrega y configuración de
+ * correo. Aplica validaciones Bean Validation para asegurar la
+ * integridad de la solicitud.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

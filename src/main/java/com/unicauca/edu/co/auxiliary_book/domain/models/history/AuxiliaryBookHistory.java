@@ -9,8 +9,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @brief Domain model representing an Auxiliary Book History.
+ * @brief Modelo de dominio para el historial de un libro auxiliar.
  *
+ * Registra un estado puntual del ciclo de vida del libro ({@link EState})
+ * junto con el canal de entrega ({@link EDeliveryWay}) asociado, útil
+ * para auditoría y trazabilidad.
  */
 @Builder
 @Data

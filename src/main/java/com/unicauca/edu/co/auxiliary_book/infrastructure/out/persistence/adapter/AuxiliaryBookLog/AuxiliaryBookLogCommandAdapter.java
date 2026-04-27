@@ -9,10 +9,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * @brief Adapter for Auxiliary Book Log write operations.
+ * @brief Adaptador para las operaciones de escritura de logs de libros auxiliares.
  *
- * Implements the contract for persisting auxiliary book log records
- * in the underlying data storage system.
+ * Implementa {@link IAuxiliaryBookLogCommandRepositoryPort} persistiendo
+ * registros de log en la base de datos y devolviendo el log recién
+ * almacenado mapeado al dominio.
  */
 @Component
 @RequiredArgsConstructor
@@ -22,9 +23,9 @@ public class AuxiliaryBookLogCommandAdapter implements IAuxiliaryBookLogCommandR
     private final IAuxiliaryBookLogRepository auxiliaryBookLogRepository;
 
     /**
-     * @brief Persists an auxiliary book log record.
-     * @param auxiliaryBookLog Auxiliary book log to save.
-     * @return Saved AuxiliaryBookLog with generated identifiers.
+     * @brief Persiste un registro de log del libro auxiliar.
+     * @param auxiliaryBookLog Log a guardar.
+     * @return Log persistido con los identificadores generados.
      */
     @Override
     public AuxiliaryBookLog registerAuxiliaryBookLog(AuxiliaryBookLog auxiliaryBookLog) {

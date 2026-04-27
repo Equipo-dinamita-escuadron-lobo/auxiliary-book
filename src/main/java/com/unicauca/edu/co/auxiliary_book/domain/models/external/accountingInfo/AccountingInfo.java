@@ -8,8 +8,11 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 /**
- * @brief Domain model representing the Accounting Information of the system.
+ * @brief Modelo de dominio con la información contable proveniente del servicio externo.
  *
+ * Cada instancia representa un movimiento contable completo: entidad,
+ * fecha, comprobante, cuenta, tercero, movimiento (débito/crédito) y
+ * centro de costo. Es la materia prima para procesar los libros auxiliares.
  */
 @Data
 @AllArgsConstructor

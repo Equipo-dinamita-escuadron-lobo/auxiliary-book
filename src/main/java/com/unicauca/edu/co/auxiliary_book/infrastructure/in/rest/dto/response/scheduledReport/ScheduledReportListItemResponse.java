@@ -9,6 +9,13 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
+/**
+ * @brief DTO de respuesta con la vista resumida de un reporte programado.
+ *
+ * Contiene solo los campos relevantes para listados: identificador
+ * público, tipo de libro, frecuencia, próxima ejecución y estado
+ * actual del job, optimizando el payload en endpoints de listado.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

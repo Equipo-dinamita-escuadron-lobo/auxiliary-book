@@ -7,10 +7,11 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 /**
- * @brief Data Transfer Object for Inventory and Balances Book entries
+ * @brief DTO para filas del Libro de Inventarios y Balances.
  *
- * Represents the structure for transferring inventory and balances book output data
- * between application layers.
+ * Representa la estructura de una entrada del libro de inventarios y
+ * balances con la cuenta contable asociada, una descripción adicional y
+ * el valor correspondiente, usado para transferir datos entre capas.
  */
 @Data
 @AllArgsConstructor @NoArgsConstructor

@@ -1,12 +1,7 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.controller.schedulerReport;
 
-import com.unicauca.edu.co.auxiliary_book.application.ports.in.scheduledReport.IScheduledReportQueryPort;
-import com.unicauca.edu.co.auxiliary_book.domain.models.scheduling.ScheduledAuxiliaryBookJob;
-import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.ResponseDTO;
-import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.scheduledReport.ScheduledReportListItemResponse;
-import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.scheduledReport.ScheduledReportResponse;
-import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.mapper.IScheduledReportRestMapper;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,11 +9,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.unicauca.edu.co.auxiliary_book.application.ports.in.scheduledReport.IScheduledReportQueryPort;
+import com.unicauca.edu.co.auxiliary_book.domain.models.scheduling.ScheduledAuxiliaryBookJob;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.ResponseDTO;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.scheduledReport.ScheduledReportListItemResponse;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.scheduledReport.ScheduledReportResponse;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.mapper.IScheduledReportRestMapper;
 
+import lombok.RequiredArgsConstructor;
+
+/**
+ * @brief Controlador REST de consulta de reportes programados.
+ *
+ * Expone endpoints para listar reportes programados por empresa y
+ * consultar el detalle de un reporte específico por su ID público,
+ * adaptando los resultados del dominio a DTOs de respuesta.
+ */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/scheduled-reports")
+@RequestMapping("/api/auxiliary-books/scheduled-reports")
 public class ScheduledReportQueryController {
 
     private final IScheduledReportQueryPort scheduledReportQueryPort;

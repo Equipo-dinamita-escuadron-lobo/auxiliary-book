@@ -12,6 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * @brief Controlador REST de consulta de logs de libros auxiliares.
+ *
+ * Expone endpoints para listar los registros de log asociados a un
+ * libro auxiliar específico, identificándolo por su ID público.
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auxiliary-books")

@@ -1,17 +1,23 @@
 package com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook;
 
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
+/**
+ * @brief DTO para filas del Libro Auxiliar por Tercero.
+ *
+ * Representa una fila del libro auxiliar por tercero con los datos de
+ * la cuenta, el tercero, el comprobante y los movimientos de débito,
+ * crédito y saldo, usada para transferir los datos entre capas.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class ThirdPartyBookDTO {
-    private Date date;
+    private String date;
     private AccountDTO account;
     private BigDecimal debitMovement;
     private BigDecimal creditMovement;

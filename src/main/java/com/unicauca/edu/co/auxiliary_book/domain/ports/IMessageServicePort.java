@@ -1,26 +1,26 @@
 package com.unicauca.edu.co.auxiliary_book.domain.ports;
 
 /**
- * @brief Output port for internationalization message service
+ * @brief Puerto de salida para el servicio de internacionalización de mensajes.
  *
- * Provides interface for retrieving localized messages
- * with parameter substitution support.
+ * Expone la interfaz para obtener mensajes localizados con soporte de
+ * sustitución de parámetros y mensaje por defecto.
  */
 public interface IMessageServicePort {
     /**
-     * @brief Gets a localized message by key with parameters
-     * @param key Message key identifier
-     * @param args Parameters for message interpolation
-     * @return Localized message with substituted parameters
+     * @brief Obtiene un mensaje localizado por clave con parámetros.
+     * @param key Identificador del mensaje.
+     * @param args Parámetros para la interpolación del mensaje.
+     * @return Mensaje localizado con los parámetros sustituidos.
      */
     public String getMessage(String key, Object... args);
 
     /**
-     * @brief Gets a localized message with fallback default
-     * @param key Message key identifier
-     * @param defaultMessage Default message if key not found
-     * @param args Parameters for message interpolation
-     * @return Localized message or default with substituted parameters
+     * @brief Obtiene un mensaje localizado con valor por defecto.
+     * @param key Identificador del mensaje.
+     * @param defaultMessage Mensaje por defecto si la clave no existe.
+     * @param args Parámetros para la interpolación del mensaje.
+     * @return Mensaje localizado o valor por defecto con parámetros sustituidos.
      */
     public String getMessage(String key, String defaultMessage, Object... args);
 }

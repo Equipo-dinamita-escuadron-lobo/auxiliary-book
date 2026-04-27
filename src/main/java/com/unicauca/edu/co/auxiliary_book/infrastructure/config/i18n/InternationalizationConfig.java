@@ -13,8 +13,11 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import java.util.Locale;
 
 /**
- * Configuración para la internacionalización (i18n) de la aplicación.
- * Permite el manejo de múltiples idiomas y configuración de locale.
+ * @brief Configuración de internacionalización (i18n) de la aplicación.
+ *
+ * Configura el {@link MessageSource} que carga los archivos messages_*,
+ * el resolver de locale por sesión y el interceptor que permite cambiar
+ * el idioma mediante el parámetro {@code ?lang=...} en las peticiones.
  */
 @Configuration
 public class InternationalizationConfig implements WebMvcConfigurer {

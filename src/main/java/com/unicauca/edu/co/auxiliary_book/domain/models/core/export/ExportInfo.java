@@ -10,8 +10,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @brief Domain model representing the information to export an auxiliary book.
+ * @brief Modelo de dominio con la información para exportar un libro auxiliar.
  *
+ * Reúne el formato solicitado, el nombre de la entidad, el libro auxiliar,
+ * los datos ya procesados y la plantilla visual a aplicar. Es el contrato
+ * de entrada para el generador de reportes.
  */
 @Data
 @AllArgsConstructor

@@ -7,12 +7,24 @@ import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.reposit
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+/**
+ * @brief Adaptador de escritura para las ejecuciones de reportes programados.
+ *
+ * Implementa {@link IScheduledReportExecutionCommandRepositoryPort}
+ * persistiendo registros de {@link ReportExecution} en la base de datos
+ * y traduciendo entre el dominio y la entidad JPA.
+ */
 @Component
 @RequiredArgsConstructor
 public class ScheduledReportExecutionCommandRepositoryAdapter implements IScheduledReportExecutionCommandRepositoryPort {
 
     private final IScheduledReportExecutionRepository scheduledReportExecutionRepository;
 
+    /**
+     * @brief Guarda una ejecución de reporte programado.
+     * @param execution Ejecución a persistir.
+     * @return Ejecución persistida con los identificadores generados.
+     */
     @Override
     public ReportExecution save(ReportExecution execution) {
         ScheduledReportExecutionEntity entity = toEntity(execution);

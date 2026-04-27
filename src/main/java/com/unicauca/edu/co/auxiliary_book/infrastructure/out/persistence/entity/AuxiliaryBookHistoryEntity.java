@@ -8,10 +8,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @brief Entity representing the history of an auxiliary book.
+ * @brief Entidad JPA que representa el historial de un libro auxiliar.
  *
- * Maps the state and delivery information for an auxiliary book's history,
- * and links to the associated auxiliary book entity.
+ * Mapea el estado del historial y la vía de entrega asociada al
+ * libro auxiliar. Mantiene la relación uno-a-uno con el libro auxiliar
+ * correspondiente.
  */
 @Entity
 @Data

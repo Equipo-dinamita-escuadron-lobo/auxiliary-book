@@ -13,6 +13,14 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
+/**
+ * @brief DTO de solicitud para actualizar un reporte programado.
+ *
+ * Define los campos modificables de un reporte programado existente:
+ * empresa, usuario, tipo de libro, criterios, frecuencia, ventana de
+ * ejecución, vía de entrega y configuración de correo. Se aplica
+ * sobre un reporte identificado por su {@code publicId} en el endpoint.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

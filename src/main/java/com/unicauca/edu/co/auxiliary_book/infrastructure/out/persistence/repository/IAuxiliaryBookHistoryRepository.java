@@ -8,6 +8,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.entity.AuxiliaryBookHistoryEntity;
 
+/**
+ * @brief Repositorio JPA para la entidad de historial del libro auxiliar.
+ *
+ * Además de las operaciones CRUD estándar, expone búsquedas por ID
+ * público del historial, por {@code entId} del libro asociado
+ * (paginada) y por ID interno del libro auxiliar.
+ */
 public interface IAuxiliaryBookHistoryRepository extends JpaRepository<AuxiliaryBookHistoryEntity, Long> {
     /**
      * Busca una entrada de historial por su ID público (UUID).

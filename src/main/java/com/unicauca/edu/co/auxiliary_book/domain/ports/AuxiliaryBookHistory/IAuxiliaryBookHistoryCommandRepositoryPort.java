@@ -3,23 +3,23 @@ package com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookHistory;
 import com.unicauca.edu.co.auxiliary_book.domain.models.history.AuxiliaryBookHistory;
 
 /**
- * @brief Output port for Auxiliary Book History write operations
+ * @brief Puerto de salida para operaciones de escritura del historial de libros auxiliares.
  *
- * Defines the contract for persisting auxiliary book history records
- * in the underlying data storage system.
+ * Define el contrato para persistir y actualizar registros históricos
+ * del ciclo de vida de un libro auxiliar en el sistema de almacenamiento.
  */
 public interface IAuxiliaryBookHistoryCommandRepositoryPort {
     /**
-     * @brief Persists an auxiliary book history record
-     * @param auxiliaryBookHistory Auxiliary book history record to save
-     * @return Saved AuxiliaryBookHistory with generated identifiers
+     * @brief Persiste un registro de historial del libro auxiliar.
+     * @param auxiliaryBookHistory Registro de historial a guardar.
+     * @return El historial guardado con los identificadores generados.
      */
     AuxiliaryBookHistory registerAuxiliaryBookHistory(AuxiliaryBookHistory auxiliaryBookHistory);
 
     /**
-     * @brief Updates an existing auxiliary book history record.
-     * @param auxiliaryBookHistory Auxiliary book history record to update.
-     * @return The updated AuxiliaryBookHistory.
+     * @brief Actualiza un registro de historial existente.
+     * @param auxiliaryBookHistory Registro de historial a actualizar.
+     * @return El historial actualizado.
      */
     AuxiliaryBookHistory updateAuxiliaryBookHistory(AuxiliaryBookHistory auxiliaryBookHistory);
 }

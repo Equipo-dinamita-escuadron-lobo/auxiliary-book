@@ -10,7 +10,12 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
- * Centralized configuration for WebClient and the HTTP client for the Stock microservice.
+ * @brief Configuración central de {@link WebClient} para llamadas HTTP salientes.
+ *
+ * Expone un builder genérico con propagación automática del token JWT
+ * presente en el contexto de seguridad y un builder anotado con
+ * {@code @LoadBalanced} para resolver nombres de servicios registrados
+ * en el discovery (por ejemplo "lb://STOCK").
  */
 @Configuration
 public class WebClientConfig {

@@ -7,6 +7,13 @@ import com.unicauca.edu.co.auxiliary_book.domain.models.scheduledJobExecution.Re
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+/**
+ * @brief Paso de preparación de la descarga del reporte programado.
+ *
+ * Determina, según las banderas de entrega del job, si el reporte
+ * queda disponible para descarga ({@link EDeliveryStatus#READY_FOR_DOWNLOAD})
+ * o si marca la ejecución como fallida por falta de canal configurado.
+ */
 @Component
 @Order(20)
 public class PrepareDownloadStep implements IJobCommand {

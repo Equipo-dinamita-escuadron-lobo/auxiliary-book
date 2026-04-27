@@ -7,6 +7,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.http.ResponseEntity;
 
+/**
+ * @brief Envoltorio genérico de respuesta REST.
+ *
+ * Encapsula el resultado de una operación con un payload genérico,
+ * el código HTTP y un mensaje descriptivo. Provee el método {@link #of()}
+ * como helper para construir un {@link ResponseEntity} con el código
+ * HTTP correspondiente.
+ *
+ * @param <T> tipo de dato contenido en la respuesta.
+ */
 @Data
 @AllArgsConstructor @NoArgsConstructor
 @Builder

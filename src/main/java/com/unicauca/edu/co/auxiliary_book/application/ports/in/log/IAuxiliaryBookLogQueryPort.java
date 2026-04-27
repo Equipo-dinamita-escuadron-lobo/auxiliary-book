@@ -5,16 +5,17 @@ import java.util.List;
 import com.unicauca.edu.co.auxiliary_book.domain.models.log.AuxiliaryBookLog;
 
 /**
- * @brief Input port for Auxiliary Book Log query operations
+ * @brief Puerto de entrada para la consulta de logs del libro auxiliar.
  *
- * Defines the contract for querying auxiliary book log records
- * in the application layer.
+ * Define el contrato, dentro de la capa de aplicación, para recuperar
+ * las trazas y eventos de log registrados durante la generación de un
+ * libro auxiliar específico.
  */
 public interface IAuxiliaryBookLogQueryPort {
     /**
-     * @brief Retrieves a list of auxiliary book log records for a one report
-     * @param auxiliaryBookId Identifier of the auxiliary book whose logs are to be queried
-     * @return List of AuxiliaryBookLog records for the given auxiliary book
+     * @brief Recupera todos los logs asociados a un libro auxiliar.
+     * @param auxiliaryBookId Identificador público del libro auxiliar.
+     * @return Lista de registros de log pertenecientes al libro indicado.
      */
     List<AuxiliaryBookLog> findAllByAuxiliaryBookPublicId(String auxiliaryBookId);
 }

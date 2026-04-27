@@ -9,10 +9,11 @@ import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 
 /**
- * @brief Data Transfer Object for error responses.
+ * @brief DTO para las respuestas de error.
  *
- * Represents the structure of error information returned to the client,
- * including HTTP status, message, request URL, and HTTP method.
+ * Representa la estructura de error devuelta al cliente e incluye
+ * código HTTP, mensaje, URL de la petición y método HTTP. Provee un
+ * helper {@link #of()} para construir directamente un {@link ResponseEntity}.
  */
 @Getter
 @Setter
@@ -22,28 +23,28 @@ import org.springframework.http.ResponseEntity;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorResponseDTO {
     /**
-     * @brief HTTP status code of the error response.
+     * @brief Código HTTP de la respuesta de error.
      */
     private Integer status;
 
     /**
-     * @brief Error message describing the problem.
+     * @brief Mensaje descriptivo del problema.
      */
     private String message;
 
     /**
-     * @brief URL of the request that caused the error.
+     * @brief URL de la petición que originó el error.
      */
     private String url;
 
     /**
-     * @brief HTTP method of the request that caused the error.
+     * @brief Método HTTP de la petición que originó el error.
      */
     private String method;
 
     /**
-     * @brief Builds a ResponseEntity containing this error response.
-     * @return ResponseEntity with the error response and appropriate HTTP status.
+     * @brief Construye un ResponseEntity con esta respuesta de error.
+     * @return ResponseEntity con la respuesta y el código HTTP apropiado.
      */
     public ResponseEntity<ErrorResponseDTO> of() {
         return ResponseEntity.status(this.status).body(this);

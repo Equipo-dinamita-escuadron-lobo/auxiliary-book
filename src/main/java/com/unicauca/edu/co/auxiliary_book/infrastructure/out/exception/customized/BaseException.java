@@ -4,28 +4,30 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @brief Base class for custom runtime exceptions in the application.
+ * @brief Clase base para las excepciones de runtime personalizadas de la aplicación.
  *
- * Provides a structure for exceptions with an HTTP status and a message.
+ * Provee una estructura común con código HTTP y mensaje para que las
+ * subclases representen escenarios de error específicos del dominio
+ * y la infraestructura.
  */
 @Getter
 @Setter
 public abstract class BaseException extends RuntimeException {
 
     /**
-     * @brief HTTP status code associated with the exception.
+     * @brief Código HTTP asociado a la excepción.
      */
     private Integer status;
 
     /**
-     * @brief Error message describing the exception.
+     * @brief Mensaje descriptivo de la excepción.
      */
     private String message;
 
     /**
-     * @brief Constructs a new BaseException with the specified status and message.
-     * @param status HTTP status code to associate with the exception.
-     * @param message Error message to describe the exception.
+     * @brief Construye una nueva BaseException con el código y mensaje indicados.
+     * @param status Código HTTP asociado a la excepción.
+     * @param message Mensaje descriptivo de la excepción.
      */
     public BaseException(Integer status, String message) {
         super(message);

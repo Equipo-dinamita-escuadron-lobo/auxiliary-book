@@ -1,8 +1,8 @@
 package com.unicauca.edu.co.auxiliary_book.domain.models.enums;
 
 /**
- * @brief Enumeration of delivery methods for auxiliary books.
- *
+ * @brief Enumeración de canales de entrega del libro auxiliar
+ * (descarga directa, correo electrónico o ambos).
  */
 public enum EDeliveryWay {
     DOWNLOAD,

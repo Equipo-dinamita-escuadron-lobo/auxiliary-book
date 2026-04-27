@@ -8,6 +8,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @brief Validador de dominio para la configuración de frecuencia del schedule.
+ *
+ * Define el conjunto de frecuencias soportadas sobre las que puede
+ * programarse un reporte, permitiendo validar especificaciones
+ * ({@code ScheduleSpec}) contra valores admitidos.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

@@ -46,8 +46,8 @@ jwt:
       resource-id: ${JWT_RESOURCE_ID:microservices_client}
 
 resend:
-  key: ${RESEND_KEY}
-  from: ${RESEND_FROM:alejfernandez@unicauca.edu.co}
+  key: ${RESEND_API_KEY:${RESEND_KEY:}}
+  from: ${EMAIL_FROM:${RESEND_FROM:alejfernandez@unicauca.edu.co}}
 
 services:
   account-info-service:

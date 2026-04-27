@@ -8,6 +8,14 @@ import java.util.UUID;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @brief Contexto compartido entre los pasos ({@link IJobCommand}) de un job programado.
+ *
+ * Transporta los identificadores del job y de la ejecución, el instante
+ * programado, el id de correlación y un mapa tipado de atributos que
+ * los pasos consumen y enriquecen (job, ejecución, configuración de
+ * entrega, bytes del reporte, banderas de descarga/correo).
+ */
 @Data
 @NoArgsConstructor
 public class JobCommandContext {

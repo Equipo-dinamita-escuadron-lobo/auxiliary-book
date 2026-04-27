@@ -4,32 +4,33 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * @brief Enumeration of error codes used in custom exceptions.
+ * @brief Enumeración de códigos de error para las excepciones personalizadas.
  *
- * Provides standardized error codes and descriptions for exception handling.
+ * Centraliza los códigos y descripciones usados al formatear mensajes
+ * de error, asegurando consistencia en toda la aplicación.
  */
 @RequiredArgsConstructor
 @Getter
 public enum ErrorCode {
     /**
-     * @brief Generic error code.
+     * @brief Código para errores genéricos no categorizados.
      */
     GENERIC_ERROR("GC-001: Generic error -> "),
     /**
-     * @brief Error code for entity already exists.
+     * @brief Código para el caso de entidad duplicada.
      */
     ENTITY_ALREADY_EXISTS("GC-002: Entity already exists -> "),
     /**
-     * @brief Error code for entity not found.
+     * @brief Código para el caso de entidad no encontrada.
      */
     ENTITY_NOT_FOUND("GC-003: Entity not found -> "),
     /**
-     * @brief Error code for business rule violation.
+     * @brief Código para violación de regla de negocio.
      */
     BUSINESS_RULE_VIOLATION("GC-004: Business rule violation -> ");
 
     /**
-     * @brief Description of the error code.
+     * @brief Descripción asociada al código de error.
      */
     private final String description;
 }

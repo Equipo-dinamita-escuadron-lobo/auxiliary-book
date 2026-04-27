@@ -1,14 +1,15 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.out.security;
 
 /**
- * @brief Utility interface for extracting information from JWT tokens.
+ * @brief Interfaz utilitaria para extraer información del JWT.
  *
- * Defines the contract for obtaining user or subject identifiers from JWT tokens.
+ * Define el contrato para obtener identificadores del usuario o
+ * sujeto a partir del token JWT autenticado.
  */
 public interface IJwtUtils {
     /**
-     * @brief Retrieves the identifier (subject) from the JWT token.
-     * @return The identifier of the authenticated user.
+     * @brief Obtiene el identificador (sub) del JWT.
+     * @return Identificador del usuario autenticado.
      */
     String getId();
 }

@@ -8,8 +8,11 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Service for managing internationalized messages.
- * Provides methods to obtain messages in different languages.
+ * @brief Servicio de mensajes internacionalizados.
+ *
+ * Implementación de {@link IMessageServicePort} que resuelve claves de
+ * mensaje usando el {@link MessageSource} de Spring y el locale activo
+ * del {@link LocaleContextHolder}, con soporte de mensaje por defecto.
  */
 @Service
 @RequiredArgsConstructor

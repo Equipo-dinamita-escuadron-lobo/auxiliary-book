@@ -1,8 +1,10 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.config.i18n;
 
 /**
- * Constants for internationalized message keys.
- * Centralizes all message keys used in the application.
+ * @brief Constantes con las claves de mensajes internacionalizados.
+ *
+ * Centraliza todas las claves utilizadas por la aplicación para mensajes
+ * de error, de log y de validación, evitando strings mágicos dispersos.
  */
 public final class MessageKeys {
     private MessageKeys() {

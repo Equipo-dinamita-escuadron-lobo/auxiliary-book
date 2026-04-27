@@ -32,6 +32,15 @@ import com.unicauca.edu.co.auxiliary_book.domain.ports.scheduledReport.ISchedule
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @brief Ejecutor de reportes programados que vencen.
+ *
+ * Implementa el puerto de entrada {@link IRunDueScheduledReportPort} y
+ * orquesta el ciclo completo de ejecución para cada job vencido: detecta
+ * vencimiento/expiración, evita duplicados, ejecuta los pasos
+ * ({@link IJobCommand}) en orden y actualiza tanto el resultado de la
+ * ejecución como la próxima fecha de corrida del job.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j

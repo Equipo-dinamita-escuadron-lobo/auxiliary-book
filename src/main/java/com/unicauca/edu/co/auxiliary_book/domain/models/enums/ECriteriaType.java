@@ -1,8 +1,11 @@
 package com.unicauca.edu.co.auxiliary_book.domain.models.enums;
 
 /**
- * @brief Enumeration of criteria types for auxiliary books.
+ * @brief Enumeración de niveles de detalle aplicables a las cuentas.
  *
+ * Cada valor representa un nivel del plan contable (clase, grupo, cuenta,
+ * subcuenta, cuenta auxiliar) y expone su etiqueta amigable mediante
+ * {@link #getDisplayName()} para el reporte.
  */
 public enum ECriteriaType {
     NUMBER_CLASS("Clase"),

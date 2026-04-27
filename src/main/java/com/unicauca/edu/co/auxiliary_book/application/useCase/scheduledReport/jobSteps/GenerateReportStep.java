@@ -15,6 +15,14 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * @brief Paso de generación del reporte dentro del job programado.
+ *
+ * Construye un {@link AuxiliaryBook} a partir del job, lo registra,
+ * genera la información contable y exporta el reporte al formato
+ * indicado, almacenando el libro registrado, los datos y los bytes
+ * resultantes en el {@link JobCommandContext} para los pasos siguientes.
+ */
 @Component
 @Order(10)
 @RequiredArgsConstructor

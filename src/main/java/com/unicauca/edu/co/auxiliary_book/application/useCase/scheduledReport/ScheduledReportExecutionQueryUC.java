@@ -14,6 +14,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * @brief Caso de uso de consulta para ejecuciones de reportes programados.
+ *
+ * Implementa el puerto de entrada {@link IScheduledReportExecutionsQueryPort}
+ * y recupera las ejecuciones asociadas a un job programado, validando el
+ * identificador público y aplicando los filtros opcionales recibidos.
+ */
 @Service
 @RequiredArgsConstructor
 public class ScheduledReportExecutionQueryUC implements IScheduledReportExecutionsQueryPort {

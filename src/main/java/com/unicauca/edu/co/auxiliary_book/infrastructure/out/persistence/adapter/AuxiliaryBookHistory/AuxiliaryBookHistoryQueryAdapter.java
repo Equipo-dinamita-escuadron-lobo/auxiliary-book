@@ -12,10 +12,12 @@ import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookHistory.IAux
 import org.springframework.stereotype.Component;
 
 /**
- * @brief Adapter for Auxiliary Book History read operations.
+ * @brief Adaptador para las operaciones de lectura del historial de libros auxiliares.
  *
- * Implements the contract for querying auxiliary book history records
- * from the underlying data storage system.
+ * Implementa {@link IAuxiliaryBookHistoryQueryRepositoryPort}
+ * consultando el repositorio JPA y mapeando las entidades a su
+ * representación de dominio, con soporte para búsquedas paginadas
+ * por empresa y búsqueda puntual por ID interno del libro.
  */
 @Component
 @RequiredArgsConstructor
@@ -26,10 +28,10 @@ public class AuxiliaryBookHistoryQueryAdapter implements IAuxiliaryBookHistoryQu
     private final IAuxiliaryBookHistoryCommandEntityMapper auxiliaryBookHistoryMapper;
 
     /**
-     * @brief Retrieves a page of auxiliary book history records for a specific entity.
-     * @param entId Identifier of the entity whose histories are to be queried.
-     * @param pageable Pagination information.
-     * @return Page of AuxiliaryBookHistory records for the given entity.
+     * @brief Obtiene una página de registros de historial para una empresa.
+     * @param entId Identificador de la empresa cuyo historial se consulta.
+     * @param pageable Información de paginación.
+     * @return Página de {@link AuxiliaryBookHistory} para la empresa indicada.
      */
     @Override
     public Page<AuxiliaryBookHistory> findPageByEntId(String entId, Pageable pageable) {

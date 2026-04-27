@@ -6,9 +6,18 @@ import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+/**
+ * @brief Servicio de agrupación de información contable por criterio.
+ *
+ * Reúne los datos contables ya filtrados en grupos según el nivel
+ * contable seleccionado (clase, grupo, cuenta, subcuenta o auxiliar)
+ * y delega en un mapper proporcionado por la estrategia la construcción
+ * del DTO final con los balances acumulados de cada grupo.
+ */
 @Service
 public class AccountingInfoProcessor {
 
@@ -17,23 +26,17 @@ public class AccountingInfoProcessor {
             AuxiliaryBookCriteria criteria,
             BiFunction<String, List<AccountingInfo>, T> mapper
     ) {
-
-        List<T> resultList = filteredList.stream()
+        return filteredList.stream()
                 .collect(Collectors.groupingBy(
-                        info -> extractGroupingKey(info.getAccount().getCode().toString(), criteria.getCriteriaType())
+                        info -> extractGroupingKey(info.getAccount().getCode().toString(), criteria.getCriteriaType()),
+                        TreeMap::new,   // orden lexicográfico determinístico por código de cuenta
+                        Collectors.toList()
                 ))
                 .entrySet()
                 .stream()
                 .map(entry -> mapper.apply(entry.getKey(), entry.getValue()))
                 .toList();
-
-        for(T item : resultList) {
-            System.out.println(item.toString());
-        }
-
-        return resultList;
     }
-
 
     private String extractGroupingKey(String accountCode, ECriteriaType type) {
         return switch (type) {
@@ -47,6 +50,4 @@ public class AccountingInfoProcessor {
             default -> throw new IllegalArgumentException("Tipo de criterio no soportado para agrupación");
         };
     }
-
-
 }

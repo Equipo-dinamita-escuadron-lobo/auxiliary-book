@@ -6,6 +6,13 @@ import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EState;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+/**
+ * @brief DTO de respuesta con el historial de un libro auxiliar.
+ *
+ * Expone los campos relevantes de un registro histórico: identificadores,
+ * el libro auxiliar asociado, el estado actual del historial y la vía
+ * de entrega utilizada.
+ */
 @Data
 @AllArgsConstructor
 public class AuxiliaryBookHistoryResponseDTO {

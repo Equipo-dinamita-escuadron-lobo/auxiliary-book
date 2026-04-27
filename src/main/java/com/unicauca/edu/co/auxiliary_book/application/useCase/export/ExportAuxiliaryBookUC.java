@@ -31,6 +31,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 
+/**
+ * @brief Caso de uso para la exportación de libros auxiliares.
+ *
+ * Implementa el puerto de entrada {@link IExportReportPort} y coordina la
+ * generación de reportes en PDF o Excel mediante {@link ReportGenerator},
+ * registrando logs y actualizando el estado del libro a lo largo del proceso.
+ * También provee los encabezados HTTP apropiados para cada formato de descarga.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j

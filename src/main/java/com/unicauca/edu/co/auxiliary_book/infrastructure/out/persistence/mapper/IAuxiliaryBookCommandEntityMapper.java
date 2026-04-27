@@ -15,6 +15,14 @@ import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.entity.
 import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.entity.AuxiliaryBookEntity;
 import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.entity.AuxiliaryBookTemplateEntity;
 
+/**
+ * @brief Mapper MapStruct entre el dominio y las entidades JPA del libro auxiliar.
+ *
+ * Convierte entre {@link AuxiliaryBook} (dominio) y
+ * {@link AuxiliaryBookEntity}, incluyendo la conversión anidada de
+ * criterios, plantilla y rango, así como las utilidades de
+ * conversión URL ↔ String usadas para la ruta del logotipo.
+ */
 @Mapper(componentModel = "spring")
 public interface IAuxiliaryBookCommandEntityMapper {
 

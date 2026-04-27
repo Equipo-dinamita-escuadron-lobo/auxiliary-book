@@ -1,10 +1,10 @@
 package com.unicauca.edu.co.auxiliary_book.application.ports.in.auxiliaryBook;
 
 /**
- * @brief Input port for Auxiliary Book query operations
+ * @brief Puerto de entrada para operaciones de consulta del Libro Auxiliar.
  *
- * Defines the contract for querying auxiliary book information
- * in the application layer.
+ * Define el contrato, dentro de la capa de aplicación, para consultar
+ * la información de los libros auxiliares ya registrados.
  */
 public interface IAuxiliaryBookQueryCommandPort {
 

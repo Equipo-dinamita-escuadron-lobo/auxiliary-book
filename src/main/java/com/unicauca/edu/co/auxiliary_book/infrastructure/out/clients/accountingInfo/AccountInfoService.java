@@ -11,10 +11,11 @@ import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoC
 import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
 
 /**
- * @brief Service for retrieving accounting information from an external service.
+ * @brief Cliente para obtener información contable desde un servicio externo.
  *
- * Implements the contract for obtaining accounting information records
- * using a WebClient to communicate with the external accounting info service.
+ * Implementa el puerto {@link IAccountingInfoClient} usando un
+ * {@link WebClient} configurado con la URL base del servicio externo
+ * de información contable y propagación del token JWT.
  */
 @Component
 public class AccountInfoService implements IAccountingInfoClient {
@@ -29,8 +30,8 @@ public class AccountInfoService implements IAccountingInfoClient {
     }
 
     /**
-     * @brief Retrieves all accounting information records from the external service.
-     * @return List of AccountingInfo objects.
+     * @brief Obtiene todos los registros de información contable del servicio externo.
+     * @return Lista de AccountingInfo (vacía si el servicio no retorna datos).
      */
     @Override
     public List<AccountingInfo> getAllAccountInfo() {

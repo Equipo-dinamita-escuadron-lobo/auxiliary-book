@@ -17,6 +17,15 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * @brief Adaptador de lectura para los trabajos de reportes programados.
+ *
+ * Implementa {@link IScheduledReportQueryRepositoryPort} consultando la
+ * base de datos a través de {@link IScheduledReportRepository} y mapeando
+ * las entidades JPA al dominio {@link ScheduledAuxiliaryBookJob},
+ * incluyendo los criterios del libro auxiliar y la configuración de
+ * entrega asociada.
+ */
 @Component
 @RequiredArgsConstructor
 public class ScheduledReportQueryRepositoryAdapter implements IScheduledReportQueryRepositoryPort {
@@ -24,21 +33,42 @@ public class ScheduledReportQueryRepositoryAdapter implements IScheduledReportQu
     private final IScheduledReportRepository scheduledReportRepository;
     private final IAuxiliaryBookCommandEntityMapper auxiliaryBookCommandEntityMapper;
 
+    /**
+     * @brief Busca un trabajo programado por su ID interno.
+     * @param jobId Identificador interno.
+     * @return Trabajo programado si existe.
+     */
     @Override
     public Optional<ScheduledAuxiliaryBookJob> findById(Long jobId) {
         return scheduledReportRepository.findById(jobId).map(this::toDomain);
     }
 
+    /**
+     * @brief Busca un trabajo programado por su identificador público.
+     * @param publicId Identificador público (UUID).
+     * @return Trabajo programado si existe.
+     */
     @Override
     public Optional<ScheduledAuxiliaryBookJob> findByPublicId(String publicId) {
         return scheduledReportRepository.findByPublicId(publicId).map(this::toDomain);
     }
 
+    /**
+     * @brief Obtiene todos los trabajos programados de una empresa.
+     * @param entId Identificador de la empresa.
+     * @return Lista de trabajos programados asociados.
+     */
     @Override
     public List<ScheduledAuxiliaryBookJob> findByEntId(String entId) {
         return scheduledReportRepository.findByEntId(entId).stream().map(this::toDomain).toList();
     }
 
+    /**
+     * @brief Obtiene los trabajos activos cuya próxima ejecución ya venció.
+     * @param now Instante de referencia para comparar {@code nextRunAt}.
+     * @param limit Tamaño máximo del lote a retornar (por defecto 50 si no es positivo).
+     * @return Lista de trabajos elegibles para ejecución ordenados por {@code nextRunAt} ascendente.
+     */
     @Override
     public List<ScheduledAuxiliaryBookJob> findDueJobs(Instant now, int limit) {
         int resolvedLimit = limit > 0 ? limit : 50;

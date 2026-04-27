@@ -5,6 +5,14 @@ import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.sc
 import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.scheduledReport.ScheduledReportExecutionResponse;
 import org.mapstruct.Mapper;
 
+/**
+ * @brief Mapper REST entre el dominio de ejecuciones y sus DTOs de respuesta.
+ *
+ * Convierte una {@link ReportExecution} del dominio a
+ * {@link ScheduledReportExecutionResponse} (detalle completo) o a
+ * {@link ScheduledReportExecutionListItemResponse} (vista resumida
+ * para listados), según lo requiera el controlador.
+ */
 @Mapper(componentModel = "spring")
 public interface IScheduledReportExecutionRestMapper {
 

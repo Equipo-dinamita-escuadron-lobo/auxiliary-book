@@ -1,34 +1,42 @@
 package com.unicauca.edu.co.auxiliary_book.application.useCase.export.report.builders;
 
-import com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook.*;
-import com.unicauca.edu.co.auxiliary_book.domain.models.core.export.ExportInfo;
-import lombok.NoArgsConstructor;
-import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
-import net.sf.jasperreports.engine.JRDataSource;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Function;
 
+import org.springframework.stereotype.Service;
+
+import com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook.AccountBookDTO;
+import com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook.AccountDTO;
+import com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook.AccountingMovementBookDTO;
+import com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook.DiaryBookDTO;
+import com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook.InventoryAndBalancesBookDTO;
+import com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook.MajorAndBalancesBookDTO;
+import com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook.ThirdPartyBookDTO;
+import com.unicauca.edu.co.auxiliary_book.domain.models.core.export.ExportInfo;
+
+import lombok.NoArgsConstructor;
+import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
+import net.sf.jasperreports.engine.JRDataSource;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+
+/**
+ * @brief Constructor del origen de datos para reportes de libros auxiliares.
+ *
+ * Convierte los datos genéricos del libro (mapas) en DTOs tipados según el
+ * tipo de libro auxiliar y los inyecta como {@link JRBeanCollectionDataSource}
+ * en el reporte. Incluye utilidades de parseo seguro a {@code Long} y
+ * {@code BigDecimal} para tolerar variaciones de tipo en los datos crudos.
+ */
 @Service
 @NoArgsConstructor
 public class ReportDataBuilder {
-
-    private static final DateTimeFormatter JSON_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
     public void setDataSource(JasperReportBuilder report, ExportInfo exportInfo) {
         List<?> typedData;
 
         switch(exportInfo.getAuxiliaryBook().getType()){
-            case INVENTORY_AND_BALANCES:
-                typedData = mapAuxBookData(exportInfo.getAuxBookData(), map -> {
+            case INVENTORY_AND_BALANCES -> typedData = mapAuxBookData(exportInfo.getAuxBookData(), map -> {
                             // 1. Extraer el mapa de la cuenta anidada
                             @SuppressWarnings("unchecked")
                             LinkedHashMap<String, Object> accountMap = (LinkedHashMap<String, Object>) map.get("account");
@@ -50,9 +58,7 @@ public class ReportDataBuilder {
                             );
                         }
                 );
-                break;
-            case DIARY:
-                typedData = mapAuxBookData(exportInfo.getAuxBookData(), map -> {
+            case DIARY -> typedData = mapAuxBookData(exportInfo.getAuxBookData(), map -> {
                             @SuppressWarnings("unchecked")
                             LinkedHashMap<String, Object> accountMap = (LinkedHashMap<String, Object>) map.get("account");
 
@@ -63,7 +69,7 @@ public class ReportDataBuilder {
                             );
 
                             return new DiaryBookDTO(
-                                    safeParseDate(map.get("date")),
+                                    (String) map.get("date"),
                                     accountDto,
                                     (String) map.get("voucherName"),
                                     (String) map.get("voucherNumber"),
@@ -72,9 +78,7 @@ public class ReportDataBuilder {
                             );
                         }
                 );
-                break;
-            case MAJOR_AND_BALANCES:
-                typedData = mapAuxBookData(exportInfo.getAuxBookData(), map -> {
+            case MAJOR_AND_BALANCES -> typedData = mapAuxBookData(exportInfo.getAuxBookData(), map -> {
                             @SuppressWarnings("unchecked")
                             LinkedHashMap<String, Object> accountMap = (LinkedHashMap<String, Object>) map.get("account");
 
@@ -93,9 +97,7 @@ public class ReportDataBuilder {
                             );
                         }
                 );
-                break;
-            case ACCOUNT:
-                typedData = mapAuxBookData(exportInfo.getAuxBookData(), map -> {
+            case ACCOUNT -> typedData = mapAuxBookData(exportInfo.getAuxBookData(), map -> {
                             @SuppressWarnings("unchecked")
                             LinkedHashMap<String, Object> accountMap = (LinkedHashMap<String, Object>) map.get("account");
 
@@ -106,7 +108,7 @@ public class ReportDataBuilder {
                             );
 
                             return new AccountBookDTO(
-                                    safeParseDate(map.get("date")),
+                                    (String) map.get("date"),
                                     accountDto,
                                     safeParseBigDecimal(map.get("debitMovement")),
                                     safeParseBigDecimal(map.get("creditMovement")),
@@ -118,9 +120,7 @@ public class ReportDataBuilder {
                             );
                         }
                 );
-                break;
-            case THIRD_PARTY:
-                // Asumiendo que ThirdPartyBookDTO también tiene un AccountDTO anidado
+            case THIRD_PARTY -> // Asumiendo que ThirdPartyBookDTO también tiene un AccountDTO anidado
                 typedData = mapAuxBookData(exportInfo.getAuxBookData(), map -> {
                             @SuppressWarnings("unchecked")
                             LinkedHashMap<String, Object> accountMap = (LinkedHashMap<String, Object>) map.get("account");
@@ -132,7 +132,7 @@ public class ReportDataBuilder {
                             );
 
                             return new ThirdPartyBookDTO(
-                                    safeParseDate(map.get("date")),
+                                    (String) map.get("date"),
                                     accountDto,
                                     safeParseBigDecimal(map.get("debitMovement")),
                                     safeParseBigDecimal(map.get("creditMovement")),
@@ -144,9 +144,7 @@ public class ReportDataBuilder {
                             );
                         }
                 );
-                break;
-            case ACCOUNTING_MOVEMENT:
-                // Asumiendo que AccountingMovementBookDTO también tiene un AccountDTO anidado
+            case ACCOUNTING_MOVEMENT -> // Asumiendo que AccountingMovementBookDTO también tiene un AccountDTO anidado
                 typedData = mapAuxBookData(exportInfo.getAuxBookData(), map -> {
                             @SuppressWarnings("unchecked")
                             LinkedHashMap<String, Object> accountMap = (LinkedHashMap<String, Object>) map.get("account");
@@ -159,8 +157,8 @@ public class ReportDataBuilder {
 
                             return new AccountingMovementBookDTO(
                                     (String) map.get("voucherType"),
-                                    safeParseDate(map.get("date")),
-                                    (String) map.get("State"),
+                                    (String) map.get("date"),
+                                    (String) map.get("state"),
                                     (String) map.get("thirdPartyId"),
                                     (String) map.get("thirdPartyName"),
                                     accountDto, // Campo de cuenta anidado
@@ -171,9 +169,7 @@ public class ReportDataBuilder {
                             );
                         }
                 );
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported auxiliary book type: " + exportInfo.getAuxiliaryBook().getType());
+            default -> throw new IllegalArgumentException("Unsupported auxiliary book type: " + exportInfo.getAuxiliaryBook().getType());
         }
 
         JRDataSource dataSource = new JRBeanCollectionDataSource(typedData);
@@ -232,39 +228,5 @@ public class ReportDataBuilder {
         } catch (NumberFormatException e) {
             return null;
         }
-    }
-
-    /**
-     * Convierte de forma segura un Objeto (String, LocalDate, o Date) a un java.util.Date.
-     */
-    private Date safeParseDate(Object obj) {
-        if (obj == null) {
-            return null;
-        }
-
-        // Caso 1: El objeto ya es un java.util.Date
-        if (obj instanceof Date) {
-            return (Date) obj;
-        }
-
-        // Caso 2: El objeto es un java.time.LocalDate
-        if (obj instanceof LocalDate) {
-            return java.sql.Date.valueOf((LocalDate) obj);
-        }
-
-        // Caso 3: El objeto es un String (como en tu JSON "2025-01-01")
-        if (obj instanceof String) {
-            try {
-                // Usamos el formato "yyyy-MM-dd" que vimos en tu JSON
-                LocalDate localDate = LocalDate.parse(obj.toString(), JSON_DATE_FORMATTER);
-                return java.sql.Date.valueOf(localDate);
-            } catch (DateTimeParseException e) {
-                System.err.println("Error parseando fecha (formato no reconocido): " + obj);
-                return null;
-            }
-        }
-
-        System.err.println("Tipo de fecha inesperado (" + obj.getClass().getName() + "): " + obj);
-        return null;
     }
 }

@@ -22,6 +22,15 @@ import java.time.ZoneId;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * @brief Caso de uso de escritura para reportes programados.
+ *
+ * Implementa el puerto de entrada {@link IScheduledReportCommandPort} y
+ * coordina la creación, actualización y cancelación de jobs de reportes
+ * programados. Aplica validaciones de negocio (campos requeridos, rangos
+ * de fechas, frecuencia) y normaliza el {@link ScheduleSpec} calculando
+ * la próxima ejecución antes de persistir el job.
+ */
 @Service
 @RequiredArgsConstructor
 public class ScheduledReportCommandUC implements IScheduledReportCommandPort {

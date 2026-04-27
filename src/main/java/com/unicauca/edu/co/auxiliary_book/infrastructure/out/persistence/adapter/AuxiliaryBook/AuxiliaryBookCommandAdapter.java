@@ -10,10 +10,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * @brief Adapter for Auxiliary Book write operations.
+ * @brief Adaptador para las operaciones de escritura del libro auxiliar.
  *
- * Implements the contract for persisting auxiliary book records
- * in the underlying data storage system.
+ * Implementa {@link IAuxiliaryBookCommandRepositoryPort} persistiendo
+ * los libros auxiliares en el almacén subyacente. Transforma el
+ * dominio en entidad JPA y asegura el mapeo explícito del agregado
+ * de criterios antes de guardar.
  */
 @Component
 @RequiredArgsConstructor
@@ -24,9 +26,9 @@ public class AuxiliaryBookCommandAdapter implements IAuxiliaryBookCommandReposit
     private final IAuxiliaryBookRepository auxiliaryBookRepository;
 
     /**
-     * @brief Persists an auxiliary book record.
-     * @param auxiliaryBook Auxiliary book to save.
-     * @return Saved AuxiliaryBook with generated identifiers.
+     * @brief Persiste un libro auxiliar.
+     * @param auxiliaryBook Libro auxiliar a guardar.
+     * @return Libro auxiliar persistido con los identificadores generados.
      */
     @Override
     public AuxiliaryBook registerAuxiliaryBook(AuxiliaryBook auxiliaryBook) {

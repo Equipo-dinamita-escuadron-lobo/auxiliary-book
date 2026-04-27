@@ -9,8 +9,12 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 /**
- * @brief Domain model representing the criteria for generate an Auxiliary Book.
+ * @brief Modelo de dominio con los criterios de generación de un libro auxiliar.
  *
+ * Agrupa los filtros aplicables al generar un libro: tipo de nivel y rango
+ * de cuentas, centro de costo, tercero, tipo de comprobante y rango de
+ * fechas (startDate/endDate). Ofrece utilidades para verificar la presencia
+ * de rango y obtener una representación textual de los criterios.
  */
 @Builder
 @Data

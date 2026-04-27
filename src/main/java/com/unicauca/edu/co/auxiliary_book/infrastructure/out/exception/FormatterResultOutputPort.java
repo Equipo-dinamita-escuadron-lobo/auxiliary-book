@@ -5,18 +5,20 @@ import com.unicauca.edu.co.auxiliary_book.infrastructure.out.exception.customize
 import org.springframework.stereotype.Service;
 
 /**
- * @brief Output port implementation for formatting and throwing error responses.
+ * @brief Implementación del puerto de salida para formatear y lanzar respuestas de error.
  *
- * Provides methods to throw custom exceptions for various error scenarios,
- * such as business rule violations, entity existence conflicts, and generic errors.
+ * Provee métodos para lanzar las excepciones personalizadas ante
+ * distintos escenarios: violación de reglas de negocio, conflictos
+ * de existencia de entidades y errores genéricos, prefijando el
+ * mensaje con la descripción del {@link ErrorCode} correspondiente.
  */
 @Service
 public class FormatterResultOutputPort implements IFormatterResultOutputPort {
 
     /**
-     * @brief Throws a BusinessRuleException for business rule violations.
-     * @param status HTTP status code to return.
-     * @param message Error message to include in the exception.
+     * @brief Lanza una BusinessRuleException para violaciones de reglas de negocio.
+     * @param status Código HTTP a retornar.
+     * @param message Mensaje de error a incluir en la excepción.
      */
     @Override
     public void returnBusinessRuleErrorResponse(int status, String message) {
@@ -24,9 +26,9 @@ public class FormatterResultOutputPort implements IFormatterResultOutputPort {
     }
 
     /**
-     * @brief Throws an EntityAlreadyExists exception when an entity already exists.
-     * @param status HTTP status code to return.
-     * @param message Error message to include in the exception.
+     * @brief Lanza una EntityAlreadyExists cuando la entidad ya existe.
+     * @param status Código HTTP a retornar.
+     * @param message Mensaje de error a incluir en la excepción.
      */
     @Override
     public void returnEntityAlreadyExistsErrorResponse(int status, String message) {
@@ -34,9 +36,9 @@ public class FormatterResultOutputPort implements IFormatterResultOutputPort {
     }
 
     /**
-     * @brief Throws an EntityDoesNotExistException when an entity is not found.
-     * @param status HTTP status code to return.
-     * @param message Error message to include in the exception.
+     * @brief Lanza una EntityDoesNotExistException cuando la entidad no existe.
+     * @param status Código HTTP a retornar.
+     * @param message Mensaje de error a incluir en la excepción.
      */
     @Override
     public void returnEntityDoesNotExistErrorResponse(int status, String message) {
@@ -44,9 +46,9 @@ public class FormatterResultOutputPort implements IFormatterResultOutputPort {
     }
 
     /**
-     * @brief Throws a GenericErrorException for generic error scenarios.
-     * @param status HTTP status code to return.
-     * @param message Error message to include in the exception.
+     * @brief Lanza una GenericErrorException para errores genéricos.
+     * @param status Código HTTP a retornar.
+     * @param message Mensaje de error a incluir en la excepción.
      */
     @Override
     public void returnErrorGenericResponse(int status, String message) {

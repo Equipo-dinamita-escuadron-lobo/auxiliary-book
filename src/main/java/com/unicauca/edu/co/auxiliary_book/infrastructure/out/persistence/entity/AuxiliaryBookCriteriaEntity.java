@@ -9,10 +9,11 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 /**
- * @brief Entity representing the criteria for an auxiliary book.
+ * @brief Entidad JPA que representa los criterios de un libro auxiliar.
  *
- * Maps the criteria used to filter or generate auxiliary book data,
- * including type, range, third party, cost center, and date range.
+ * Mapea los criterios usados para filtrar o generar los datos del
+ * libro auxiliar: tipo, rango, tercero, centro de costos y fechas.
+ * Mantiene una relación uno-a-uno con el libro auxiliar asociado.
  */
 @Entity
 @Data

@@ -5,17 +5,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 /**
- * @brief Input port for Auxiliary Book History query operations
+ * @brief Puerto de entrada para la consulta del historial de libros auxiliares.
  *
- * Defines the contract for querying auxiliary book history records
- * in the application layer.
+ * Define el contrato, dentro de la capa de aplicación, para recuperar
+ * de forma paginada el historial de libros auxiliares asociado a una
+ * entidad (organización o compañía).
  */
 public interface IAuxiliaryBookHistoryQueryPort {
     /**
-     * @brief Retrieves a page of auxiliary book history records for a specific entity
-     * @param entId Identifier of the entity whose histories are to be queried
-     * @param pageable Pagination information
-     * @return Page of AuxiliaryBookHistory records for the given entity
+     * @brief Recupera paginadamente el historial de una entidad.
+     * @param entId Identificador de la entidad dueña del historial.
+     * @param pageable Información de paginación y ordenamiento.
+     * @return Página de registros de historial para la entidad indicada.
      */
     Page<AuxiliaryBookHistory> findPageByEntId(String entId, Pageable pageable);
 }

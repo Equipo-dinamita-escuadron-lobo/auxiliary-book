@@ -1,37 +1,37 @@
 package com.unicauca.edu.co.auxiliary_book.domain.ports;
 
 /**
- * @brief Output port for formatting and returning error responses
+ * @brief Puerto de salida para formatear y emitir respuestas de error.
  *
- * Defines the contract for formatting and delivering various types of error responses
- * to the client or calling layer.
+ * Define el contrato para formatear y entregar distintos tipos de
+ * respuestas de error hacia la capa cliente/llamadora.
  */
 public interface IFormatterResultOutputPort {
     /**
-     * @brief Returns a business rule error response
-     * @param status HTTP status code to return
-     * @param message Error message to include in the response
+     * @brief Emite una respuesta de error por regla de negocio.
+     * @param status Código HTTP a retornar.
+     * @param message Mensaje de error a incluir.
      */
     public void returnBusinessRuleErrorResponse(int status, String message);
 
     /**
-     * @brief Returns an entity already exists error response
-     * @param status HTTP status code to return
-     * @param message Error message to include in the response
+     * @brief Emite una respuesta de error por entidad ya existente.
+     * @param status Código HTTP a retornar.
+     * @param message Mensaje de error a incluir.
      */
     public void returnEntityAlreadyExistsErrorResponse(int status, String message);
 
     /**
-     * @brief Returns an entity does not exist error response
-     * @param status HTTP status code to return
-     * @param message Error message to include in the response
+     * @brief Emite una respuesta de error por entidad inexistente.
+     * @param status Código HTTP a retornar.
+     * @param message Mensaje de error a incluir.
      */
     public void returnEntityDoesNotExistErrorResponse(int status, String message);
 
     /**
-     * @brief Returns a generic error response
-     * @param status HTTP status code to return
-     * @param message Error message to include in the response
+     * @brief Emite una respuesta de error genérica.
+     * @param status Código HTTP a retornar.
+     * @param message Mensaje de error a incluir.
      */
     public void returnErrorGenericResponse(int status, String message);
 }

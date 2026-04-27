@@ -8,6 +8,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @brief DTO de solicitud para generar un libro auxiliar.
+ *
+ * Contiene los parámetros requeridos para la construcción de un libro
+ * auxiliar: empresa, usuario, tipo de libro y criterios de filtrado.
+ * Incluye validaciones Bean Validation para asegurar la integridad
+ * de los datos antes de invocar el caso de uso correspondiente.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

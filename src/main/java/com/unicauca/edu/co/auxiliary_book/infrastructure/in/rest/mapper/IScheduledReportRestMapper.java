@@ -11,6 +11,15 @@ import org.mapstruct.Mapper;
 
 import java.util.Optional;
 
+/**
+ * @brief Mapper REST entre las solicitudes/respuestas y el dominio de reportes programados.
+ *
+ * Provee métodos por defecto para convertir entre los DTOs de la capa
+ * REST ({@link CreateScheduledReportRequest}, {@link UpdateScheduledReportRequest},
+ * {@link ScheduledReportResponse} y {@link ScheduledReportListItemResponse}) y la
+ * entidad de dominio {@link ScheduledAuxiliaryBookJob}, armando las
+ * estructuras internas {@link ScheduleSpec} y {@link DeliveryConfig}.
+ */
 @Mapper(componentModel = "spring")
 public interface IScheduledReportRestMapper {
 

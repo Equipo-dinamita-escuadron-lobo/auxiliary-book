@@ -6,6 +6,13 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+/**
+ * @brief DTO para filas del Libro Mayor y Balances.
+ *
+ * Representa una fila del libro mayor y balances con la cuenta contable,
+ * el saldo inicial, los movimientos de débito y crédito del periodo y el
+ * saldo final, usada para transferir los resultados entre capas.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

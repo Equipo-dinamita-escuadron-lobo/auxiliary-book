@@ -21,7 +21,14 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 
 /**
- * Global Exception Handler to manage various exception types.
+ * @brief Manejador global de excepciones para toda la aplicación.
+ *
+ * Intercepta las excepciones lanzadas desde los controladores y las
+ * convierte a respuestas HTTP consistentes usando {@link ErrorResponseDTO}.
+ * Maneja excepciones personalizadas ({@link BaseException}), errores de
+ * validación, parámetros faltantes, tipos incorrectos y cualquier
+ * {@link RuntimeException} no contemplada.
+ *
  * @author JulianRuano
  */
 
@@ -29,9 +36,8 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 public class GlobalExceptionHandler {
 
     /**
-     * Handles exceptions.
-     * Logs the error message and returns a response for this specific exception.
-     *
+     * @brief Maneja las excepciones de validación de argumentos.
+     * Construye un mapa con los errores por campo y lo retorna con HTTP 400.
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -54,8 +60,8 @@ public class GlobalExceptionHandler {
 
 
     /**
-     * Handles custom exceptions that have a common structure.
-     * Logs the error message and returns a consistent response.
+     * @brief Maneja las excepciones personalizadas con estructura común.
+     * Usa el código y mensaje de la excepción para construir la respuesta.
      */
     @ExceptionHandler({
             BusinessRuleException.class,
@@ -68,7 +74,9 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handles various bad request exceptions.
+     * @brief Maneja diversas excepciones de petición inválida.
+     * Retorna HTTP 400 (o 404 si el recurso no se encontró) con un
+     * mensaje adaptado al tipo de excepción.
      */
     @ExceptionHandler({
             NoResourceFoundException.class,
@@ -94,7 +102,8 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handles runtime exceptions.
+     * @brief Maneja RuntimeException no contempladas específicamente.
+     * Retorna HTTP 500 con un mensaje genérico de error interno.
      */
     @ExceptionHandler(RuntimeException.class)
     @ResponseBody

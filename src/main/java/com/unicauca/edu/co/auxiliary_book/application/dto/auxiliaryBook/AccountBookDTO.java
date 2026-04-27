@@ -1,17 +1,23 @@
 package com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook;
 
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
+/**
+ * @brief DTO para filas del Libro Auxiliar de Cuentas.
+ *
+ * Representa una línea del libro auxiliar por cuenta, transportando
+ * datos del movimiento contable (débito, crédito y saldo) junto con
+ * información del tercero y del comprobante entre capas de la aplicación.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class AccountBookDTO {
-    private Date date;
+    private String date;
     private AccountDTO account;
     private BigDecimal debitMovement;
     private BigDecimal creditMovement;

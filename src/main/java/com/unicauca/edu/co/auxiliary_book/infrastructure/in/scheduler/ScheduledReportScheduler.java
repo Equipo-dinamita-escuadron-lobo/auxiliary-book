@@ -8,6 +8,15 @@ import com.unicauca.edu.co.auxiliary_book.application.useCase.scheduledReport.se
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @brief Scheduler que dispara el polling de reportes programados vencidos.
+ *
+ * Componente Spring que invoca periódicamente al
+ * {@link DueScheduledReportsPoller} según el intervalo configurable
+ * {@code scheduled.reports.poller.delay-ms} (por defecto 60 segundos).
+ * Maneja y registra cualquier excepción para evitar detener el ciclo
+ * de polling ante fallas puntuales.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j

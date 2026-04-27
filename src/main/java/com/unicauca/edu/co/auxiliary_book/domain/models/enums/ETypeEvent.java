@@ -1,5 +1,11 @@
 package com.unicauca.edu.co.auxiliary_book.domain.models.enums;
 
+/**
+ * @brief Enumeración de tipos de eventos registrados en los logs del libro auxiliar.
+ *
+ * Cubre el ciclo completo: registro, generación de datos, exportación,
+ * programación y envío, incluyendo estados de éxito y error por etapa.
+ */
 public enum ETypeEvent {
     REGISTERED,
     ERROR_GENERATION,

@@ -24,6 +24,14 @@ import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.mapper.IExportR
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * @brief Controlador REST de comandos para libros auxiliares.
+ *
+ * Expone los endpoints HTTP para registrar nuevos libros auxiliares
+ * y exportarlos en distintos formatos. Delega la lógica a los puertos
+ * de aplicación y utiliza mappers para transformar DTOs de la capa
+ * REST al dominio y viceversa.
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auxiliary-books")
