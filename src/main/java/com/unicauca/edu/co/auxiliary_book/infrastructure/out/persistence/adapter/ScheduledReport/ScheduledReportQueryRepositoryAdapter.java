@@ -97,6 +97,7 @@ public class ScheduledReportQueryRepositoryAdapter implements IScheduledReportQu
         job.setCreatedBy(entity.getCreatedBy());
         job.setEntId(entity.getEntId());
         job.setUserId(entity.getUserId());
+        job.setOwnerSub(entity.getOwnerSub());
         job.setStatus(entity.getStatus());
         job.setDeliveryConfig(toDeliveryConfig(entity));
         return job;

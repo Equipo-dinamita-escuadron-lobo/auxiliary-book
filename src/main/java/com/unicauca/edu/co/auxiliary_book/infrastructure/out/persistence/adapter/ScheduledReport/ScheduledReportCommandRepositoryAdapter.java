@@ -80,6 +80,7 @@ public class ScheduledReportCommandRepositoryAdapter implements IScheduledReport
         entity.setCreatedBy(job.getCreatedBy());
         entity.setEntId(job.getEntId());
         entity.setUserId(job.getUserId());
+        entity.setOwnerSub(job.getOwnerSub());
         entity.setStatus(job.getStatus());
 
         DeliveryConfig deliveryConfig = job.getDeliveryConfig();
@@ -116,6 +117,7 @@ public class ScheduledReportCommandRepositoryAdapter implements IScheduledReport
         job.setCreatedBy(entity.getCreatedBy());
         job.setEntId(entity.getEntId());
         job.setUserId(entity.getUserId());
+        job.setOwnerSub(entity.getOwnerSub());
         job.setStatus(entity.getStatus());
         job.setDeliveryConfig(toDeliveryConfig(entity));
         return job;

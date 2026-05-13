@@ -12,13 +12,12 @@ import org.springframework.security.web.SecurityFilterChain;
 import lombok.RequiredArgsConstructor;
 
 /**
- * @brief Configuración de seguridad HTTP de la aplicación.
+ * @brief Configuracion de seguridad HTTP de la aplicacion.
  *
- * Configura la cadena de filtros de Spring Security: deshabilita CSRF,
- * permite acceso público a los endpoints de Swagger y actuator, exige
- * autenticación para el resto, utiliza JWT (resource server) con el
- * {@link JwtAuthConverter} para convertir tokens y autoridades, y
- * establece sesión sin estado.
+ * Deshabilita CSRF, permite acceso publico a Swagger/actuator y al
+ * stream SSE de notificaciones, exige autenticacion para el resto,
+ * utiliza JWT (resource server) y establece sesion sin estado. CORS
+ * se delega al API Gateway que sirve como entrada de las peticiones.
  */
 @Configuration
 @EnableWebSecurity
@@ -29,24 +28,13 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthConverter jwtAuthConverter;
 
-    /**
-     * @brief Configura la cadena de filtros de seguridad.
-     *
-     * Deshabilita CSRF, abre al público Swagger y actuator, exige
-     * autenticación en el resto, registra JWT como resource server
-     * con el converter de autoridades y aplica política de sesión
-     * STATELESS.
-     *
-     * @param httpSecurity Objeto HttpSecurity a configurar.
-     * @return SecurityFilterChain configurado.
-     * @throws Exception si ocurre un error al construir la configuración.
-     */
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(http -> http
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**","/actuator/**").permitAll()
+                        .requestMatchers("/api/notifications/stream").permitAll()
                         .anyRequest()
                         .authenticated())
                 .oauth2ResourceServer(oauth -> {
@@ -55,5 +43,4 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
-
 }

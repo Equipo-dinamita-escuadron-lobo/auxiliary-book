@@ -9,6 +9,7 @@ import com.unicauca.edu.co.auxiliary_book.domain.models.core.export.AuxiliaryBoo
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.export.ExportInfo;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
 import net.sf.dynamicreports.report.builder.DynamicReports;
 
@@ -22,6 +23,7 @@ import net.sf.dynamicreports.report.builder.DynamicReports;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReportGenerator {
 
     private final ReportColumnsBuilder reportColumnsBuilder;
@@ -46,6 +48,7 @@ public class ReportGenerator {
 
             return report;
         } catch (Exception e) {
+            log.error("Error generating report — caused by: {}", e.getMessage(), e);
             throw new RuntimeException("Error generating report", e);
         }
     }

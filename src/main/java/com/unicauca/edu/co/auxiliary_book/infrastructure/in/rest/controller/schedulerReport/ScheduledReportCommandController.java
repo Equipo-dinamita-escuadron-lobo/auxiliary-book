@@ -1,6 +1,8 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.controller.schedulerReport;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,8 +39,14 @@ public class ScheduledReportCommandController {
     private final IScheduledReportRestMapper scheduledReportRestMapper;
 
     @PostMapping
-    public ResponseEntity<ResponseDTO<ScheduledReportResponse>> create(@Validated @RequestBody CreateScheduledReportRequest request) {
+    public ResponseEntity<ResponseDTO<ScheduledReportResponse>> create(
+            @Validated @RequestBody CreateScheduledReportRequest request,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
         ScheduledAuxiliaryBookJob job = scheduledReportRestMapper.toDomain(request);
+        if (jwt != null) {
+            job.setOwnerSub(jwt.getSubject());
+        }
         ScheduledAuxiliaryBookJob created = scheduledReportCommandPort.createScheduledReport(job);
 
         ResponseDTO<ScheduledReportResponse> responseDTO = ResponseDTO.<ScheduledReportResponse>builder()
@@ -52,9 +60,13 @@ public class ScheduledReportCommandController {
     @PutMapping("/{publicId}")
     public ResponseEntity<ResponseDTO<ScheduledReportResponse>> update(
             @PathVariable String publicId,
-            @Validated @RequestBody UpdateScheduledReportRequest request
+            @Validated @RequestBody UpdateScheduledReportRequest request,
+            @AuthenticationPrincipal Jwt jwt
     ) {
         ScheduledAuxiliaryBookJob job = scheduledReportRestMapper.toDomain(request);
+        if (jwt != null) {
+            job.setOwnerSub(jwt.getSubject());
+        }
         ScheduledAuxiliaryBookJob updated = scheduledReportCommandPort.updateScheduledReport(publicId, job);
 
         ResponseDTO<ScheduledReportResponse> responseDTO = ResponseDTO.<ScheduledReportResponse>builder()

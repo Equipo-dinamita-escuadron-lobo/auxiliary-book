@@ -1,16 +1,33 @@
 package com.unicauca.edu.co.auxiliary_book.unit.application.log;
 
-import com.unicauca.edu.co.auxiliary_book.application.ports.in.auxiliaryBook.IAuxiliaryBookCommandPort;
-import com.unicauca.edu.co.auxiliary_book.application.ports.in.export.IExportReportPort;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoClient;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.AuxiliaryBookCommandUC;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.AuxiliaryBookProcessor;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.log.AuxiliaryBookLogCommandUC;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.scheduledReport.jobSteps.GenerateReportStep;
+import com.unicauca.edu.co.auxiliary_book.application.useCase.scheduledReport.services.AuxiliaryBookReportGenerator;
+import com.unicauca.edu.co.auxiliary_book.application.useCase.scheduledReport.services.AuxiliaryBookReportGenerator.GenerationResult;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.commands.JobCommandContext;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
-import com.unicauca.edu.co.auxiliary_book.domain.models.core.export.ExportInfo;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAuxiliaryBookFormat;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAuxiliaryBookType;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.ECriteriaType;
@@ -26,22 +43,6 @@ import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookLog.IAuxilia
 import com.unicauca.edu.co.auxiliary_book.domain.ports.IFormatterResultOutputPort;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.IMessageServicePort;
 import com.unicauca.edu.co.auxiliary_book.infrastructure.out.exception.customized.GenericErrorException;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 
 /**
  * @brief Pruebas unitarias para {@link AuxiliaryBookLogCommandUC},
@@ -72,10 +73,7 @@ class AuxiliaryBookLogCommandUCTest {
     private IMessageServicePort messageServicePort;
 
     @Mock
-    private IAuxiliaryBookCommandPort auxiliaryBookCommandPort;
-
-    @Mock
-    private IExportReportPort exportReportPort;
+    private AuxiliaryBookReportGenerator auxiliaryBookReportGenerator;
 
     @InjectMocks
     private AuxiliaryBookLogCommandUC useCase;
@@ -228,18 +226,10 @@ class AuxiliaryBookLogCommandUCTest {
     }
 
     @Test
-    @DisplayName("GenerateReportStep debe construir el libro, exportar y dejar atributos en el contexto")
+    @DisplayName("GenerateReportStep debe ejecutar el generador y guardar atributos cuando el email está habilitado")
     void generateReportStepStoresArtifactsInContext() {
-        GenerateReportStep step = new GenerateReportStep(auxiliaryBookCommandPort, exportReportPort);
+        GenerateReportStep step = new GenerateReportStep(auxiliaryBookReportGenerator);
         ScheduledAuxiliaryBookJob job = scheduledJob(EAuxiliaryBookType.ACCOUNT);
-        JobCommandContext context = new JobCommandContext(
-                UUID.randomUUID(),
-                UUID.randomUUID(),
-                Instant.parse("2025-01-20T08:00:00Z"),
-                "corr-1",
-                "scheduler",
-                Map.of(JobCommandContext.ATTRIBUTE_JOB, job)
-        );
         AuxiliaryBook registeredBook = AuxiliaryBook.builder()
                 .publicId("book-public-id")
                 .type(EAuxiliaryBookType.ACCOUNT)
@@ -249,61 +239,80 @@ class AuxiliaryBookLogCommandUCTest {
                 .format(EAuxiliaryBookFormat.PDF)
                 .build();
         List<String> reportData = List.of("fila-1", "fila-2");
+        byte[] bytes = new byte[]{1, 2, 3};
 
-        Mockito.when(auxiliaryBookCommandPort.registerAuxiliaryBook(Mockito.any(AuxiliaryBook.class))).thenReturn(registeredBook);
-        Mockito.doReturn(reportData).when(auxiliaryBookCommandPort).genereteAuxiliaryBookInfo(registeredBook);
-        Mockito.when(exportReportPort.exportReport(Mockito.any(ExportInfo.class))).thenReturn(new byte[]{1, 2, 3});
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put(JobCommandContext.ATTRIBUTE_JOB, job);
+        attributes.put(JobCommandContext.ATTRIBUTE_EMAIL_ENABLED, true);
+        attributes.put(JobCommandContext.ATTRIBUTE_REPORT_FORMAT, EAuxiliaryBookFormat.PDF);
+        JobCommandContext context = new JobCommandContext(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                Instant.parse("2025-01-20T08:00:00Z"),
+                "corr-1",
+                "scheduler",
+                attributes
+        );
+
+        Mockito.when(auxiliaryBookReportGenerator.generate(job, EAuxiliaryBookFormat.PDF))
+                .thenReturn(new GenerationResult(registeredBook, reportData, bytes, EAuxiliaryBookFormat.PDF));
 
         step.execute(context);
 
-        ArgumentCaptor<ExportInfo> exportInfoCaptor = ArgumentCaptor.forClass(ExportInfo.class);
-        Mockito.verify(exportReportPort).exportReport(exportInfoCaptor.capture());
-
-        ExportInfo exportInfo = exportInfoCaptor.getValue();
-        Assertions.assertThat(exportInfo.getFormat()).isEqualTo(EAuxiliaryBookFormat.PDF);
-        Assertions.assertThat(exportInfo.getEntName()).isEqualTo("ENT1");
-        Assertions.assertThat(exportInfo.getAuxiliaryBook()).isSameAs(registeredBook);
-        Assertions.assertThat(exportInfo.getInfoReportTemplate().getName()).isEqualTo("ACCOUNT");
         Assertions.assertThat(context.getRequiredAttribute(JobCommandContext.ATTRIBUTE_REGISTERED_BOOK, AuxiliaryBook.class))
                 .isSameAs(registeredBook);
         @SuppressWarnings("unchecked")
         List<String> reportDataResult = (List<String>) context.getRequiredAttribute(JobCommandContext.ATTRIBUTE_REPORT_DATA, List.class);
-        Assertions.assertThat(reportDataResult)
-                .isEqualTo(reportData);
+        Assertions.assertThat(reportDataResult).isEqualTo(reportData);
         Assertions.assertThat(context.getRequiredAttribute(JobCommandContext.ATTRIBUTE_REPORT_BYTES, byte[].class))
                 .containsExactly(1, 2, 3);
     }
 
     @Test
-    @DisplayName("GenerateReportStep debe fallar cuando la exportación produce contenido vacío")
-    void generateReportStepFailsOnEmptyReportBytes() {
-        GenerateReportStep step = new GenerateReportStep(auxiliaryBookCommandPort, exportReportPort);
+    @DisplayName("GenerateReportStep debe ser no-op cuando el email no está habilitado (modo DOWNLOAD puro)")
+    void generateReportStepIsNoOpWhenEmailDisabled() {
+        GenerateReportStep step = new GenerateReportStep(auxiliaryBookReportGenerator);
         ScheduledAuxiliaryBookJob job = scheduledJob(EAuxiliaryBookType.THIRD_PARTY);
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put(JobCommandContext.ATTRIBUTE_JOB, job);
+        attributes.put(JobCommandContext.ATTRIBUTE_EMAIL_ENABLED, false);
+        attributes.put(JobCommandContext.ATTRIBUTE_DOWNLOAD_ENABLED, true);
         JobCommandContext context = new JobCommandContext(
                 UUID.randomUUID(),
                 UUID.randomUUID(),
                 Instant.parse("2025-01-20T08:00:00Z"),
                 "corr-2",
                 "scheduler",
-                Map.of(
-                        JobCommandContext.ATTRIBUTE_JOB, job,
-                        JobCommandContext.ATTRIBUTE_REPORT_FORMAT, EAuxiliaryBookFormat.EXCEL
-                )
+                attributes
         );
-        AuxiliaryBook registeredBook = AuxiliaryBook.builder()
-                .publicId("book-public-id")
-                .type(EAuxiliaryBookType.THIRD_PARTY)
-                .entId("ENT1")
-                .userId(90L)
-                .criteria(criteria())
-                .format(EAuxiliaryBookFormat.EXCEL)
-                .build();
-        List<String> reportData = List.of("fila");
 
-        Mockito.when(auxiliaryBookCommandPort.registerAuxiliaryBook(Mockito.any(AuxiliaryBook.class))).thenReturn(registeredBook);
-        Mockito.doReturn(reportData).when(auxiliaryBookCommandPort).genereteAuxiliaryBookInfo(registeredBook);
-        Mockito.when(exportReportPort.exportReport(Mockito.any(ExportInfo.class))).thenReturn(new byte[0]);
+        step.execute(context);
 
+        Mockito.verifyNoInteractions(auxiliaryBookReportGenerator);
+        Assertions.assertThat(context.getAttribute(JobCommandContext.ATTRIBUTE_REPORT_BYTES, byte[].class)).isNull();
+        Assertions.assertThat(context.getAttribute(JobCommandContext.ATTRIBUTE_REGISTERED_BOOK, AuxiliaryBook.class)).isNull();
+    }
+
+    @Test
+    @DisplayName("GenerateReportStep debe propagar excepción si el generador falla")
+    void generateReportStepPropagatesGeneratorFailure() {
+        GenerateReportStep step = new GenerateReportStep(auxiliaryBookReportGenerator);
+        ScheduledAuxiliaryBookJob job = scheduledJob(EAuxiliaryBookType.THIRD_PARTY);
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put(JobCommandContext.ATTRIBUTE_JOB, job);
+        attributes.put(JobCommandContext.ATTRIBUTE_EMAIL_ENABLED, true);
+        attributes.put(JobCommandContext.ATTRIBUTE_REPORT_FORMAT, EAuxiliaryBookFormat.EXCEL);
+        JobCommandContext context = new JobCommandContext(
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                Instant.parse("2025-01-20T08:00:00Z"),
+                "corr-3",
+                "scheduler",
+                attributes
+        );
+
+        Mockito.when(auxiliaryBookReportGenerator.generate(job, EAuxiliaryBookFormat.EXCEL))
+                .thenThrow(new IllegalStateException("Exported report content is empty"));
         Assertions.assertThatThrownBy(() -> step.execute(context))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("empty");

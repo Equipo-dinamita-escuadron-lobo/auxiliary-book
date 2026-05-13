@@ -1,27 +1,32 @@
 package com.unicauca.edu.co.auxiliary_book.unit.application.log;
 
 import com.unicauca.edu.co.auxiliary_book.application.ports.out.IEmailSenderPort;
+import com.unicauca.edu.co.auxiliary_book.application.ports.out.INotificationPusherPort;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.log.AuxiliaryBookLogQueryUC;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.scheduledReport.jobSteps.PrepareDownloadStep;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.scheduledReport.jobSteps.SendEmailStep;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.commands.JobCommandContext;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAuxiliaryBookFormat;
-import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EDeliveryStatus;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAuxiliaryBookType;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.ECriteriaType;
+import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EDeliveryStatus;
+import com.unicauca.edu.co.auxiliary_book.domain.models.enums.ENotificationType;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EFrequency;
 import com.unicauca.edu.co.auxiliary_book.domain.models.log.AuxiliaryBookLog;
+import com.unicauca.edu.co.auxiliary_book.domain.models.notification.Notification;
 import com.unicauca.edu.co.auxiliary_book.domain.models.scheduledJobExecution.ReportExecution;
 import com.unicauca.edu.co.auxiliary_book.domain.models.scheduling.DeliveryConfig;
 import com.unicauca.edu.co.auxiliary_book.domain.models.scheduling.EmailConfig;
 import com.unicauca.edu.co.auxiliary_book.domain.models.scheduling.ScheduleSpec;
 import com.unicauca.edu.co.auxiliary_book.domain.models.scheduling.ScheduledAuxiliaryBookJob;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookLog.IAuxiliaryBookLogQueryRepositoryPort;
+import com.unicauca.edu.co.auxiliary_book.domain.ports.notification.INotificationCommandRepositoryPort;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -47,6 +52,12 @@ class AuxiliaryBookLogQueryUCTest {
 
     @Mock
     private IEmailSenderPort emailSenderPort;
+
+    @Mock
+    private INotificationCommandRepositoryPort notificationCommandRepositoryPort;
+
+    @Mock
+    private INotificationPusherPort notificationPusherPort;
 
     @InjectMocks
     private AuxiliaryBookLogQueryUC useCase;
@@ -81,33 +92,49 @@ class AuxiliaryBookLogQueryUCTest {
     @Test
     @DisplayName("PrepareDownloadStep debe marcar FAILED cuando no hay canal configurado")
     void prepareDownloadStepFailsWhenNoDeliveryIsEnabled() {
-        PrepareDownloadStep step = new PrepareDownloadStep();
-        ReportExecution execution = new ReportExecution();
+        PrepareDownloadStep step = new PrepareDownloadStep(notificationCommandRepositoryPort, notificationPusherPort);
+        ReportExecution execution = newExecution();
         JobCommandContext context = context(execution, false, false, null, null);
 
         step.execute(context);
 
         Assertions.assertThat(execution.getDeliveryStatus()).isEqualTo(EDeliveryStatus.FAILED);
         Assertions.assertThat(execution.getErrorMessage()).contains("No delivery method configured");
+        Mockito.verifyNoInteractions(notificationCommandRepositoryPort, notificationPusherPort);
     }
 
     @Test
-    @DisplayName("PrepareDownloadStep debe dejar READY_FOR_DOWNLOAD cuando la descarga está habilitada")
-    void prepareDownloadStepMarksReadyForDownload() {
-        PrepareDownloadStep step = new PrepareDownloadStep();
-        ReportExecution execution = new ReportExecution();
-        JobCommandContext context = context(execution, true, false, null, null);
+    @DisplayName("PrepareDownloadStep debe dejar READY_FOR_DOWNLOAD y emitir notificación cuando descarga está habilitada")
+    void prepareDownloadStepMarksReadyForDownloadAndNotifies() {
+        PrepareDownloadStep step = new PrepareDownloadStep(notificationCommandRepositoryPort, notificationPusherPort);
+        ReportExecution execution = newExecution();
+        ScheduledAuxiliaryBookJob job = scheduledJob(EAuxiliaryBookType.ACCOUNT);
+        job.setOwnerSub("sub-99");
+        JobCommandContext context = context(execution, true, false, null, job);
+
+        Mockito.when(notificationCommandRepositoryPort.save(Mockito.any(Notification.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         step.execute(context);
 
         Assertions.assertThat(execution.getDeliveryStatus()).isEqualTo(EDeliveryStatus.READY_FOR_DOWNLOAD);
+
+        ArgumentCaptor<Notification> notificationCaptor = ArgumentCaptor.forClass(Notification.class);
+        Mockito.verify(notificationCommandRepositoryPort).save(notificationCaptor.capture());
+        Notification persisted = notificationCaptor.getValue();
+        Assertions.assertThat(persisted.getUserId()).isEqualTo("sub-99");
+        Assertions.assertThat(persisted.getType()).isEqualTo(ENotificationType.SCHEDULED_REPORT_READY);
+        Assertions.assertThat(persisted.getReferenceId()).isEqualTo(execution.getExecutionId());
+        Assertions.assertThat(persisted.getReferencePublicId()).isEqualTo("job-public-id");
+        Assertions.assertThat(persisted.isRead()).isFalse();
+        Mockito.verify(notificationPusherPort).push(Mockito.eq("sub-99"), Mockito.any(Notification.class));
     }
 
     @Test
     @DisplayName("PrepareDownloadStep no debe alterar el estado cuando solo el email está habilitado")
     void prepareDownloadStepKeepsStatusWhenOnlyEmailIsEnabled() {
-        PrepareDownloadStep step = new PrepareDownloadStep();
-        ReportExecution execution = new ReportExecution();
+        PrepareDownloadStep step = new PrepareDownloadStep(notificationCommandRepositoryPort, notificationPusherPort);
+        ReportExecution execution = newExecution();
         execution.setDeliveryStatus(EDeliveryStatus.NONE);
         JobCommandContext context = context(execution, false, true, null, null);
 
@@ -115,13 +142,29 @@ class AuxiliaryBookLogQueryUCTest {
 
         Assertions.assertThat(execution.getDeliveryStatus()).isEqualTo(EDeliveryStatus.NONE);
         Assertions.assertThat(execution.getErrorMessage()).isNull();
+        Mockito.verifyNoInteractions(notificationCommandRepositoryPort, notificationPusherPort);
+    }
+
+    @Test
+    @DisplayName("PrepareDownloadStep marca READY_FOR_DOWNLOAD pero omite la notificación si el job no tiene userId")
+    void prepareDownloadStepSkipsNotificationWhenUserIdIsNull() {
+        PrepareDownloadStep step = new PrepareDownloadStep(notificationCommandRepositoryPort, notificationPusherPort);
+        ReportExecution execution = newExecution();
+        ScheduledAuxiliaryBookJob job = scheduledJob(EAuxiliaryBookType.ACCOUNT);
+        job.setOwnerSub(null);
+        JobCommandContext context = context(execution, true, false, null, job);
+
+        step.execute(context);
+
+        Assertions.assertThat(execution.getDeliveryStatus()).isEqualTo(EDeliveryStatus.READY_FOR_DOWNLOAD);
+        Mockito.verifyNoInteractions(notificationCommandRepositoryPort, notificationPusherPort);
     }
 
     @Test
     @DisplayName("SendEmailStep no debe hacer nada cuando el envío por email está deshabilitado")
     void sendEmailStepDoesNothingWhenEmailDisabled() {
         SendEmailStep step = new SendEmailStep(emailSenderPort);
-        ReportExecution execution = new ReportExecution();
+        ReportExecution execution = newExecution();
         JobCommandContext context = context(execution, true, false, null, null);
 
         step.execute(context);
@@ -134,7 +177,7 @@ class AuxiliaryBookLogQueryUCTest {
     @DisplayName("SendEmailStep debe enviar correo con asunto, cuerpo y adjunto esperados")
     void sendEmailStepSendsEmailAndMarksExecution() {
         SendEmailStep step = new SendEmailStep(emailSenderPort);
-        ReportExecution execution = new ReportExecution();
+        ReportExecution execution = newExecution();
         byte[] attachment = new byte[]{4, 5, 6};
         DeliveryConfig deliveryConfig = new DeliveryConfig(
                 com.unicauca.edu.co.auxiliary_book.domain.models.enums.EDeliveryWay.EMAIL,
@@ -163,7 +206,7 @@ class AuxiliaryBookLogQueryUCTest {
     @DisplayName("SendEmailStep debe marcar EMAIL_FAILED cuando la configuración de email es inválida")
     void sendEmailStepMarksFailureWhenEmailConfigIsInvalid() {
         SendEmailStep step = new SendEmailStep(emailSenderPort);
-        ReportExecution execution = new ReportExecution();
+        ReportExecution execution = newExecution();
         DeliveryConfig deliveryConfig = new DeliveryConfig(
                 com.unicauca.edu.co.auxiliary_book.domain.models.enums.EDeliveryWay.EMAIL,
                 EAuxiliaryBookFormat.PDF,
@@ -178,6 +221,12 @@ class AuxiliaryBookLogQueryUCTest {
         Assertions.assertThat(execution.getDeliveryStatus()).isEqualTo(EDeliveryStatus.EMAIL_FAILED);
         Assertions.assertThat(execution.getErrorMessage()).contains("Email delivery failed");
         Mockito.verifyNoInteractions(emailSenderPort);
+    }
+
+    private ReportExecution newExecution() {
+        ReportExecution execution = new ReportExecution();
+        execution.setExecutionId(UUID.randomUUID());
+        return execution;
     }
 
     private JobCommandContext context(
@@ -210,6 +259,7 @@ class AuxiliaryBookLogQueryUCTest {
         ScheduledAuxiliaryBookJob job = new ScheduledAuxiliaryBookJob();
         job.setPublicId("job-public-id");
         job.setBookType(bookType);
+        job.setOwnerSub("sub-99");
         job.setCriteria(AuxiliaryBookCriteria.builder()
                 .criteriaType(ECriteriaType.ACCOUNT)
                 .startDate(LocalDate.of(2025, 1, 1))

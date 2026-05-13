@@ -1,11 +1,12 @@
 package com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo;
 
+import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
 
 /**
  * @brief Modelo de dominio con la información contable proveniente del servicio externo.

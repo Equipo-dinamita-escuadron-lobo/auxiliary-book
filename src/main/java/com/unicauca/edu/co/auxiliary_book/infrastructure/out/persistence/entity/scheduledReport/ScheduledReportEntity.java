@@ -78,6 +78,9 @@ public class ScheduledReportEntity {
     @Column(nullable = false)
     private Long userId;
 
+    @Column(length = 128)
+    private String ownerSub;
+
     @Column
     private String createdBy;
 

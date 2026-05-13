@@ -1,5 +1,9 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.mapper;
 
+import java.util.Optional;
+
+import org.mapstruct.Mapper;
+
 import com.unicauca.edu.co.auxiliary_book.domain.models.scheduling.DeliveryConfig;
 import com.unicauca.edu.co.auxiliary_book.domain.models.scheduling.ScheduleSpec;
 import com.unicauca.edu.co.auxiliary_book.domain.models.scheduling.ScheduledAuxiliaryBookJob;
@@ -7,9 +11,6 @@ import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.request.Cre
 import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.request.UpdateScheduledReportRequest;
 import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.scheduledReport.ScheduledReportListItemResponse;
 import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.scheduledReport.ScheduledReportResponse;
-import org.mapstruct.Mapper;
-
-import java.util.Optional;
 
 /**
  * @brief Mapper REST entre las solicitudes/respuestas y el dominio de reportes programados.
@@ -41,7 +42,7 @@ public interface IScheduledReportRestMapper {
         ));
         job.setDeliveryConfig(new DeliveryConfig(
                 request.getDeliveryWay(),
-                null,
+                request.getFormat(),
                 request.getEmailConfig()
         ));
         return job;
@@ -65,7 +66,7 @@ public interface IScheduledReportRestMapper {
         ));
         job.setDeliveryConfig(new DeliveryConfig(
                 request.getDeliveryWay(),
-                null,
+                request.getFormat(),
                 request.getEmailConfig()
         ));
         return job;

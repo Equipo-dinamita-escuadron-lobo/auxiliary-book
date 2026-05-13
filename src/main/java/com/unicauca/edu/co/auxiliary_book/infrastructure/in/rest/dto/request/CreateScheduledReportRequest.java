@@ -1,6 +1,7 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.request;
 
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
+import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAuxiliaryBookFormat;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAuxiliaryBookType;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EDeliveryWay;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EFrequency;
@@ -51,6 +52,8 @@ public class CreateScheduledReportRequest {
 
     @NotNull(message = "Delivery way cannot be null")
     private EDeliveryWay deliveryWay;
+
+    private EAuxiliaryBookFormat format;
 
     private EmailConfig emailConfig;
 }

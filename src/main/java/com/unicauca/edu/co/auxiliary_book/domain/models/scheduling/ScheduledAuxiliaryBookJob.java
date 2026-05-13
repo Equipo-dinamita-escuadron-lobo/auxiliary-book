@@ -32,5 +32,6 @@ public class ScheduledAuxiliaryBookJob {
     private String createdBy; // Public ID user
     private String entId;
     private Long userId;
+    private String ownerSub;
     private EJobStatus status;
 }
