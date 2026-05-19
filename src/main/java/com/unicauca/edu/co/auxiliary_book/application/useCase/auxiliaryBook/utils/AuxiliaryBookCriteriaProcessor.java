@@ -15,6 +15,7 @@ import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.CriteriaRa
 import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
 
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @brief Servicio que filtra la información contable según los criterios del libro.
@@ -24,14 +25,26 @@ import lombok.NoArgsConstructor;
  * comprobante y fecha hasta {@code endDate}. El filtro por {@code startDate}
  * se delega a cada estrategia para permitir el cálculo del saldo inicial.
  */
+@Slf4j
 @Service
 @NoArgsConstructor
 public class AuxiliaryBookCriteriaProcessor {
 
     public List<AccountingInfo> processAccountingInfo(IAccountingInfoClient queryPort, AuxiliaryBook book) {
         AuxiliaryBookCriteria criteria = book.getCriteria();
+        log.info("[AuxBook] Criteria recibido para filtrado: type={}, range={}, costCenter={}, thirdParty={}, startDate={}, endDate={}",
+                criteria.getCriteriaType(),
+                criteria.getCriteriaRange() != null
+                        ? "[" + criteria.getCriteriaRange().getFromRange() + " – " + criteria.getCriteriaRange().getToRange() + "]"
+                        : "null",
+                criteria.getCostCenterId(),
+                criteria.getThirdPartyId(),
+                criteria.getStartDate(),
+                criteria.getEndDate());
         List<AccountingInfo> allAccountData = queryPort.getAllAccountInfo();
-        return filterAccountingInfoByCriteria(book, criteria, allAccountData);
+        List<AccountingInfo> filtered = filterAccountingInfoByCriteria(book, criteria, allAccountData);
+        log.info("[AuxBook] Movimientos tras filtro: {} de {} totales", filtered.size(), allAccountData.size());
+        return filtered;
     }
 
     private boolean isInRange(Long value, CriteriaRange range) {

@@ -4,6 +4,7 @@ import com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook.AccountD
 import com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook.InventoryAndBalancesBookDTO;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.AccountingInfoProcessor;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
+import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.CriteriaRange;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.ECriteriaType;
 import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
 import lombok.NoArgsConstructor;
@@ -84,6 +85,21 @@ public class InventoryAndBalancesStrategy implements IProcessStrategy {
         NavigableSet<Long> allAccountCodes = new TreeSet<>();
         allAccountCodes.addAll(previousByAccount.keySet());
         allAccountCodes.addAll(currentByAccount.keySet());
+
+        // Defensive range filter: aunque el AuxiliaryBookCriteriaProcessor debería
+        // haber descartado los movimientos fuera del rango, aquí garantizamos que
+        // los códigos agregados que queden fuera de [from, to] nunca lleguen al
+        // resultado final, sin importar cómo lleguen los criterios.
+        CriteriaRange range = criteria.getCriteriaRange();
+        if (range != null) {
+            Long from = range.getFromRange();
+            Long to = range.getToRange();
+            if (from != null || to != null) {
+                allAccountCodes.removeIf(code ->
+                        (from != null && code.compareTo(from) < 0)
+                                || (to != null && code.compareTo(to) > 0));
+            }
+        }
 
         // ── 3. Construir un DTO por cuenta ──────────────────────────────────
         List<InventoryAndBalancesBookDTO> result = new ArrayList<>();

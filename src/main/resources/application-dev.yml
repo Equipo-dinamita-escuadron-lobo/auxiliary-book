@@ -24,6 +24,21 @@ spring:
           issuer-uri: ${JWT_ISSUER_URI:http://localhost:8090/auth/realms/oauth2-realm}
           jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8090/auth/realms/oauth2-realm/protocol/openid-connect/certs}
 
+  # SMTP para envio directo de correos. Por defecto usa la misma cuenta
+  # Gmail que ms-notifications (modulocarteracontapp@gmail.com) con un
+  # App Password. Override con MAIL_USERNAME/MAIL_PASSWORD si se necesita.
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:modulocarteracontapp@gmail.com}
+    password: ${MAIL_PASSWORD:vqjdnvmhvaxwzxip}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:true}
+          starttls:
+            enable: ${MAIL_SMTP_STARTTLS:true}
+
 server:
   port: ${PORT:0}
 
@@ -45,9 +60,11 @@ jwt:
       principle-attribute: ${JWT_PRINCIPAL_ATTR:preferred_username}
       resource-id: ${JWT_RESOURCE_ID:microservices_client}
 
-resend:
-  key: ${RESEND_API_KEY:${RESEND_KEY:}}
-  from: ${EMAIL_FROM:${RESEND_FROM:alejfernandez@unicauca.edu.co}}
+# Remitente y asunto por defecto para los correos del reporte programado.
+notification-settings:
+  mail:
+    from: ${MAIL_FROM:modulocarteracontapp@gmail.com}
+    default-subject: ${MAIL_DEFAULT_SUBJECT:Reporte programado}
 
 services:
   account-info-service:

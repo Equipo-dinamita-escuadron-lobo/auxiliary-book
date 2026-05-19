@@ -64,8 +64,13 @@ public class SendEmailStep implements IJobCommand {
             if (!downloadEnabled) {
                 execution.setDeliveryStatus(EDeliveryStatus.EMAIL_FAILED);
             }
-            execution.setErrorMessage("Email delivery failed: " + ex.getMessage());
+            execution.setErrorMessage(truncate("Email delivery failed: " + ex.getMessage(), 1000));
         }
+    }
+
+    private String truncate(String value, int maxLength) {
+        if (value == null) return null;
+        return value.length() <= maxLength ? value : value.substring(0, maxLength);
     }
 
     private void validateEmailConfig(EmailConfig emailConfig) {

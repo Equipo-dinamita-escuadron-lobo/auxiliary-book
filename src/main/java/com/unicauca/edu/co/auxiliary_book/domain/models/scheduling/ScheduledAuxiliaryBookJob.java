@@ -1,6 +1,7 @@
 package com.unicauca.edu.co.auxiliary_book.domain.models.scheduling;
 
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
+import com.unicauca.edu.co.auxiliary_book.domain.models.core.export.AuxiliaryBookTemplate;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAuxiliaryBookType;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EJobStatus;
 import lombok.AllArgsConstructor;
@@ -34,4 +35,5 @@ public class ScheduledAuxiliaryBookJob {
     private Long userId;
     private String ownerSub;
     private EJobStatus status;
+    private AuxiliaryBookTemplate template;
 }

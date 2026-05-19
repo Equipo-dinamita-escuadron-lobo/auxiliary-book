@@ -4,6 +4,7 @@ import com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook.AccountD
 import com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook.DiaryBookDTO;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.AccountingInfoProcessor;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
+import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.CriteriaRange;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.ECriteriaType;
 import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
 import lombok.NoArgsConstructor;
@@ -53,6 +54,7 @@ public class DiaryStrategy implements IProcessStrategy {
                 .filter(Objects::nonNull)
                 .filter(this::hasMinimumStructure)
                 .filter(info -> isWithinPeriod(info.getDate(), criteria.getStartDate(), criteria.getEndDate()))
+                .filter(info -> matchesRange(info, criteria))
                 .toList();
 
         if (validData.isEmpty()) {
@@ -214,6 +216,22 @@ public class DiaryStrategy implements IProcessStrategy {
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
+
+    private boolean matchesRange(AccountingInfo info, AuxiliaryBookCriteria criteria) {
+        CriteriaRange range = criteria.getCriteriaRange();
+        ECriteriaType criteriaType = criteria.getCriteriaType();
+        if (range == null || criteriaType == null) {
+            return true;
+        }
+        Long from = range.getFromRange();
+        Long to = range.getToRange();
+        if (from == null && to == null) {
+            return true;
+        }
+        Long key = extractGroupingKey(info, criteriaType);
+        return (from == null || key.compareTo(from) >= 0)
+                && (to == null || key.compareTo(to) <= 0);
+    }
 
     private boolean hasMinimumStructure(AccountingInfo info) {
         return info.getAccount() != null

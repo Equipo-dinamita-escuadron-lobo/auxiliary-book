@@ -1,10 +1,15 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.adapter.ScheduledReport;
 
+import com.unicauca.edu.co.auxiliary_book.domain.models.core.export.AuxiliaryBookTemplate;
+import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAlignment;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EJobStatus;
 import com.unicauca.edu.co.auxiliary_book.domain.models.scheduling.DeliveryConfig;
 import com.unicauca.edu.co.auxiliary_book.domain.models.scheduling.EmailConfig;
 import com.unicauca.edu.co.auxiliary_book.domain.models.scheduling.ScheduleSpec;
 import com.unicauca.edu.co.auxiliary_book.domain.models.scheduling.ScheduledAuxiliaryBookJob;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.scheduledReport.IScheduledReportQueryRepositoryPort;
 import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.entity.scheduledReport.ScheduledReportEntity;
 import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.mapper.IAuxiliaryBookCommandEntityMapper;
@@ -100,7 +105,45 @@ public class ScheduledReportQueryRepositoryAdapter implements IScheduledReportQu
         job.setOwnerSub(entity.getOwnerSub());
         job.setStatus(entity.getStatus());
         job.setDeliveryConfig(toDeliveryConfig(entity));
+        job.setTemplate(toTemplate(entity));
         return job;
+    }
+
+    private AuxiliaryBookTemplate toTemplate(ScheduledReportEntity entity) {
+        if (entity.getTemplateName() == null
+                && entity.getTemplatePathLogotype() == null
+                && entity.getTemplateAlignment() == null
+                && entity.getTemplateFont() == null
+                && entity.getTemplateFontSize() == null
+                && entity.getTemplateMainColor() == null) {
+            return null;
+        }
+        AuxiliaryBookTemplate template = new AuxiliaryBookTemplate();
+        template.setName(entity.getTemplateName());
+        template.setPathLogotype(toUrl(entity.getTemplatePathLogotype()));
+        template.setAlienation(toAlignment(entity.getTemplateAlignment()));
+        template.setFont(entity.getTemplateFont());
+        template.setFontSize(entity.getTemplateFontSize());
+        template.setMainColor(entity.getTemplateMainColor());
+        return template;
+    }
+
+    private URL toUrl(String value) {
+        if (value == null || value.isBlank()) return null;
+        try {
+            return new URL(value.trim());
+        } catch (MalformedURLException ex) {
+            return null;
+        }
+    }
+
+    private EAlignment toAlignment(String value) {
+        if (value == null || value.isBlank()) return null;
+        try {
+            return EAlignment.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
     }
 
     private DeliveryConfig toDeliveryConfig(ScheduledReportEntity entity) {

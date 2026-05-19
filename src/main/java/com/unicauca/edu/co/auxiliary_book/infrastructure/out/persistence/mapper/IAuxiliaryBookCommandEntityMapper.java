@@ -28,15 +28,13 @@ public interface IAuxiliaryBookCommandEntityMapper {
 
     @Mapping(target = "log", ignore = true)
     @Mapping(target = "history", ignore = true)
-    @Mapping(target = "criteria.auxiliaryBook", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(source = "template", target = "template")
     @Mapping(source = "criteria", target = "criteria", qualifiedByName = "criteriaToEntity")
     AuxiliaryBookEntity toEntity(AuxiliaryBook auxiliaryBook);
 
-    @Mapping(target = "criteria", source = "criteria", qualifiedByName = "criteriaEntityToDomain")
-    @Mapping(target = "template", source = "template")
-    @Mapping(target = "criteria.voucherType", ignore = true)
+    @Mapping(source = "criteria", target = "criteria", qualifiedByName = "criteriaEntityToDomain")
+    @Mapping(source = "template", target = "template")
     AuxiliaryBook toDomain(AuxiliaryBookEntity auxiliaryBookEntity);
 
     @Named("criteriaToEntity")

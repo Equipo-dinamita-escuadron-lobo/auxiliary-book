@@ -49,6 +49,10 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
@@ -136,11 +140,6 @@
             <artifactId>poi-ooxml</artifactId>
             <version>5.2.3</version> <!-- Use the latest stable version, matching poi version -->
         </dependency>
-		<dependency>
-			<groupId>com.resend</groupId>
-			<artifactId>resend-java</artifactId>
-			<version>4.4.0</version>
-		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

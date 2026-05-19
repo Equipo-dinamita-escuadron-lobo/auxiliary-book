@@ -97,6 +97,25 @@ public class ScheduledReportEntity {
     @Column
     private String emailBody;
 
+    // -------- Template del reporte --------
+    @Column(length = 128)
+    private String templateName;
+
+    @Column(columnDefinition = "TEXT")
+    private String templatePathLogotype;
+
+    @Column(length = 16)
+    private String templateAlignment;
+
+    @Column(length = 64)
+    private String templateFont;
+
+    @Column
+    private Integer templateFontSize;
+
+    @Column(length = 16)
+    private String templateMainColor;
+
     @CreationTimestamp
     @Column
     private LocalDateTime createdAt;

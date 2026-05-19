@@ -70,7 +70,7 @@ public class AuxiliaryBookReportGenerator {
                 resolveEntName(job),
                 registeredBook,
                 serializableData,
-                buildDefaultTemplate(job)
+                resolveTemplate(job)
         );
 
         byte[] bytes = exportReportPort.exportReport(exportInfo);
@@ -104,6 +104,35 @@ public class AuxiliaryBookReportGenerator {
             return job.getBookType().name();
         }
         return job != null ? job.getEntId() : null;
+    }
+
+    /**
+     * Devuelve el template del job si fue enviado desde el frontend al crear/actualizar.
+     * Si está incompleto, completa con defaults para evitar que el renderer falle.
+     */
+    private AuxiliaryBookTemplate resolveTemplate(ScheduledAuxiliaryBookJob job) {
+        AuxiliaryBookTemplate jobTemplate = job != null ? job.getTemplate() : null;
+        AuxiliaryBookTemplate defaults = buildDefaultTemplate(job);
+
+        if (jobTemplate == null) {
+            log.info("[ReportGenerator] No template stored on job, using defaults.");
+            return defaults;
+        }
+
+        return AuxiliaryBookTemplate.builder()
+                .id(jobTemplate.getId() != null ? jobTemplate.getId() : defaults.getId())
+                .name(jobTemplate.getName() != null && !jobTemplate.getName().isBlank()
+                        ? jobTemplate.getName() : defaults.getName())
+                .pathLogotype(jobTemplate.getPathLogotype())
+                .alienation(jobTemplate.getAlienation() != null
+                        ? jobTemplate.getAlienation() : defaults.getAlienation())
+                .font(jobTemplate.getFont() != null && !jobTemplate.getFont().isBlank()
+                        ? jobTemplate.getFont() : defaults.getFont())
+                .fontSize(jobTemplate.getFontSize() != null && jobTemplate.getFontSize() > 0
+                        ? jobTemplate.getFontSize() : defaults.getFontSize())
+                .mainColor(jobTemplate.getMainColor() != null && !jobTemplate.getMainColor().isBlank()
+                        ? jobTemplate.getMainColor() : defaults.getMainColor())
+                .build();
     }
 
     private AuxiliaryBookTemplate buildDefaultTemplate(ScheduledAuxiliaryBookJob job) {

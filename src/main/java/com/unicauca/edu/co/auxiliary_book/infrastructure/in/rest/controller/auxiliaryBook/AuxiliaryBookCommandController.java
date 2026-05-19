@@ -2,6 +2,8 @@ package com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.controller.aux
 
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.mapper.IAuxilia
 import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.mapper.IExportRestMapper;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @brief Controlador REST de comandos para libros auxiliares.
@@ -32,6 +35,7 @@ import lombok.RequiredArgsConstructor;
  * de aplicación y utiliza mappers para transformar DTOs de la capa
  * REST al dominio y viceversa.
  */
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auxiliary-books")
@@ -43,6 +47,8 @@ public class AuxiliaryBookCommandController {
     private final IExportReportPort jasperReportGeneratorPort;
     private final IExportRestMapper exportRestMapper;
 
+    private final ObjectMapper objectMapper;
+
     @GetMapping("/test")
     public ResponseEntity<?> test() {
         return ResponseEntity.ok("Auxiliary Book Command Controller is working!");
@@ -50,6 +56,11 @@ public class AuxiliaryBookCommandController {
 
     @PostMapping("/register")
     public ResponseEntity<ResponseDTO<AuxiliaryBookResponseDTO>> registerAuxiliaryBook(@Validated @RequestBody GenerateAuxiliaryBookRequest request) {
+        try {
+            log.info("[AuxBook] /register payload completo: {}", objectMapper.writeValueAsString(request));
+        } catch (JsonProcessingException e) {
+            log.warn("[AuxBook] No se pudo serializar el request para log: {}", e.getMessage());
+        }
         AuxiliaryBook auxBookRegistered = this.auxiliaryBookCommandPort.registerAuxiliaryBook(this.auxiliaryBookRestMapper.toDomain(request));
         List<?> accountingData = this.auxiliaryBookCommandPort.genereteAuxiliaryBookInfo(auxBookRegistered);
         AuxiliaryBookResponseDTO response = new  AuxiliaryBookResponseDTO(auxBookRegistered, accountingData);

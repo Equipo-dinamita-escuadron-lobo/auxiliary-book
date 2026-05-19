@@ -1,79 +1,100 @@
 package com.unicauca.edu.co.auxiliary_book.infrastructure.out.clients.email;
 
 import com.unicauca.edu.co.auxiliary_book.application.ports.out.IEmailSenderPort;
-import com.resend.Resend;
-import com.resend.core.exception.ResendException;
-import com.resend.services.emails.model.Attachment;
-import com.resend.services.emails.model.CreateEmailOptions;
-import com.resend.services.emails.model.CreateEmailResponse;
+import jakarta.annotation.PostConstruct;
+import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import java.util.Base64;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 
 /**
- * @brief Servicio de envío de correos electrónicos usando Resend.
+ * @brief Adapter SMTP de envío de correos para reportes programados.
  *
- * Implementación del puerto {@link IEmailSenderPort} que envía reportes
- * programados con adjuntos codificados en Base64 a través del API de
- * Resend. Valida destinatarios, contenido del adjunto y la presencia
- * de las credenciales/remitente configurados.
+ * Implementa {@link IEmailSenderPort} usando el {@link JavaMailSender}
+ * autoconfigurado por Spring Boot a partir de las propiedades
+ * {@code spring.mail.*}. Soporta cualquier proveedor SMTP estándar
+ * (Gmail, Outlook, etc.). Por defecto usa Gmail con la misma cuenta
+ * registrada en ms-notifications.
+ *
+ * <p>Propiedades consumidas via {@code @Value}:
+ * <ul>
+ *   <li>{@code notification-settings.mail.from}: remitente.</li>
+ *   <li>{@code notification-settings.mail.default-subject}: asunto
+ *       cuando el evento no especifica uno.</li>
+ * </ul>
  */
 @Service
 @Slf4j
 public class EmailService implements IEmailSenderPort {
 
-    private static final String DEFAULT_SUBJECT = "Scheduled report";
-    private static final String DEFAULT_BODY = "Your scheduled report is attached.";
+    private static final String DEFAULT_BODY = "Adjunto encontrarás tu reporte programado.";
     private static final String DEFAULT_FILE_NAME = "scheduled_report.pdf";
 
-    private final String resendApiKey;
-    private final String resendFrom;
+    private final JavaMailSender mailSender;
 
-    public EmailService(
-            @Value("${resend.key:}") String resendApiKey,
-            @Value("${resend.from:}") String resendFrom
-    ) {
-        this.resendApiKey = resendApiKey;
-        this.resendFrom = resendFrom;
+    @Value("${notification-settings.mail.from:}")
+    private String fromEmail;
+
+    @Value("${notification-settings.mail.default-subject:Reporte programado}")
+    private String defaultSubject;
+
+    public EmailService(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
+
+    @PostConstruct
+    void reportConfiguration() {
+        if (!StringUtils.hasText(fromEmail)) {
+            log.warn("[EmailService] notification-settings.mail.from no configurado. "
+                    + "Define MAIL_FROM o agrega 'notification-settings.mail.from' al YAML.");
+        } else {
+            log.info("[EmailService] SMTP ready. from={}", fromEmail);
+        }
     }
 
     @Override
     public void sendReport(String to, String subject, String body, byte[] attachment, String fileName) {
-        List<String> recipients = resolveRecipients(to);
         validateAttachment(attachment);
-        validateConfiguration();
+        List<String> recipients = resolveRecipients(to);
 
-        String resolvedSubject = subject == null || subject.isBlank() ? DEFAULT_SUBJECT : subject;
-        String resolvedBody = body == null || body.isBlank() ? DEFAULT_BODY : body;
-        String resolvedFileName = fileName == null || fileName.isBlank() ? DEFAULT_FILE_NAME : fileName;
+        if (!StringUtils.hasText(fromEmail)) {
+            throw new IllegalStateException(
+                    "notification-settings.mail.from is required to send emails.");
+        }
 
-        Attachment resendAttachment = Attachment.builder()
-                .fileName(resolvedFileName)
-                .content(Base64.getEncoder().encodeToString(attachment))
-                .build();
+        String resolvedSubject = StringUtils.hasText(subject) ? subject : defaultSubject;
+        String resolvedBody = StringUtils.hasText(body) ? body : DEFAULT_BODY;
+        String resolvedFileName = StringUtils.hasText(fileName) ? fileName : DEFAULT_FILE_NAME;
+        String contentType = resolvedFileName.toLowerCase().endsWith(".pdf")
+                ? "application/pdf"
+                : "application/vnd.ms-excel";
 
-        CreateEmailOptions params = CreateEmailOptions.builder()
-                .from(resendFrom)
-                .to(recipients)
-                .subject(resolvedSubject)
-                .text(resolvedBody)
-                .attachments(List.of(resendAttachment))
-                .build();
+        log.info("[EmailService] Sending via SMTP from={} to={} subject={} attachmentBytes={}",
+                fromEmail, recipients, resolvedSubject, attachment.length);
 
         try {
-            CreateEmailResponse response = new Resend(resendApiKey).emails().send(params);
-            log.info(
-                    "Scheduled report email sent via Resend to {} with attachment {}. Subject: {}. EmailId: {}",
-                    recipients,
-                    resolvedFileName,
-                    resolvedSubject,
-                    response != null ? response.getId() : null
-            );
-        } catch (ResendException ex) {
-            throw new IllegalStateException("Resend email delivery failed: " + ex.getMessage(), ex);
+            MimeMessage mime = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(
+                    mime, true, StandardCharsets.UTF_8.name());
+            helper.setFrom(fromEmail);
+            helper.setTo(recipients.toArray(new String[0]));
+            helper.setSubject(resolvedSubject);
+            helper.setText(resolvedBody, false);
+            helper.addAttachment(resolvedFileName, new ByteArrayResource(attachment), contentType);
+
+            mailSender.send(mime);
+            log.info("[EmailService] SMTP email delivered to {}", recipients);
+        } catch (Exception ex) {
+            log.error("[EmailService] SMTP delivery failed: {}", ex.getMessage(), ex);
+            throw new IllegalStateException("Email delivery failed: " + ex.getMessage(), ex);
         }
     }
 
@@ -81,32 +102,19 @@ public class EmailService implements IEmailSenderPort {
         if (to == null || to.isBlank()) {
             throw new IllegalArgumentException("Email recipient is required.");
         }
-
-        List<String> recipients = List.of(to.split("[,;]"))
-                .stream()
+        List<String> recipients = Arrays.stream(to.split("[,;]"))
                 .map(String::trim)
-                .filter(recipient -> !recipient.isBlank())
+                .filter(r -> !r.isBlank())
                 .toList();
-
         if (recipients.isEmpty()) {
             throw new IllegalArgumentException("Email recipient is required.");
         }
-
         return recipients;
     }
 
     private void validateAttachment(byte[] attachment) {
         if (attachment == null || attachment.length == 0) {
             throw new IllegalArgumentException("Attachment content is empty.");
-        }
-    }
-
-    private void validateConfiguration() {
-        if (resendApiKey == null || resendApiKey.isBlank()) {
-            throw new IllegalStateException("Resend API key is not configured.");
-        }
-        if (resendFrom == null || resendFrom.isBlank()) {
-            throw new IllegalStateException("Resend sender address is not configured.");
         }
     }
 }

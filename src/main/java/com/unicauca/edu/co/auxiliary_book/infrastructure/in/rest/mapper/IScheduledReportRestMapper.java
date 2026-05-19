@@ -4,11 +4,17 @@ import java.util.Optional;
 
 import org.mapstruct.Mapper;
 
+import com.unicauca.edu.co.auxiliary_book.domain.models.core.export.AuxiliaryBookTemplate;
+import com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAlignment;
 import com.unicauca.edu.co.auxiliary_book.domain.models.scheduling.DeliveryConfig;
 import com.unicauca.edu.co.auxiliary_book.domain.models.scheduling.ScheduleSpec;
 import com.unicauca.edu.co.auxiliary_book.domain.models.scheduling.ScheduledAuxiliaryBookJob;
 import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.request.CreateScheduledReportRequest;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.request.ScheduledReportTemplateRequest;
 import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.request.UpdateScheduledReportRequest;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.scheduledReport.ScheduledReportListItemResponse;
 import com.unicauca.edu.co.auxiliary_book.infrastructure.in.rest.dto.response.scheduledReport.ScheduledReportResponse;
 
@@ -45,6 +51,7 @@ public interface IScheduledReportRestMapper {
                 request.getFormat(),
                 request.getEmailConfig()
         ));
+        job.setTemplate(toTemplate(request.getInfoReportTemplate()));
         return job;
     }
 
@@ -69,7 +76,45 @@ public interface IScheduledReportRestMapper {
                 request.getFormat(),
                 request.getEmailConfig()
         ));
+        job.setTemplate(toTemplate(request.getInfoReportTemplate()));
         return job;
+    }
+
+    default AuxiliaryBookTemplate toTemplate(ScheduledReportTemplateRequest request) {
+        if (request == null) {
+            return null;
+        }
+        AuxiliaryBookTemplate template = new AuxiliaryBookTemplate();
+        template.setId(request.getId());
+        template.setName(request.getName());
+        template.setPathLogotype(parseUrl(request.getPathLogotype()));
+        template.setAlienation(parseAlignment(request.getAlienation()));
+        template.setFont(request.getFont());
+        template.setFontSize(request.getFontSize());
+        template.setMainColor(request.getMainColor());
+        return template;
+    }
+
+    default URL parseUrl(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return new URL(value.trim());
+        } catch (MalformedURLException ex) {
+            return null;
+        }
+    }
+
+    default EAlignment parseAlignment(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return EAlignment.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
     }
 
     default ScheduledReportResponse toResponse(ScheduledAuxiliaryBookJob job) {

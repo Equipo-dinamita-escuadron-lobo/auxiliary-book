@@ -15,11 +15,6 @@ spring:
     console:
       enabled: true
 
-  rabbitmq:
-    listener:
-      simple:
-        auto-startup: false
-
   security:
     oauth2:
       resourceserver:

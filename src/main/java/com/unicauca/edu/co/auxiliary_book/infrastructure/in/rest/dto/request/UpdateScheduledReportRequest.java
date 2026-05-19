@@ -55,4 +55,6 @@ public class UpdateScheduledReportRequest {
     private EAuxiliaryBookFormat format;
 
     private EmailConfig emailConfig;
+
+    private ScheduledReportTemplateRequest infoReportTemplate;
 }

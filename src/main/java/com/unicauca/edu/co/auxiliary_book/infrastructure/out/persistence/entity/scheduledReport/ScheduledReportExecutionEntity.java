@@ -55,7 +55,7 @@ public class ScheduledReportExecutionEntity {
     @Column
     private String errorCode;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String errorMessage;
 
     @Column

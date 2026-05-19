@@ -4,6 +4,7 @@ import com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook.AccountD
 import com.unicauca.edu.co.auxiliary_book.application.dto.auxiliaryBook.AccountingMovementBookDTO;
 import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.AccountingInfoProcessor;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
+import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.CriteriaRange;
 import com.unicauca.edu.co.auxiliary_book.domain.models.enums.ECriteriaType;
 import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
 import lombok.NoArgsConstructor;
@@ -49,6 +50,12 @@ public class AccountingMovementStrategy implements IProcessStrategy {
 
     private static final int MONEY_SCALE = 2;
 
+    private static final String DEFAULT_STATE = "REGISTRADO";
+    private static final String DEFAULT_THIRD_PARTY_ID = "N/A";
+    private static final String DEFAULT_THIRD_PARTY_NAME = "Sin Tercero";
+    private static final String DEFAULT_VOUCHER_TYPE = "N/A";
+    private static final String DEFAULT_NATURE = "debito";
+
     @Override
     public List<?> process(
             AuxiliaryBookCriteria criteria,
@@ -66,9 +73,18 @@ public class AccountingMovementStrategy implements IProcessStrategy {
         LocalDate startDate = criteria.getStartDate();
         LocalDate endDate = criteria.getEndDate();
 
+        ECriteriaType criteriaType = criteria.getCriteriaType() != null
+                ? criteria.getCriteriaType()
+                : ECriteriaType.AUXILIARY_ACCOUNT;
+
+        // ── 0. Filtros: estructura mínima + rango defensivo ─────────────────
+        //   El rango ya se aplicó en AuxiliaryBookCriteriaProcessor, pero
+        //   replicamos el filtro aquí para garantizar que ningún movimiento
+        //   fuera del rango llegue al resultado, sin importar la ruta de entrada.
         List<AccountingInfo> validData = allAccountingData.stream()
                 .filter(Objects::nonNull)
                 .filter(this::hasMinimumStructure)
+                .filter(info -> matchesRange(info, criteria, criteriaType))
                 .toList();
 
         if (validData.isEmpty()) {
@@ -91,68 +107,75 @@ public class AccountingMovementStrategy implements IProcessStrategy {
             return Collections.emptyList();
         }
 
-        ECriteriaType criteriaType = criteria.getCriteriaType() != null
-                ? criteria.getCriteriaType()
-                : ECriteriaType.AUXILIARY_ACCOUNT;
+        // ── 2. Resolver naturaleza por cuenta (último valor visto, defensivo) ─
+        //   La naturaleza se conserva por código de cuenta para que el cálculo
+        //   del saldo sea consistente aunque algunos asientos vengan sin ella.
+        Map<Long, String> natureByAccount = resolveNatureByAccount(validData);
 
-        // ── 2. Calcular saldos iniciales por grupo (acumulado hasta startDate-1) ──
-        Map<Long, AccountDTO> accountsByGroup = buildAccountsByGroup(validData, criteriaType);
-        Map<Long, BigDecimal> initialBalanceByGroup = calculateInitialBalances(previousPeriodData, criteriaType, accountsByGroup);
+        // ── 3. Saldo inicial por cuenta exacta (acumulado hasta startDate-1) ──
+        //   El Libro de Movimientos se lleva por cuenta, no por agrupación.
+        //   La agrupación (criteriaType) solo se usa para filtrar el alcance.
+        Map<Long, BigDecimal> initialBalanceByAccount =
+                calculateInitialBalancesByAccount(previousPeriodData, natureByAccount);
 
-        // ── 3. Agrupar el periodo actual por comprobante (tipo + número) ────
-        //    Dentro de cada comprobante, ordenar por fecha y luego por código de grupo.
+        // ── 4. Agrupar periodo actual por comprobante (tipo + número) ───────
         Map<String, List<AccountingInfo>> byVoucher = currentPeriodData.stream()
                 .collect(Collectors.groupingBy(
                         this::buildVoucherKey,
-                        LinkedHashMap::new,   // preserva orden de inserción
+                        LinkedHashMap::new,
                         Collectors.toList()
                 ));
 
-        // Ordenar los comprobantes por la fecha del primer asiento del comprobante
+        // Ordenar comprobantes por la fecha del primer asiento del comprobante,
+        // y como criterio de desempate, por la clave del comprobante.
         List<Map.Entry<String, List<AccountingInfo>>> sortedVouchers = byVoucher.entrySet().stream()
-                .sorted(Comparator.comparing(e -> e.getValue().stream()
-                        .map(AccountingInfo::getDate)
-                        .min(Date::compareTo)
-                        .orElse(new Date(0))))
+                .sorted(Comparator
+                        .<Map.Entry<String, List<AccountingInfo>>, Date>comparing(e -> e.getValue().stream()
+                                .map(AccountingInfo::getDate)
+                                .min(Date::compareTo)
+                                .orElse(new Date(0)))
+                        .thenComparing(Map.Entry::getKey))
                 .toList();
 
-        // ── 4. Construir filas del libro ────────────────────────────────────
-        //    El saldo neto se acumula por grupo a lo largo de TODOS los comprobantes.
-        Map<Long, BigDecimal> runningBalanceByGroup = new HashMap<>(initialBalanceByGroup);
+        // ── 5. Construir filas del libro ────────────────────────────────────
+        //   El saldo corriente se acumula por código de cuenta a lo largo de
+        //   todos los comprobantes. Cada fila refleja el saldo justo antes
+        //   y justo después del asiento.
+        Map<Long, BigDecimal> runningBalanceByAccount = new HashMap<>(initialBalanceByAccount);
         List<AccountingMovementBookDTO> result = new ArrayList<>();
 
         for (Map.Entry<String, List<AccountingInfo>> voucherEntry : sortedVouchers) {
 
             List<AccountingInfo> voucherMovements = voucherEntry.getValue().stream()
                     .sorted(Comparator.comparing(AccountingInfo::getDate)
-                            .thenComparing(info -> extractGroupingKey(info, criteriaType))
                             .thenComparing(info -> info.getAccount().getCode()))
                     .toList();
 
             for (AccountingInfo info : voucherMovements) {
-                Long groupCode = extractGroupingKey(info, criteriaType);
-                AccountDTO accountDTO = accountsByGroup.getOrDefault(groupCode, new AccountDTO(
-                        info.getAccount().getNature(),
-                        groupCode,
-                        normalizeText(info.getAccount().getName())
-                ));
+                Long accountCode = info.getAccount().getCode();
+                String nature = natureByAccount.getOrDefault(accountCode,
+                        defaultIfBlank(info.getAccount().getNature(), DEFAULT_NATURE));
 
-                BigDecimal currentInitialBalance = runningBalanceByGroup.getOrDefault(groupCode, BigDecimal.ZERO);
+                BigDecimal initialBalance = runningBalanceByAccount.getOrDefault(accountCode, BigDecimal.ZERO);
                 BigDecimal debit = extractDebit(info);
                 BigDecimal credit = extractCredit(info);
-                String nature = accountDTO.getNature();
+                BigDecimal netMovement = calculateNetBalance(initialBalance, debit, credit, nature);
+                runningBalanceByAccount.put(accountCode, netMovement);
 
-                BigDecimal netMovement = calculateNetBalance(currentInitialBalance, debit, credit, nature);
-                runningBalanceByGroup.put(groupCode, netMovement);
+                AccountDTO accountDTO = new AccountDTO(
+                        nature,
+                        accountCode,
+                        defaultIfBlank(info.getAccount().getName(), "Cuenta " + accountCode)
+                );
 
                 result.add(new AccountingMovementBookDTO(
                         resolveVoucherType(info),
                         formato.format(info.getDate()),
-                        resolveVoucherType(info),
-                        normalizeText(info.getThirdPartyId()),
-                        "",
+                        DEFAULT_STATE,
+                        defaultIfBlank(info.getThirdPartyId(), DEFAULT_THIRD_PARTY_ID),
+                        DEFAULT_THIRD_PARTY_NAME,
                         accountDTO,
-                        scale(currentInitialBalance),
+                        scale(initialBalance),
                         scale(debit),
                         scale(credit),
                         scale(netMovement)
@@ -181,7 +204,7 @@ public class AccountingMovementStrategy implements IProcessStrategy {
     }
 
     // -------------------------------------------------------------------------
-    // Grouping helpers
+    // Range / grouping helpers
     // -------------------------------------------------------------------------
 
     private Long extractGroupingKey(AccountingInfo info, ECriteriaType criteriaType) {
@@ -195,41 +218,35 @@ public class AccountingMovementStrategy implements IProcessStrategy {
         });
     }
 
-    private Map<Long, AccountDTO> buildAccountsByGroup(List<AccountingInfo> data, ECriteriaType criteriaType) {
-        Map<Long, List<AccountingInfo>> grouped = data.stream()
-                .collect(Collectors.groupingBy(
-                        info -> extractGroupingKey(info, criteriaType),
-                        TreeMap::new,
-                        Collectors.toList()
-                ));
+    private boolean matchesRange(AccountingInfo info, AuxiliaryBookCriteria criteria, ECriteriaType criteriaType) {
+        CriteriaRange range = criteria.getCriteriaRange();
+        if (range == null) {
+            return true;
+        }
+        Long from = range.getFromRange();
+        Long to = range.getToRange();
+        if (from == null && to == null) {
+            return true;
+        }
+        Long key = extractGroupingKey(info, criteriaType);
+        return (from == null || key.compareTo(from) >= 0)
+                && (to == null || key.compareTo(to) <= 0);
+    }
 
-        Map<Long, AccountDTO> result = new HashMap<>();
-        grouped.forEach((groupCode, items) -> {
-            AccountingInfo ref = items.stream()
-                    .filter(info -> groupCode.toString().equals(info.getAccount().getCode().toString()))
-                    .findFirst()
-                    .orElseGet(() -> items.stream()
-                            .min(Comparator.comparingInt((AccountingInfo i) -> i.getAccount().getCode().toString().length())
-                                    .thenComparing(i -> i.getAccount().getCode()))
-                            .orElse(items.get(0)));
-            String description = items.stream()
-                    .filter(info -> groupCode.toString().equals(info.getAccount().getCode().toString()))
-                    .map(info -> info.getAccount().getName())
-                    .filter(n -> n != null && !n.isBlank())
-                    .findFirst()
-                    .orElseGet(() -> items.stream()
-                            .sorted(Comparator.comparingInt((AccountingInfo i) -> i.getAccount().getCode().toString().length())
-                                    .thenComparing(i -> i.getAccount().getCode()))
-                            .map(info -> info.getAccount().getName())
-                            .filter(n -> n != null && !n.isBlank())
-                            .findFirst()
-                            .orElse(""));
-            result.put(groupCode, new AccountDTO(
-                    ref.getAccount().getNature(),
-                    groupCode,
-                    normalizeText(description)
-            ));
-        });
+    /**
+     * Resuelve la naturaleza (débito/crédito) a usar para cada cuenta. Se queda
+     * con la primera no-vacía vista en los datos válidos. Esto blinda el cálculo
+     * del saldo cuando algunos asientos no traen explícita la naturaleza.
+     */
+    private Map<Long, String> resolveNatureByAccount(List<AccountingInfo> data) {
+        Map<Long, String> result = new HashMap<>();
+        for (AccountingInfo info : data) {
+            Long code = info.getAccount().getCode();
+            String nature = info.getAccount().getNature();
+            if (nature != null && !nature.isBlank()) {
+                result.putIfAbsent(code, nature.trim());
+            }
+        }
         return result;
     }
 
@@ -237,27 +254,30 @@ public class AccountingMovementStrategy implements IProcessStrategy {
     // Balance calculation
     // -------------------------------------------------------------------------
 
-    private Map<Long, BigDecimal> calculateInitialBalances(
+    /**
+     * Calcula el saldo neto de cada cuenta exacta acumulando los movimientos
+     * anteriores al inicio del periodo. La naturaleza se toma del mapa
+     * pre-resuelto; si falta, se asume débito.
+     */
+    private Map<Long, BigDecimal> calculateInitialBalancesByAccount(
             List<AccountingInfo> previousPeriodData,
-            ECriteriaType criteriaType,
-            Map<Long, AccountDTO> accountsByGroup) {
+            Map<Long, String> natureByAccount) {
 
         Map<Long, BigDecimal> balances = new HashMap<>();
 
         for (AccountingInfo info : previousPeriodData) {
-            Long groupCode = extractGroupingKey(info, criteriaType);
-            String nature = accountsByGroup.containsKey(groupCode)
-                    ? accountsByGroup.get(groupCode).getNature()
-                    : info.getAccount().getNature();
-            BigDecimal current = balances.getOrDefault(groupCode, BigDecimal.ZERO);
-            balances.put(groupCode, calculateNetBalance(current, extractDebit(info), extractCredit(info), nature));
+            Long code = info.getAccount().getCode();
+            String nature = natureByAccount.getOrDefault(code,
+                    defaultIfBlank(info.getAccount().getNature(), DEFAULT_NATURE));
+            BigDecimal current = balances.getOrDefault(code, BigDecimal.ZERO);
+            balances.put(code, calculateNetBalance(current, extractDebit(info), extractCredit(info), nature));
         }
 
         return balances;
     }
 
     private BigDecimal calculateNetBalance(BigDecimal initial, BigDecimal debit, BigDecimal credit, String nature) {
-        if ("credito".equalsIgnoreCase(nature)) {
+        if ("credito".equalsIgnoreCase(nature) || "crédito".equalsIgnoreCase(nature)) {
             return initial.subtract(debit).add(credit);
         }
         return initial.add(debit).subtract(credit);
@@ -316,5 +336,9 @@ public class AccountingMovementStrategy implements IProcessStrategy {
 
     private String normalizeText(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private String defaultIfBlank(String value, String fallback) {
+        return (value == null || value.isBlank()) ? fallback : value.trim();
     }
 }
