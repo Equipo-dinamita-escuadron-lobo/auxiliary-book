@@ -95,7 +95,7 @@ public class SendEmailStep implements IJobCommand {
 
     private String buildAttachmentName(ScheduledAuxiliaryBookJob job, EAuxiliaryBookFormat format) {
         String baseName = job.getBookType() != null ? job.getBookType().name() : "AuxiliaryBook";
-        String extension = format == EAuxiliaryBookFormat.EXCEL ? ".xls" : ".pdf";
+        String extension = format == EAuxiliaryBookFormat.EXCEL ? ".xlsx" : ".pdf";
         return baseName + "_scheduled_report" + extension;
     }
 }

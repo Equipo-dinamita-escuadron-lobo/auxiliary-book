@@ -75,7 +75,7 @@ public class EmailService implements IEmailSenderPort {
         String resolvedFileName = StringUtils.hasText(fileName) ? fileName : DEFAULT_FILE_NAME;
         String contentType = resolvedFileName.toLowerCase().endsWith(".pdf")
                 ? "application/pdf"
-                : "application/vnd.ms-excel";
+                : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
         log.info("[EmailService] Sending via SMTP from={} to={} subject={} attachmentBytes={}",
                 fromEmail, recipients, resolvedSubject, attachment.length);

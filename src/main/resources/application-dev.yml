@@ -72,6 +72,9 @@ services:
 
   third-service:
     base-url: lb://THIRDS
+    # Mock activo por defecto mientras el microservicio real de terceros no esté disponible.
+    # Para volver a usar el cliente WebClient real, establecer en "false".
+    mock-enabled: ${THIRD_SERVICE_MOCK_ENABLED:true}
 
 scheduled:
   reports:

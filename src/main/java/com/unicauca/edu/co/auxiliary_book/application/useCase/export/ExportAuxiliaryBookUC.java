@@ -83,7 +83,7 @@ public class ExportAuxiliaryBookUC implements IExportReportPort {
                     reportGenerator.generate(exportInfo).toPdf(baos);
                     break;
                 case EXCEL:
-                    reportGenerator.generate(exportInfo).toXls(baos);
+                    reportGenerator.generate(exportInfo).toXlsx(baos);
                     break;
                 default:
                     throw new IllegalArgumentException("Unsupported format: " + exportInfo.getFormat());
@@ -172,8 +172,8 @@ public class ExportAuxiliaryBookUC implements IExportReportPort {
                 headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + fileName + ".pdf");
                 break;
             case EXCEL:
-                headers.add(HttpHeaders.CONTENT_TYPE, "application/vnd.ms-excel");
-                headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + fileName + ".xls");
+                headers.add(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + fileName + ".xlsx");
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported format: " + format);

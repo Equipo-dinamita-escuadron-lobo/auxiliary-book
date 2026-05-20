@@ -268,7 +268,7 @@ class ResponseDTOTest {
             OutputStream outputStream = invocation.getArgument(0);
             outputStream.write(new byte[]{9, 8});
             return report;
-        }).when(report).toXls(Mockito.any(OutputStream.class));
+        }).when(report).toXlsx(Mockito.any(OutputStream.class));
 
         byte[] result = exportAuxiliaryBookUC.exportReport(exportInfo);
 
@@ -347,10 +347,10 @@ class ResponseDTOTest {
         Assertions.assertThat(pdfHeaders.getFirst(HttpHeaders.CONTENT_DISPOSITION))
                 .contains("ACCOUNT_")
                 .endsWith(".pdf");
-        Assertions.assertThat(excelHeaders.getFirst(HttpHeaders.CONTENT_TYPE)).isEqualTo("application/vnd.ms-excel");
+        Assertions.assertThat(excelHeaders.getFirst(HttpHeaders.CONTENT_TYPE)).isEqualTo("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         Assertions.assertThat(excelHeaders.getFirst(HttpHeaders.CONTENT_DISPOSITION))
                 .contains("ACCOUNTING_MOVEMENT_")
-                .endsWith(".xls");
+                .endsWith(".xlsx");
     }
 
     private List<String> columnNames(JasperReportBuilder report) {

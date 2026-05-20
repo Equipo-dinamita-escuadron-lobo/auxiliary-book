@@ -44,7 +44,7 @@ public class ScheduledReportDownloadController {
 
     private MediaType resolveMediaType(EAuxiliaryBookFormat format) {
         if (format == EAuxiliaryBookFormat.EXCEL) {
-            return MediaType.parseMediaType("application/vnd.ms-excel");
+            return MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
         return MediaType.APPLICATION_PDF;
     }

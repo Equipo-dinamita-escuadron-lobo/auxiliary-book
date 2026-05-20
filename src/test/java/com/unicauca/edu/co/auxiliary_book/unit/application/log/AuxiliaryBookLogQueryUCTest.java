@@ -196,7 +196,7 @@ class AuxiliaryBookLogQueryUCTest {
                 "Asunto custom",
                 "Cuerpo custom",
                 attachment,
-                "ACCOUNTING_MOVEMENT_scheduled_report.xls"
+                "ACCOUNTING_MOVEMENT_scheduled_report.xlsx"
         );
         Assertions.assertThat(execution.getDeliveryStatus()).isEqualTo(EDeliveryStatus.EMAIL_SENT);
         Assertions.assertThat(execution.getErrorMessage()).isNull();
