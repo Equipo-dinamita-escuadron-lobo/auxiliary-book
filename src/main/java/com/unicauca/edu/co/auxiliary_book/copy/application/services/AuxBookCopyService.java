@@ -684,7 +684,7 @@ public class AuxBookCopyService implements IExecuteAuxBookCopyPhasePort {
                 if (fontSizeObj instanceof Number n) nuevo.setTemplateFontSize(n.intValue());
                 nuevo.setTemplateMainColor(toStr(repMap.get("templateMainColor")));
 
-                // Criteria del reporte (sin remap de FKs — uso simplificado igual que DUPLICATE)
+                // Criteria del reporte con remap de FKs cross-service
                 if (repMap.get("criteria") instanceof Map<?, ?> critRaw) {
                     Map<String, Object> critMap = (Map<String, Object>) critRaw;
                     AuxiliaryBookCriteriaEntity crit = new AuxiliaryBookCriteriaEntity();
@@ -697,9 +697,38 @@ public class AuxBookCopyService implements IExecuteAuxBookCopyPhasePort {
                             advertencias.add("ScheduledReport criteria: criteriaType desconocido '" + critTypeStr + "'.");
                         }
                     }
-                    crit.setFromRange(toLong(critMap.get("fromRange")));
-                    crit.setToRange(toLong(critMap.get("toRange")));
-                    crit.setThirdPartyId(toStr(critMap.get("thirdPartyId")));
+
+                    // Remap fromRange vía CATALOGUE
+                    Long fromRangeOrig = toLong(critMap.get("fromRange"));
+                    if (fromRangeOrig != null) {
+                        Long fromRangeNew = catalogueIndex.get(fromRangeOrig);
+                        if (fromRangeNew == null) {
+                            advertencias.add("ScheduledReport criteria: fromRange=" + fromRangeOrig + " sin equivalencia en CATALOGUE; conservado.");
+                            crit.setFromRange(fromRangeOrig);
+                        } else {
+                            crit.setFromRange(fromRangeNew);
+                        }
+                    }
+
+                    // Remap toRange vía CATALOGUE
+                    Long toRangeOrig = toLong(critMap.get("toRange"));
+                    if (toRangeOrig != null) {
+                        Long toRangeNew = catalogueIndex.get(toRangeOrig);
+                        crit.setToRange(toRangeNew != null ? toRangeNew : toRangeOrig);
+                    }
+
+                    // Remap thirdPartyId vía THIRDS
+                    String thirdOrig = toStr(critMap.get("thirdPartyId"));
+                    if (thirdOrig != null) {
+                        String thirdNew = thirdsIndex.get(thirdOrig);
+                        if (thirdNew == null) {
+                            advertencias.add("ScheduledReport criteria: thirdPartyId=" + thirdOrig + " sin equivalencia en THIRDS; conservado.");
+                            crit.setThirdPartyId(thirdOrig);
+                        } else {
+                            crit.setThirdPartyId(thirdNew);
+                        }
+                    }
+
                     crit.setCostCenterId(toStr(critMap.get("costCenterId")));
                     String startDateStr = toStr(critMap.get("startDate"));
                     if (startDateStr != null) crit.setStartDate(java.time.LocalDate.parse(startDateStr));
