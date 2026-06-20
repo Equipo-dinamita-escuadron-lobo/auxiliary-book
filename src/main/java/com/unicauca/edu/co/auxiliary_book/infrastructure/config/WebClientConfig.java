@@ -8,11 +8,14 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.support.WebClientAdapter;
-import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
 /**
- * Configuración centralizada para WebClient y el cliente HTTP para el microservicio de Stock.
+ * @brief Configuración central de {@link WebClient} para llamadas HTTP salientes.
+ *
+ * Expone un builder genérico con propagación automática del token JWT
+ * presente en el contexto de seguridad y un builder anotado con
+ * {@code @LoadBalanced} para resolver nombres de servicios registrados
+ * en el discovery (por ejemplo "lb://STOCK").
  */
 @Configuration
 public class WebClientConfig {
@@ -24,11 +27,11 @@ public class WebClientConfig {
     }
 
     /**
-     * Crea un bean de WebClient.Builder que ya está preparado para el balanceo de carga.
-     * La anotación @LoadBalanced es crucial para que Spring Cloud pueda resolver
-     * los nombres de servicio registrados en Eureka (ej. "lb://STOCK").
+     * Creates a WebClient.Builder bean that is already prepared for load balancing.
+     * The @LoadBalanced annotation is crucial for Spring Cloud to resolve
+     * service names registered in Eureka (e.g., "lb://STOCK").
      *
-     * @return Un WebClient.Builder configurado.
+     * @return A configured WebClient.Builder.
      */
     @Bean
     @LoadBalanced
@@ -37,33 +40,33 @@ public class WebClientConfig {
     }
 
     /**
-     * Define un filtro para WebClient que propaga el token JWT.
-     * Este filtro se ejecutará en cada petición saliente.
-     * Extrae el token JWT del contexto de seguridad de la petición entrante
-     * y lo añade como un encabezado "Authorization" a la petición saliente.
+     * Defines a filter for WebClient that propagates the JWT token.
+     * This filter will run on every outgoing request.
+     * It extracts the JWT token from the security context of the incoming request
+     * and adds it as an "Authorization" header to the outgoing request.
      *
-     * @return Un ExchangeFilterFunction que añade el header de autorización.
+     * @return An ExchangeFilterFunction that adds the authorization header.
      */
     private ExchangeFilterFunction jwtPropagationFilter() {
         return (clientRequest, next) -> {
-            // Obtiene la autenticación actual del contexto de seguridad
+            // Gets the current authentication from the security context
             var authentication = SecurityContextHolder.getContext().getAuthentication();
 
-            // Verifica si la autenticación es de tipo JWT
+            // Checks if the authentication is of type JWT
             if (authentication instanceof JwtAuthenticationToken jwtAuth) {
-                // Extrae el valor del token (el string)
+                // Extracts the token value (the string)
                 String tokenValue = jwtAuth.getToken().getTokenValue();
 
-                // Clona la petición original y le añade el encabezado de autorización
+                // Clones the original request and adds the authorization header
                 ClientRequest newRequest = ClientRequest.from(clientRequest)
                         .header("Authorization", "Bearer " + tokenValue)
                         .build();
 
-                // Continúa la cadena de filtros con la nueva petición
+                // Continues the filter chain with the new request
                 return next.exchange(newRequest);
             }
 
-            // Si no hay token, continúa con la petición original
+            // If there is no token, continue with the original request
             return next.exchange(clientRequest);
         };
     }

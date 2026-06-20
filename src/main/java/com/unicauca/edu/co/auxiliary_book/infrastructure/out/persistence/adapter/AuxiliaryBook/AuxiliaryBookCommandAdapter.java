@@ -9,6 +9,14 @@ import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.reposit
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+/**
+ * @brief Adaptador para las operaciones de escritura del libro auxiliar.
+ *
+ * Implementa {@link IAuxiliaryBookCommandRepositoryPort} persistiendo
+ * los libros auxiliares en el almacén subyacente. Transforma el
+ * dominio en entidad JPA y asegura el mapeo explícito del agregado
+ * de criterios antes de guardar.
+ */
 @Component
 @RequiredArgsConstructor
 public class AuxiliaryBookCommandAdapter implements IAuxiliaryBookCommandRepositoryPort {
@@ -17,6 +25,11 @@ public class AuxiliaryBookCommandAdapter implements IAuxiliaryBookCommandReposit
     private final IAuxiliaryBookCriteriaCommandEntityMapper auxiliaryBookCriteriaCommandEntityMapper;
     private final IAuxiliaryBookRepository auxiliaryBookRepository;
 
+    /**
+     * @brief Persiste un libro auxiliar.
+     * @param auxiliaryBook Libro auxiliar a guardar.
+     * @return Libro auxiliar persistido con los identificadores generados.
+     */
     @Override
     public AuxiliaryBook registerAuxiliaryBook(AuxiliaryBook auxiliaryBook) {
 

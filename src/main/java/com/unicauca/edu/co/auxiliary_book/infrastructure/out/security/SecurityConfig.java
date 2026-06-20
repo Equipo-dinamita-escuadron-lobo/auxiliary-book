@@ -11,6 +11,14 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * @brief Configuracion de seguridad HTTP de la aplicacion.
+ *
+ * Deshabilita CSRF, permite acceso publico a Swagger/actuator y al
+ * stream SSE de notificaciones, exige autenticacion para el resto,
+ * utiliza JWT (resource server) y establece sesion sin estado. CORS
+ * se delega al API Gateway que sirve como entrada de las peticiones.
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -20,30 +28,13 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthConverter jwtAuthConverter;
 
-    /**
-     * Este método configura la cadena de filtros de seguridad. Deshabilita la
-     * protección CSRF,
-     * y para los puntos de conexión /swagger-ui/** y /v3/api-docs/**, permite
-     * acceso anónimo.
-     * Para todos los demás puntos de conexión, requiere autenticación.
-     *
-     * También configura el convertidor de autenticación JWT y especifica que la
-     * aplicación
-     * debe utilizar JWTs para la autenticación.
-     *
-     * Finalmente, establece la política de creación de sesión en STATELESS.
-     *
-     * @param httpSecurity El objeto HttpSecurity a configurar
-     * @return La cadena de filtros de seguridad a utilizar
-     * @throws Exception Si hay un error al configurar la cadena de filtros de
-     *                   seguridad
-     */
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(http -> http
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**","/actuator/**").permitAll()
+                        .requestMatchers("/api/notifications/stream").permitAll()
                         .anyRequest()
                         .authenticated())
                 .oauth2ResourceServer(oauth -> {
@@ -52,5 +43,4 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
-
 }

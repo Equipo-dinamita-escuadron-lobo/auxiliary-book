@@ -8,6 +8,14 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+/**
+ * @brief Modelo de dominio con los criterios de generación de un libro auxiliar.
+ *
+ * Agrupa los filtros aplicables al generar un libro: tipo de nivel y rango
+ * de cuentas, centro de costo, tercero, tipo de comprobante y rango de
+ * fechas (startDate/endDate). Ofrece utilidades para verificar la presencia
+ * de rango y obtener una representación textual de los criterios.
+ */
 @Builder
 @Data
 @AllArgsConstructor
@@ -22,10 +30,22 @@ public class AuxiliaryBookCriteria {
     private String costCenterId;
     private String thirdPartyId;
 
+    private String voucherType;
+
     private LocalDate startDate;
     private LocalDate endDate;
 
     public boolean hasRange() {
         return criteriaRange != null;
+    }
+
+    @Override
+    public String toString(){
+        return "Tipo de criterio: " + criteriaType + ", Rango: " + (hasRange() ? criteriaRange.toString() : "N/A") +
+                ", Centro de costo: " + (costCenterId != null ? costCenterId : "N/A") +
+                ", Tercero: " + (thirdPartyId != null ? thirdPartyId : "N/A") +
+                ", Tipo de comprobante: " + (voucherType != null ? voucherType : "N/A") +
+                ", Fecha inicio: " + (startDate != null ? startDate.toString() : "N/A") +
+                ", Fecha fin: " + (endDate != null ? endDate.toString() : "N/A");
     }
 }

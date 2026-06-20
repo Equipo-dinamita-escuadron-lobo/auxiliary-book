@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+**/src/test/**/integration/newman-report.json
+**/src/test/**/integration/newman-report.htmlsrc/test/java/com/unicauca/edu/co/auxiliary_book/integration/newman-report.json
+src/test/java/com/unicauca/edu/co/auxiliary_book/integration/newman-report*.json
+src/test/java/com/unicauca/edu/co/auxiliary_book/integration/newman/

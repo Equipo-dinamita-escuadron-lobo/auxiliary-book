@@ -4,6 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @brief Modelo de dominio para una cuenta contable.
+ *
+ * Identifica la cuenta por su código, naturaleza (débito/crédito) y
+ * nombre descriptivo dentro del plan contable.
+ */
 @Data
 @AllArgsConstructor @NoArgsConstructor
 public class Account {

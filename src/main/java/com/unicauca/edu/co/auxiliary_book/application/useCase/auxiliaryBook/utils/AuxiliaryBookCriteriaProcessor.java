@@ -1,24 +1,50 @@
 package com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils;
 
-import com.unicauca.edu.co.auxiliary_book.application.dto.InventoryAndBalancesBookDTO;
-import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoQueryPort;
-import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Objects;
+
+import com.unicauca.edu.co.auxiliary_book.domain.models.enums.ECriteriaType;
+import org.springframework.stereotype.Service;
+
+import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoClient;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.CriteriaRange;
+import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
+
 import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
-
+/**
+ * @brief Servicio que filtra la información contable según los criterios del libro.
+ *
+ * Consume la información contable completa a través del cliente externo y la
+ * filtra por entidad, rango de cuentas, centro de costo, tercero, tipo de
+ * comprobante y fecha hasta {@code endDate}. El filtro por {@code startDate}
+ * se delega a cada estrategia para permitir el cálculo del saldo inicial.
+ */
+@Slf4j
 @Service
 @NoArgsConstructor
 public class AuxiliaryBookCriteriaProcessor {
 
-    public List<AccountingInfo> processAccountingInfo(IAccountingInfoQueryPort queryPort, AuxiliaryBook book) {
+    public List<AccountingInfo> processAccountingInfo(IAccountingInfoClient queryPort, AuxiliaryBook book) {
         AuxiliaryBookCriteria criteria = book.getCriteria();
+        log.info("[AuxBook] Criteria recibido para filtrado: type={}, range={}, costCenter={}, thirdParty={}, startDate={}, endDate={}",
+                criteria.getCriteriaType(),
+                criteria.getCriteriaRange() != null
+                        ? "[" + criteria.getCriteriaRange().getFromRange() + " – " + criteria.getCriteriaRange().getToRange() + "]"
+                        : "null",
+                criteria.getCostCenterId(),
+                criteria.getThirdPartyId(),
+                criteria.getStartDate(),
+                criteria.getEndDate());
         List<AccountingInfo> allAccountData = queryPort.getAllAccountInfo();
-        return this.filterAccountingInfoByCriteria(book,criteria,allAccountData);
+        List<AccountingInfo> filtered = filterAccountingInfoByCriteria(book, criteria, allAccountData);
+        log.info("[AuxBook] Movimientos tras filtro: {} de {} totales", filtered.size(), allAccountData.size());
+        return filtered;
     }
 
     private boolean isInRange(Long value, CriteriaRange range) {
@@ -27,51 +53,78 @@ public class AuxiliaryBookCriteriaProcessor {
     }
 
     private boolean isWithinDateRange(AccountingInfo info, AuxiliaryBookCriteria criteria) {
-        var movementDate = info.getDate();
-        boolean afterStart = criteria.getStartDate() == null || !movementDate.isBefore(criteria.getStartDate());
-        boolean beforeEnd = criteria.getEndDate() == null || !movementDate.isAfter(criteria.getEndDate());
+        LocalDate movementDate = info.getDate().toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+        LocalDate endDate = criteria.getEndDate();
+        return endDate == null || !movementDate.isAfter(endDate);
+    }
 
-        return afterStart && beforeEnd;
+    private Long extractCriteriaValue(String accountCode, ECriteriaType type) {
+        if (accountCode == null || accountCode.isBlank() || type == null) {
+            return null;
+        }
+
+        int size = switch (type) {
+            case NUMBER_CLASS -> 1;
+            case GROUP -> 2;
+            case ACCOUNT -> 4;
+            case SUB_ACCOUNT -> 6;
+            case AUXILIARY_ACCOUNT -> 8;
+        };
+
+        String prefix = accountCode.substring(0, Math.min(accountCode.length(), size));
+        if (!prefix.chars().allMatch(Character::isDigit)) {
+            return null;
+        }
+
+        return Long.parseLong(prefix);
     }
 
     private boolean matchesCriteria(AccountingInfo info, AuxiliaryBookCriteria criteria) {
-        String accCode = info.getAccount().getCode().toString();
-        var range = criteria.getCriteriaRange();
-
-        switch (criteria.getCriteriaType()) {
-            case NUMBER_CLASS -> {
-                long classDigit = Integer.parseInt(accCode.substring(0, 1));
-                return isInRange(classDigit, range);
-            }
-            case GROUP -> {
-                long groupDigits = Integer.parseInt(accCode.substring(0, 2));
-                return isInRange(groupDigits, range);
-            }
-            case ACCOUNT -> {
-                long accDigits = Integer.parseInt(accCode.substring(0, 4));
-                return isInRange(accDigits, range);
-            }
-            case SUB_ACCOUNT -> {
-                long subAcc = Integer.parseInt(accCode.substring(0, 6));
-                return isInRange(subAcc, range);
-            }
-            case AUXILIARY_ACCOUNT -> {
-                long aux = Integer.parseInt(accCode.length() >= 8 ? accCode.substring(0, 8) : accCode);
-                return isInRange(aux, range);
-            }
-            default -> throw new IllegalArgumentException("Criterio no reconocido");
+        if (criteria.getCriteriaType() == null || criteria.getCriteriaRange() == null) {
+            return true;
         }
+
+        Long criteriaValue = extractCriteriaValue(info.getAccount().getCode().toString(), criteria.getCriteriaType());
+        return criteriaValue != null && isInRange(criteriaValue, criteria.getCriteriaRange());
     }
 
     private List<AccountingInfo> filterAccountingInfoByCriteria(
             AuxiliaryBook book,
             AuxiliaryBookCriteria criteria,
-            List<AccountingInfo> all
-    ) {
-        return all.parallelStream()
-                .filter(info -> info.getEntId().equals(book.getEntId()))
+            List<AccountingInfo> all) {
+
+        return all.stream()
+                .filter(Objects::nonNull)
+                .filter(info -> info.getEntId() != null && info.getDate() != null)
+                .filter(info -> info.getAccount() != null && info.getAccount().getCode() != null)
+                .filter(info -> Objects.equals(info.getEntId(), book.getEntId()))
                 .filter(info -> isWithinDateRange(info, criteria))
                 .filter(info -> !criteria.hasRange() || matchesCriteria(info, criteria))
+                .filter(info -> {
+                    if (criteria.getThirdPartyId() == null || criteria.getThirdPartyId().isBlank()) {
+                        return true;
+                    }
+                    return info.getThirdPartyId() != null
+                            && info.getThirdPartyId().trim().equals(criteria.getThirdPartyId().trim());
+                })
+                .filter(info -> {
+                    if (criteria.getCostCenterId() == null || criteria.getCostCenterId().isBlank()) {
+                        return true;
+                    }
+                    return info.getCostCenter() != null
+                            && info.getCostCenter().getCode() != null
+                            && info.getCostCenter().getCode().trim().equals(criteria.getCostCenterId().trim());
+                })
+                .filter(info -> {
+                    if (criteria.getVoucherType() == null || criteria.getVoucherType().isBlank()) {
+                        return true;
+                    }
+                    return info.getVoucher() != null
+                            && info.getVoucher().getType() != null
+                            && info.getVoucher().getType().trim().equals(criteria.getVoucherType().trim());
+                })
                 .toList();
     }
 }

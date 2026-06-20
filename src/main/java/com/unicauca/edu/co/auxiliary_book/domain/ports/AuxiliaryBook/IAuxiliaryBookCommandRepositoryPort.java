@@ -2,12 +2,17 @@ package com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBook;
 
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
 
+/**
+ * @brief Puerto de salida para operaciones de escritura del libro auxiliar.
+ *
+ * Define el contrato para persistir libros auxiliares en el sistema
+ * de almacenamiento.
+ */
 public interface IAuxiliaryBookCommandRepositoryPort {
     /**
-     * Guarda el registro de un libro auxiliar en el repositorio.
-     *
-     * @param auxiliaryBook el libro auxiliar a guardar
-     * @return el objeto AuxiliaryBook guardado
+     * @brief Persiste un nuevo registro de libro auxiliar.
+     * @param auxiliaryBook Libro auxiliar a guardar.
+     * @return Libro auxiliar guardado con los identificadores generados.
      */
     AuxiliaryBook registerAuxiliaryBook(AuxiliaryBook auxiliaryBook);
 }

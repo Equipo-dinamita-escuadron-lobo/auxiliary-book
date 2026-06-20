@@ -4,10 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @brief DTO REST para un comprobante contable.
+ *
+ * Contiene el número y tipo del comprobante usado para identificar
+ * documentos fuente asociados a los movimientos contables.
+ */
 @Data
 @AllArgsConstructor @NoArgsConstructor
 public class VoucherDTO {
-    private Long entId;
-    private String name;
-    private Integer number;
+    private String number;
+    private String type;
 }

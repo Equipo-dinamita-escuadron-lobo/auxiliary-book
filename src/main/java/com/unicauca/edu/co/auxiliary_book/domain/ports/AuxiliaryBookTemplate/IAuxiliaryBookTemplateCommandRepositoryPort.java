@@ -1,13 +1,18 @@
 package com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookTemplate;
 
-import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBookTemplate;
+import com.unicauca.edu.co.auxiliary_book.domain.models.core.export.AuxiliaryBookTemplate;
 
+/**
+ * @brief Puerto de salida para operaciones de escritura de plantillas de libros auxiliares.
+ *
+ * Define el contrato para persistir plantillas de exportación en el
+ * sistema de almacenamiento.
+ */
 public interface IAuxiliaryBookTemplateCommandRepositoryPort {
     /**
-     * Guarda la plantilla de un libro auxiliar en el repositorio.
-     *
-     * @param auxiliaryBookTemplate la plantilla del libro auxiliar a guardar
-     * @return la plantilla del libro auxiliar guardada
+     * @brief Persiste una plantilla de libro auxiliar.
+     * @param auxiliaryBookTemplate Plantilla a guardar.
+     * @return La plantilla guardada con los identificadores generados.
      */
     AuxiliaryBookTemplate registerAuxiliaryBookTemplate(AuxiliaryBookTemplate auxiliaryBookTemplate);
 }

@@ -10,7 +10,12 @@ spring:
       ddl-auto: ${DB_HIBERNATE_DDL_AUTO:create-drop}
     properties:
       hibernate:
+        dialect: ${DB_HIBERNATE_DIALECT:org.hibernate.dialect.PostgreSQLDialect}
         default_schema: ${DB_SCHEMA:public}
+
+  h2:
+    console:
+      enabled: false
 
   security:
     oauth2:
@@ -19,12 +24,28 @@ spring:
           issuer-uri: ${JWT_ISSUER_URI:http://localhost:8090/auth/realms/oauth2-realm}
           jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8090/auth/realms/oauth2-realm/protocol/openid-connect/certs}
 
+  # SMTP para envio directo de correos. Por defecto usa la misma cuenta
+  # Gmail que ms-notifications (modulocarteracontapp@gmail.com) con un
+  # App Password. Override con MAIL_USERNAME/MAIL_PASSWORD si se necesita.
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:modulocarteracontapp@gmail.com}
+    password: ${MAIL_PASSWORD:vqjdnvmhvaxwzxip}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:true}
+          starttls:
+            enable: ${MAIL_SMTP_STARTTLS:true}
+
 server:
   port: ${PORT:0}
 
 eureka:
   instance:
     instance-id: "${spring.application.name}:${random.uuid}"
+    hostname: ${INSTANCE_HOSTNAME:localhost}
   client:
     service-url:
       defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
@@ -39,14 +60,24 @@ jwt:
       principle-attribute: ${JWT_PRINCIPAL_ATTR:preferred_username}
       resource-id: ${JWT_RESOURCE_ID:microservices_client}
 
-resend:
-  key: re_Y1yFQ9gH_Dzy5DD2wT414j72MxFd6nVDi
+# Remitente y asunto por defecto para los correos del reporte programado.
+notification-settings:
+  mail:
+    from: ${MAIL_FROM:modulocarteracontapp@gmail.com}
+    default-subject: ${MAIL_DEFAULT_SUBJECT:Reporte programado}
 
-mock:
-  account-info-url: https://6880fc27f1dcae717b643a8e.mockapi.io/api/accountInfo/accountInfo
+services:
+  account-info-service:
+    base-url: https://6880fc27f1dcae717b643a8e.mockapi.io/api/accountInfo/accountInfo
 
-third-party-api:
-  url: http://contables.unicauca.edu.co/api/thirds/
+  third-service:
+    base-url: lb://THIRDS
+
+scheduled:
+  reports:
+    poller:
+      delay-ms: ${SCHEDULED_REPORTS_POLLER_DELAY_MS:60000}
+      batch-size: ${SCHEDULED_REPORTS_POLLER_BATCH_SIZE:50}
 
 management:
   endpoint:

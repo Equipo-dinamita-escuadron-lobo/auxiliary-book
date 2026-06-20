@@ -2,12 +2,30 @@ package com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.adapte
 
 import com.unicauca.edu.co.auxiliary_book.domain.models.log.AuxiliaryBookLog;
 import com.unicauca.edu.co.auxiliary_book.domain.ports.AuxiliaryBookLog.IAuxiliaryBookLogQueryRepositoryPort;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.mapper.IAuxiliaryBookLogQueryEntityMapper;
+import com.unicauca.edu.co.auxiliary_book.infrastructure.out.persistence.repository.IAuxiliaryBookLogRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
+import java.util.List;
+
+/**
+ * @brief Adaptador para las operaciones de lectura de logs de libros auxiliares.
+ *
+ * Implementa {@link IAuxiliaryBookLogQueryRepositoryPort} consultando
+ * los logs asociados al ID público de un libro auxiliar y mapeándolos
+ * a la representación de dominio.
+ */
+@Component
+@RequiredArgsConstructor
 public class AuxiliaryBookLogQueryAdapter implements IAuxiliaryBookLogQueryRepositoryPort {
+
+    private final IAuxiliaryBookLogQueryEntityMapper abLogQueryEntityMapper;
+    private final IAuxiliaryBookLogRepository abLogRepository;
+
     @Override
-    public Page<AuxiliaryBookLog> findAllByEntId(String entId, Pageable pageable) {
-        return null;
+    public List<AuxiliaryBookLog> findAllByAuxiliaryBookPublicId(String auxiliaryBookId) {
+        return this.abLogQueryEntityMapper.toDomainList(this.abLogRepository.findByAuxiliaryBookPublicId(auxiliaryBookId));
     }
+
 }

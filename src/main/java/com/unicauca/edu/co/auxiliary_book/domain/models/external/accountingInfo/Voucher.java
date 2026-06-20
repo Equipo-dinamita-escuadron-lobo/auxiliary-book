@@ -4,9 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @brief Modelo de dominio para un comprobante contable.
+ *
+ * Almacena el número y el tipo del comprobante que agrupa los
+ * movimientos contables registrados.
+ */
 @Data
 @AllArgsConstructor @NoArgsConstructor
 public class Voucher {
-    private Long number;
+    private String number;
     private String type;
 }

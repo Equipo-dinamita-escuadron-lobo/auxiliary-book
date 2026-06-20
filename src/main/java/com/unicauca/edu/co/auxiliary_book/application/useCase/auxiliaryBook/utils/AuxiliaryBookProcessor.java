@@ -1,119 +1,72 @@
 package com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils;
 
-import com.unicauca.edu.co.auxiliary_book.application.dto.InventoryAndBalancesBookDTO;
-import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoQueryPort;
+import java.util.List;
+
+import com.unicauca.edu.co.auxiliary_book.application.ports.out.IThirdPartyInfoClient;
+import com.unicauca.edu.co.auxiliary_book.application.useCase.auxiliaryBook.utils.strategy.*;
+import org.springframework.stereotype.Service;
+
+import com.unicauca.edu.co.auxiliary_book.application.ports.out.IAccountingInfoClient;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.AuxiliaryBook;
 import com.unicauca.edu.co.auxiliary_book.domain.models.core.criteria.AuxiliaryBookCriteria;
 import com.unicauca.edu.co.auxiliary_book.domain.models.external.accountingInfo.AccountingInfo;
-import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.Comparator;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
+/**
+ * Orquesta la generación de datos para cada tipo de libro auxiliar.
+ *
+ * <p>Delega el pre-filtrado de los datos contables (empresa, rango de cuentas,
+ * centro de costo, tercero, tipo de comprobante y fecha hasta {@code endDate}) a
+ * {@link AuxiliaryBookCriteriaProcessor}.  Luego selecciona la estrategia
+ * correcta según {@link com.unicauca.edu.co.auxiliary_book.domain.models.enums.EAuxiliaryBookType}
+ * y le entrega los datos ya filtrados.</p>
+ *
+ * <p><b>Contrato del filtrado previo:</b> {@code AuxiliaryBookCriteriaProcessor}
+ * filtra hasta {@code endDate} (inclusive) y aplica todos los criterios de negocio
+ * configurados, pero NO aplica filtro de {@code startDate}.  Esto es intencional:
+ * las estrategias que necesitan calcular el saldo inicial (Mayor, Cuenta, Tercero,
+ * Inventario, Movimientos) reciben también los datos del periodo anterior para
+ * poder acumular el saldo histórico.  Cada estrategia es responsable de separar
+ * los periodos internamente.</p>
+ *
+ * <p><b>Inyección de dependencias:</b> Las estrategias que requieren servicios
+ * externos se construyen aquí, donde Spring ya ha resuelto todas las dependencias.
+ * Esto evita el antipatrón de instanciar estrategias con {@code new} dentro de
+ * un switch, que impedía la inyección de clientes como {@link IThirdPartyInfoClient}.</p>
+ */
 @Service
+@RequiredArgsConstructor
 public class AuxiliaryBookProcessor {
+
     private final AccountingInfoProcessor accountingInfoProcessor;
     private final AuxiliaryBookCriteriaProcessor auxiliaryBookCriteriaProcessor;
+    private final IThirdPartyInfoClient thirdPartyInfoClient;
 
-    public AuxiliaryBookProcessor(){
-        this.accountingInfoProcessor = new AccountingInfoProcessor();
-        this.auxiliaryBookCriteriaProcessor = new AuxiliaryBookCriteriaProcessor();
+    public List<?> processAuxiliaryBookData(IAccountingInfoClient accountingInfoQueryPort, AuxiliaryBook book) {
+        AuxiliaryBookCriteria criteria = book.getCriteria();
+        List<AccountingInfo> filteredAccountData =
+                auxiliaryBookCriteriaProcessor.processAccountingInfo(accountingInfoQueryPort, book);
+        IProcessStrategy strategy = resolveStrategy(book);
+        return strategy.process(criteria, filteredAccountData, accountingInfoProcessor);
     }
 
-    public List<?> proccessAuxiliaryBookData(IAccountingInfoQueryPort accountingInfoQueryPort, AuxiliaryBook book){
-
-        AuxiliaryBookCriteria criteria = book.getCriteria();
-        List<AccountingInfo> filteredAccountData = this.auxiliaryBookCriteriaProcessor.processAccountingInfo(accountingInfoQueryPort, book);
-
+    /**
+     * Selecciona e instancia la estrategia correspondiente al tipo de libro.
+     *
+     * <p>Las estrategias sin dependencias externas se instancian directamente.
+     * {@link ThirdPartyStrategy} recibe {@code thirdPartyInfoClient} por
+     * constructor, ya que necesita consultar el microservicio de terceros.</p>
+     */
+    private IProcessStrategy resolveStrategy(AuxiliaryBook book) {
         return switch (book.getType()) {
-            case INVENTORY_AND_BALANCES -> processInventoryAndBalances(criteria, filteredAccountData);
-            case DIARY -> processDiary(criteria, filteredAccountData);
-            case MAYOR_AND_BALANCES -> processMayor(criteria, filteredAccountData);
-            case ACCOUNT -> processAccount(criteria, filteredAccountData);
-            case THIRD_PARTY -> processThirdParty(criteria, filteredAccountData);
-            case TRIAL_BALANCE -> processTrialBalance(criteria, filteredAccountData);
-            case ACCOUNTING_MOVEMENT -> processAccountingMovement(criteria, filteredAccountData);
+            case INVENTORY_AND_BALANCES -> new InventoryAndBalancesStrategy();
+            case DIARY                  -> new DiaryStrategy();
+            case MAJOR_AND_BALANCES     -> new MajorAndBalancesStrategy();
+            case ACCOUNT                -> new AccountStrategy();
+            case THIRD_PARTY            -> new ThirdPartyStrategy(thirdPartyInfoClient);
+            case ACCOUNTING_MOVEMENT    -> new AccountingMovementStrategy();
         };
     }
-
-    private List<InventoryAndBalancesBookDTO> processInventoryAndBalances(
-            AuxiliaryBookCriteria criteria,
-            List<AccountingInfo> data
-    ) {
-        return accountingInfoProcessor.calculateBalancesByCriteriaGroup(
-                        data,
-                        criteria,
-                        (groupKey, groupItems) -> {
-                            // Tomamos el primer item como referencia para info repetida
-                            AccountingInfo reference = groupItems.get(0);
-
-                            // Reducimos en una sola pasada los saldos
-                            BigDecimal totalBalance = groupItems.stream()
-                                    .map(item -> {
-                                        String nature = item.getAccount().getNature();
-                                        double debit = item.getAccountingMovement().getDebit();
-                                        double credit = item.getAccountingMovement().getCredit();
-
-                                        return "debito".equalsIgnoreCase(nature) ? BigDecimal.valueOf(debit) :
-                                                "credito".equalsIgnoreCase(nature) ? BigDecimal.valueOf(-credit) : BigDecimal.ZERO;
-                                    }).reduce(BigDecimal.ZERO, BigDecimal::add);
-
-                            return new InventoryAndBalancesBookDTO(
-                                    groupKey,
-                                    reference.getAccount().getName(),
-                                    reference.getAccountingMovement().getDescription(),
-                                    totalBalance
-                            );
-                        }
-                )
-                // Ordenamos el resultado final por accountCode
-                .stream()
-                .sorted(Comparator.comparing(InventoryAndBalancesBookDTO::getAccountCode))
-                .toList();
-    }
-
-
-
-    private List<AccountingInfo> processDiary(AuxiliaryBookCriteria criteria, List<AccountingInfo> all) {
-
-        // Lógica de procesado segun criterios específicos
-        //TO DO
-        return null;
-    }
-
-    private List<AccountingInfo> processMayor(AuxiliaryBookCriteria criteria, List<AccountingInfo> all) {
-
-        // Lógica de procesado segun criterios específicos
-        //TO DO
-        return null;
-    }
-
-    private List<AccountingInfo> processAccount(AuxiliaryBookCriteria criteria, List<AccountingInfo> all) {
-
-        // Lógica de procesado segun criterios específicos
-        //TO DO
-        return null;
-    }
-
-    private List<AccountingInfo> processThirdParty(AuxiliaryBookCriteria criteria, List<AccountingInfo> all) {
-
-        // Lógica de procesado segun criterios específicos
-        //TO DO
-        return null;
-    }
-
-    private List<AccountingInfo> processTrialBalance(AuxiliaryBookCriteria criteria, List<AccountingInfo> all) {
-
-        // Lógica de procesado segun criterios específicos
-        //TO DO
-        return null;
-    }
-
-    private List<AccountingInfo> processAccountingMovement(AuxiliaryBookCriteria criteria, List<AccountingInfo> all) {
-
-        // Lógica de procesado segun criterios específicos
-        //TO DO
-        return null;
-    }
 }
+
